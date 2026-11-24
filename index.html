@@ -1009,7 +1009,9 @@ function condText(c,st){const[t,n,,a,b]=c;
  if(t==='season'){const on=st.month>=a&&st.month<=b,cnt=seasonCount(a,b,st.dates,st.year),per=a===b?`${a}월`:`${a}~${b}월`;return on?`${per} 시즌 클리어 ${n}회 (${Math.min(cnt,n)}/${n})`:`${per} 시즌 한정 · ${per}에 클리어 ${n}회`}
  if(t==='flag')return FLAGTXT[c[3]]||'';return ''}
 const titleCond=t=>t[2]==='flag'?['flag',0,'',t[0]]:[t[2],t[3]];
-const has=k=>(S.unl||[]).includes(k);
+const ADMIN=['AD3ZC5'];
+const isAdmin=()=>!!(auth&&ADMIN.includes(auth.code));
+const has=k=>isAdmin()||(S.unl||[]).includes(k);
 
 /* ---------- 획득 연출 ---------- */
 let rewardQ=[];
