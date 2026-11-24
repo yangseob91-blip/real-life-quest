@@ -184,6 +184,7 @@ input.code{font-size:20px;text-transform:uppercase}
 .wardrobe .wc{flex:none;width:72px;border:2px solid var(--ink);border-radius:10px;background:#fffaf0;padding:4px 0;font-size:13px;line-height:1.2;cursor:pointer;scroll-snap-align:start;color:var(--ink)}
 .wardrobe .wc.on{background:var(--gold)}.wardrobe .wc canvas{display:block;margin:0 auto;width:42px;height:48px}
 .ftitle{color:#c97c0c;font-size:15px}
+.adm{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:10px 0;padding:8px 10px;border:2px dashed #c97c0c;border-radius:10px;background:#fff4d6}.adm b{font-weight:400;color:#c97c0c;margin-right:4px}.adm .btn{min-height:36px;padding:4px 10px;font-size:15px}
 /* toast + evolution */
 #toast{pointer-events:none;position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));z-index:70;transform:translate(-50%,calc(100% + 60px));transition:transform .3s;background:var(--ink);color:#fff;border:3px solid #ffd23f;border-radius:12px;padding:10px 16px;font-size:18px;max-width:92vw;text-align:center}
 #toast.on{transform:translate(-50%,0)}
@@ -940,6 +941,7 @@ function openDetail(id,confirmDel){
  <div><h2 style="margin:0">${esc(h.name)}</h2><div class="sub">${STAGE[I.stage-1]} ${cname(h.cls,h.gen)} · <span class="lv">LV.${I.lv}</span></div><div class="task">${esc(h.task)}</div><div class="bar${I.lv>=99?' max':''}"><i style="width:${I.pct}%"></i></div></div></div>
  <div class="stats"><div><b>${I.state==='wait'?'D-'+(1-I.day):I.state==='over'?'종료':I.day+'일차'}</b>${h.days}일 원정</div><div><b>${I.n}회</b>클리어</div><div><b>${I.streak}일</b>연속</div><div><b>${Math.round(I.n/h.days*100)}%</b>달성률</div></div>
  ${I.fx?`<p class="muted">연속 이펙트: <b>${FXN[I.fx-1]}</b>${I.fx<FX.length?` · 연속 ${FX[I.fx]}일이면 ${FXN[I.fx]}`:''} (마지막 클리어 후 3일까지 유지)</p>`:''}
+ ${isAdmin()?`<div class="adm"><b>운영자</b><button type="button" class="btn ghost" data-act="adm" data-id="${esc(h.id)}" data-n="-1">-1일</button><button type="button" class="btn ghost" data-act="adm" data-id="${esc(h.id)}" data-n="1">+1일</button><button type="button" class="btn ghost" data-act="adm" data-id="${esc(h.id)}" data-n="stage">다음 진화까지</button></div>`:''}
  ${wardrobe(h,I)}
  <h3>진화의 길</h3><div class="road">${road}</div>
  <h3>원정 기록</h3><div class="cal">${cal}</div>
@@ -1088,6 +1090,13 @@ function unlockAudio(){const a=ac();if(!a)return;try{const b=a.createBuffer(1,1,
 // 브라우저가 허락하면 터치 없이 바로 재생 (PC 등). 아이폰은 첫 터치 때 시작
 setTimeout(()=>{try{const a=ac();if(a&&a.state==='running'){audioReady=true;startBgm()}}catch(e){}},300);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stopBgm();else if(audioReady)startBgm()});
+// 운영자: 지난 날짜에 클리어 기록을 채워서 미리 키워보기
+function admLevel(id,n){if(!isAdmin())return;const h=hero(id);if(!h)return;const a=info(h);
+ const add=()=>{let d=today();while(h.checks.includes(d))d=addD(d,-1);h.checks.push(d);h.checks.sort()};
+ if(n==='-1'){if(!h.checks.length)return;h.checks.shift()}
+ else if(n==='stage'){let k=0;while(info(h).stage===a.stage&&info(h).lv<99&&k++<2000)add()}
+ else add();
+ const b=info(h);save();render();if(b.stage>a.stage){closeModal();evolve(h,b.stage,b.lv)}else{sfx(n==='-1'?'undo':'up');openDetail(id);toast(`Lv.${b.lv} · 클리어 ${b.n}회`)}}
 function exportBackup(){
  const blob=new Blob([JSON.stringify({app:'real-life-quest',v:2,saved:new Date().toISOString(),...S},null,1)],{type:'application/json'});
  const name=`현실퀘스트-백업-${today()}.json`,file=new File([blob],name,{type:'application/json'});
@@ -1102,7 +1111,7 @@ $('#imp').addEventListener('change',async e=>{const f=e.target.files[0];e.target
 document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)return;const id=b.dataset.id,ac0=b.dataset.act;
  if(!['check','bgm','sfx','wear','settitle','collection','coltitle','new'].includes(ac0))sfx(ac0==='close'||ac0==='evoclose'?'close':'tap');
  ({new:()=>{sfx('open');openForm()},demo,close:closeModal,check:()=>toggle(id),open:()=>openDetail(id),edit:()=>openForm(id),askdel:()=>openDetail(id,true),
-   del:()=>{S.heroes=S.heroes.filter(h=>h.id!==id);save();render();closeModal();toast('용사가 마을을 떠났어요')},evoclose:()=>{$('#evo').hidden=true;showNextReward()},collection:()=>{sfx('open');openCollection()},coltitle:()=>{sfx('open');openCollection('title')},coltab:()=>openCollection(b.dataset.t),settitle:()=>{S.title=b.dataset.t||'';save();sfx('title');render();openCollection('title')},wear:()=>{const h=hero(id);if(!h)return;h.cos=b.dataset.c||'';save();render();sfx('poke');openDetail(id)},bgm:toggleBgm,sfx:toggleSfx,copycode:copyCode,friends:openFriends,sharefc:shareFC,unfriend:()=>unfriend(id,b),pin:openPin,logout:openLogout,dologout:doLogout,export:exportBackup,import:()=>$('#imp').click(),doimport:()=>{if(!pendingImport)return;S=pendingImport;pendingImport=null;ents.forEach(e=>e.tag.remove());ents.clear();save();render();closeModal();toast('백업을 불러왔어요')}})[b.dataset.act]?.()});
+   del:()=>{S.heroes=S.heroes.filter(h=>h.id!==id);save();render();closeModal();toast('용사가 마을을 떠났어요')},evoclose:()=>{$('#evo').hidden=true;showNextReward()},collection:()=>{sfx('open');openCollection()},coltitle:()=>{sfx('open');openCollection('title')},coltab:()=>openCollection(b.dataset.t),settitle:()=>{S.title=b.dataset.t||'';save();sfx('title');render();openCollection('title')},wear:()=>{const h=hero(id);if(!h)return;h.cos=b.dataset.c||'';save();render();sfx('poke');openDetail(id)},bgm:toggleBgm,sfx:toggleSfx,adm:()=>admLevel(id,b.dataset.n),copycode:copyCode,friends:openFriends,sharefc:shareFC,unfriend:()=>unfriend(id,b),pin:openPin,logout:openLogout,dologout:doLogout,export:exportBackup,import:()=>$('#imp').click(),doimport:()=>{if(!pendingImport)return;S=pendingImport;pendingImport=null;ents.forEach(e=>e.tag.remove());ents.clear();save();render();closeModal();toast('백업을 불러왔어요')}})[b.dataset.act]?.()});
 
 /* ---------- 타이틀 ---------- */
 const splash=$('#splash');let parading=true;
