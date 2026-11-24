@@ -191,6 +191,7 @@ input.code{font-size:20px;text-transform:uppercase}
 .fhinfo{flex:1;min-width:0;font-size:14px;line-height:1.3}.fhinfo b{font-weight:400;font-size:16px}.fhinfo small{color:#c97c0c}.ftask{display:block;color:#5a4636;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cheer{flex:none;min-height:40px;min-width:58px;border:2px solid var(--ink);border-radius:10px;background:#ff8fb6;color:var(--ink);font-size:15px;cursor:pointer}.cheer.done{background:#e8dcc4;color:#8a7a68;cursor:default}
 .freq{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#fff4d6;border:2px dashed #c97c0c;border-radius:10px;padding:6px 10px;margin-bottom:6px}.freq b{font-weight:400;font-size:17px}.freq span{display:flex;gap:6px}.freq .btn{min-height:38px;padding:4px 12px}
+.steps{padding-left:22px;line-height:1.7;margin:8px 0}
 /* toast + evolution */
 #toast{pointer-events:none;position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));z-index:70;transform:translate(-50%,calc(100% + 60px));transition:transform .3s;background:var(--ink);color:#fff;border:3px solid #ffd23f;border-radius:12px;padding:10px 16px;font-size:18px;max-width:92vw;text-align:center}
 #toast.on{transform:translate(-50%,0)}
@@ -266,7 +267,7 @@ input.code{font-size:20px;text-transform:uppercase}
   <div class="backup"><button class="btn ghost" data-act="export">백업 파일 저장</button><button class="btn ghost" data-act="import">백업 불러오기</button></div>
   <input type="file" id="imp" accept=".json,application/json" hidden>
   <p class="mytitle"><button type="button" class="mini" data-act="patch">업데이트 소식</button> · <button type="button" class="mini" data-act="coltitle" id="myTitle">칭호 달기</button></p>
-  <div class="backup"><button class="btn ghost" data-act="sfx" id="sfxT">효과음 켜짐</button><button class="btn ghost" data-act="bgm" id="bgmT">배경음악 켜짐</button></div>
+  <div class="backup"><button class="btn ghost" data-act="sfx" id="sfxT">효과음 켜짐</button><button class="btn ghost" data-act="bgm" id="bgmT">배경음악 켜짐</button><button class="btn ghost" data-act="push" id="pushT">알림 켜기</button></div>
   <p class="credit">현실퀘스트 · made by 양섭 · © 2026</p>
 </main>
 
@@ -708,7 +709,7 @@ $('#fLogin').addEventListener('submit',async e=>{e.preventDefault();const f=e.ta
  if(code.length!==6)return authMsg('login','회원코드 6자리를 입력해 주세요.');if(!/^\d{6}$/.test(pin))return authMsg('login','비밀번호는 숫자 6자리예요.');
  busy(f,true);try{const r=await rpc('rq_login',{p_code:code,p_pin:pin});
   if(!r.ok)authMsg('login',errText(r));else{setAuth({code:r.code,token:r.token});setDirty(false);S=clean(r.data);try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
-   if(typeof ents!=='undefined'){ents.forEach(e=>e.tag.remove());ents.clear()}f.reset();authEl.hidden=true;render();syncLine();checkUnlocks(true);setTimeout(checkInbox,2500);setTimeout(()=>showPatch(),600);toast(`<b>${esc(r.code)}</b> 다시 오신 걸 환영해요!`)}}
+   if(typeof ents!=='undefined'){ents.forEach(e=>e.tag.remove());ents.clear()}f.reset();authEl.hidden=true;render();syncLine();checkUnlocks(true);setTimeout(checkInbox,2500);setTimeout(resyncPush,3500);setTimeout(()=>showPatch(),600);toast(`<b>${esc(r.code)}</b> 다시 오신 걸 환영해요!`)}}
  catch(err){authMsg('login','인터넷 연결을 확인해 주세요.')}busy(f,false)});
 $('#revealOk').addEventListener('click',()=>{authEl.hidden=true;render();toast('광장에 오신 걸 환영해요!')});
 async function copyCode(){try{await navigator.clipboard.writeText(auth.code);toast('회원코드를 복사했어요')}catch(e){toast(`회원코드: <b>${esc(auth.code)}</b>`)}}
@@ -782,13 +783,37 @@ async function checkInbox(){if(!auth||!ONLINE||inboxBusy)return;inboxBusy=true;
  catch(e){}finally{inboxBusy=false}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(checkInbox,1500)});
 setInterval(()=>{if(!document.hidden)checkInbox()},180000);
+/* ---------- 푸시 알림 ---------- */
+const IOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const STANDALONE=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+const pushOK=()=>'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window;
+function b64u(s){const p='='.repeat((4-s.length%4)%4),b=atob((s+p).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from(b,c=>c.charCodeAt(0))}
+async function pushState(){if(!pushOK())return 'no';if(Notification.permission==='denied')return 'denied';try{const r=await navigator.serviceWorker.getRegistration();const s=r&&await r.pushManager.getSubscription();return s?'on':'off'}catch(e){return 'off'}}
+async function pushUI(){const b=$('#pushT');if(!b)return;const st=await pushState();b.textContent=st==='on'?'알림 켜짐':'알림 켜기';b.dataset.st=st}
+async function saveSub(s){const j=s.toJSON();return rpc('rq_push_subscribe',{p_token:auth.token,p_endpoint:j.endpoint,p_p256dh:j.keys.p256dh,p_auth:j.keys.auth})}
+async function togglePush(){
+ if(!auth){toast('로그인하면 알림을 받을 수 있어요');return}
+ if(IOS&&!STANDALONE){openModal(`<h2>알림 받는 법</h2><p>아이폰은 <b>홈 화면에 추가한 앱</b>에서만 알림을 받을 수 있어요.</p><ol class="steps"><li>사파리 아래 <b>공유 버튼</b>을 눌러요</li><li><b>홈 화면에 추가</b>를 눌러요</li><li>홈 화면의 현실퀘스트 아이콘으로 열고, <b>알림 켜기</b>를 다시 눌러요</li></ol><p class="muted">iOS 16.4 이상에서 돼요.</p><div class="foot"><button type="button" class="btn" data-act="close">알겠어요</button></div>`);return}
+ if(!pushOK()){toast('이 브라우저는 알림을 지원하지 않아요');return}
+ const b=$('#pushT'),st=b&&b.dataset.st;
+ try{const reg=await navigator.serviceWorker.ready;
+  if(st==='on'){const s=await reg.pushManager.getSubscription();if(s){rpc('rq_push_unsubscribe',{p_token:auth.token,p_endpoint:s.endpoint}).catch(()=>{});await s.unsubscribe()}toast('알림을 껐어요');pushUI();return}
+  const perm=await Notification.requestPermission();
+  if(perm!=='granted'){toast(perm==='denied'?'알림이 막혀 있어요. 폰 설정에서 현실퀘스트 알림을 허용해 주세요':'알림을 켜지 않았어요');pushUI();return}
+  const k=await fetch(API.url+'/functions/v1/push',{headers:{apikey:API.key,Authorization:'Bearer '+API.key}}).then(r=>r.json());if(!k.publicKey)throw 0;
+  let s=await reg.pushManager.getSubscription();if(!s)s=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(k.publicKey)});
+  const r=await saveSub(s);if(r.ok){sfx('unlock');toast('알림을 켰어요! 응원·친구 요청과 밤 9시 리마인더가 와요')}else if(r.error==='NO_SESSION')sessionLost();else throw 0}
+ catch(e){toast('알림을 켜지 못했어요. 잠시 뒤 다시 해 주세요')}
+ pushUI()}
+// 로그인할 때마다 이 폰의 알림 구독을 내 계정에 다시 연결
+async function resyncPush(){if(!auth||!pushOK()||Notification.permission!=='granted')return;try{const reg=await navigator.serviceWorker.getRegistration();const s=reg&&await reg.pushManager.getSubscription();if(s)await saveSub(s)}catch(e){}}
 async function shareFC(){const fc=FR.me&&FR.me.friend_code;if(!fc)return;const text=`현실퀘스트에서 같이 퀘스트 깨요! 내 친구코드: ${fc}\n${location.origin+location.pathname}`;
  if(navigator.share){try{await navigator.share({text});return}catch(e){if(e&&e.name==='AbortError')return}}
  try{await navigator.clipboard.writeText(text);toast('친구코드와 앱 주소를 복사했어요')}catch(e){toast(`친구코드: <b>${esc(fc)}</b>`)}}
 async function unfriend(fc,btn){if(btn.dataset.sure!=='1'){btn.dataset.sure='1';btn.textContent='정말 끊을까요? 한 번 더 누르기';return}
  try{const r=await rpc('rq_remove_friend',{p_token:auth.token,p_friend_code:fc});if(r.ok){toast('친구를 끊었어요');openFriends()}}catch(e){frMsg('인터넷 연결을 확인해 주세요.')}}
 function bootAuth(){try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
- if(!ONLINE){syncLine();return}if(auth){syncLine();pull();setTimeout(checkInbox,4500)}else showAuth(S.heroes.length?'new':'new')}
+ if(!ONLINE){syncLine();return}if(auth){syncLine();pull();setTimeout(checkInbox,4500);setTimeout(resyncPush,6000)}else showAuth(S.heroes.length?'new':'new')}
 const hero=id=>S.heroes.find(h=>h.id===id);
 
 /* ---------- 마을 광장 ---------- */
@@ -1202,8 +1227,8 @@ function admLevel(id,n){if(!isAdmin())return;const h=hero(id);if(!h)return;const
  const b=info(h);save();render();if(b.stage>a.stage){closeModal();evolve(h,b.stage,b.lv)}else{sfx(n==='-1'?'undo':'up');openDetail(id);toast(`Lv.${b.lv} · 클리어 ${b.n}회`)}}
 
 /* ---------- 패치노트 ---------- */
-const PATCH_V='2026-11-25a';
-const PATCH_NOTES=[['친구 응원하기','친구 용사에게 하루 한 번 응원을 보낼 수 있어요. 응원받은 용사 위로 하트가 떠요.'],['친구 요청·수락','친구코드를 넣으면 요청이 가고, 상대가 수락해야 친구가 돼요. 친구끼리는 서로의 퀘스트 내용이 보여요.'],['진화 20단계','5레벨마다 진화! 단계마다 보석·별·빛의 고리가 하나씩 늘어나요.'],['새 직업 11종 (총 20종)','격투가·음유시인·닌자·연금술사·드루이드·해적·발명가·소환사·성기사·인어·학자'],['헤어 82가지','스타일 9종 x 색 9종 + 대머리. 용사 정보 수정에서 바꿀 수 있어요.'],['컬렉션','동물·시즌 옷 47벌, 칭호 26개. 첫 클리어부터 옷을 받아요.'],['연속 클리어 이펙트','3일부터 반짝이, 100일엔 무지개 오라. 마지막 클리어 후 3일까지 유지돼요.'],['효과음·배경음악','오른쪽 위 ♪ 버튼으로 끄고 켤 수 있어요.']];
+const PATCH_V='2026-11-25b';
+const PATCH_NOTES=[['푸시 알림','화면 아래 "알림 켜기"를 누르면 응원·친구 요청 알림과 밤 9시 리마인더가 와요. 아이폰은 홈 화면에 추가한 앱에서 켜 주세요.'],['친구 응원하기','친구 용사에게 하루 한 번 응원을 보낼 수 있어요. 응원받은 용사 위로 하트가 떠요.'],['친구 요청·수락','친구코드를 넣으면 요청이 가고, 상대가 수락해야 친구가 돼요. 친구끼리는 서로의 퀘스트 내용이 보여요.'],['진화 20단계','5레벨마다 진화! 단계마다 보석·별·빛의 고리가 하나씩 늘어나요.'],['새 직업 11종 (총 20종)','격투가·음유시인·닌자·연금술사·드루이드·해적·발명가·소환사·성기사·인어·학자'],['헤어 82가지','스타일 9종 x 색 9종 + 대머리. 용사 정보 수정에서 바꿀 수 있어요.'],['컬렉션','동물·시즌 옷 47벌, 칭호 26개. 첫 클리어부터 옷을 받아요.'],['연속 클리어 이펙트','3일부터 반짝이, 100일엔 무지개 오라. 마지막 클리어 후 3일까지 유지돼요.'],['효과음·배경음악','오른쪽 위 ♪ 버튼으로 끄고 켤 수 있어요.']];
 function showPatch(force){try{if(!force&&localStorage.getItem('rq-patch')===PATCH_V)return}catch(e){}
  if(!force&&(!$('#auth').hidden||!modal.hidden||!$('#evo').hidden))return;
  try{localStorage.setItem('rq-patch',PATCH_V)}catch(e){}
@@ -1222,7 +1247,7 @@ $('#imp').addEventListener('change',async e=>{const f=e.target.files[0];e.target
 document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)return;const id=b.dataset.id,ac0=b.dataset.act;
  if(!['check','bgm','sfx','wear','settitle','collection','coltitle','new'].includes(ac0))sfx(ac0==='close'||ac0==='evoclose'?'close':'tap');
  ({new:()=>{sfx('open');openForm()},demo,close:closeModal,check:()=>toggle(id),open:()=>openDetail(id),edit:()=>openForm(id),askdel:()=>openDetail(id,true),
-   del:()=>{S.heroes=S.heroes.filter(h=>h.id!==id);save();render();closeModal();toast('용사가 마을을 떠났어요')},evoclose:()=>{$('#evo').hidden=true;showNextReward()},collection:()=>{sfx('open');openCollection()},coltitle:()=>{sfx('open');openCollection('title')},coltab:()=>openCollection(b.dataset.t),settitle:()=>{S.title=b.dataset.t||'';save();sfx('title');render();openCollection('title')},wear:()=>{const h=hero(id);if(!h)return;h.cos=b.dataset.c||'';save();render();sfx('poke');openDetail(id)},bgm:toggleBgm,sfx:toggleSfx,cheer:()=>cheer(b),facc:()=>respondFriend(id,true),frej:()=>respondFriend(id,false),fcancel:()=>cancelRequest(id),patch:()=>showPatch(true),adm:()=>admLevel(id,b.dataset.n),copycode:copyCode,friends:openFriends,sharefc:shareFC,unfriend:()=>unfriend(id,b),pin:openPin,logout:openLogout,dologout:doLogout,export:exportBackup,import:()=>$('#imp').click(),doimport:()=>{if(!pendingImport)return;S=pendingImport;pendingImport=null;ents.forEach(e=>e.tag.remove());ents.clear();save();render();closeModal();toast('백업을 불러왔어요')}})[b.dataset.act]?.()});
+   del:()=>{S.heroes=S.heroes.filter(h=>h.id!==id);save();render();closeModal();toast('용사가 마을을 떠났어요')},evoclose:()=>{$('#evo').hidden=true;showNextReward()},collection:()=>{sfx('open');openCollection()},coltitle:()=>{sfx('open');openCollection('title')},coltab:()=>openCollection(b.dataset.t),settitle:()=>{S.title=b.dataset.t||'';save();sfx('title');render();openCollection('title')},wear:()=>{const h=hero(id);if(!h)return;h.cos=b.dataset.c||'';save();render();sfx('poke');openDetail(id)},bgm:toggleBgm,sfx:toggleSfx,push:togglePush,cheer:()=>cheer(b),facc:()=>respondFriend(id,true),frej:()=>respondFriend(id,false),fcancel:()=>cancelRequest(id),patch:()=>showPatch(true),adm:()=>admLevel(id,b.dataset.n),copycode:copyCode,friends:openFriends,sharefc:shareFC,unfriend:()=>unfriend(id,b),pin:openPin,logout:openLogout,dologout:doLogout,export:exportBackup,import:()=>$('#imp').click(),doimport:()=>{if(!pendingImport)return;S=pendingImport;pendingImport=null;ents.forEach(e=>e.tag.remove());ents.clear();save();render();closeModal();toast('백업을 불러왔어요')}})[b.dataset.act]?.()});
 
 /* ---------- 타이틀 ---------- */
 const splash=$('#splash');let parading=true;
@@ -1235,7 +1260,7 @@ Promise.race([document.fonts.load('22px "Do Hyeon"'),new Promise(r=>setTimeout(r
  });
 
 addEventListener('resize',()=>{clearTimeout(window.__rz);window.__rz=setTimeout(layout,120)});
-layout();render();requestAnimationFrame(frame);bootAuth();soundUI();setTimeout(()=>checkUnlocks(true),3200);
+layout();render();requestAnimationFrame(frame);bootAuth();soundUI();pushUI();setTimeout(()=>checkUnlocks(true),3200);
 setInterval(render,60000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)render()});
 if('serviceWorker' in navigator&&location.protocol!=='file:'){const had=!!navigator.serviceWorker.controller;let reloaded=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(had&&!reloaded){reloaded=true;location.reload()}});navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{r.update();document.addEventListener('visibilitychange',()=>{if(!document.hidden)r.update()})}).catch(()=>{})}
