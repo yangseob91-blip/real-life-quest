@@ -151,6 +151,20 @@ input.code{font-size:20px;text-transform:uppercase}
 #splash .sign{position:absolute;bottom:max(18px,env(safe-area-inset-bottom))}
 .wm{position:absolute;left:10px;bottom:10px;font-size:13px;color:#fff;background:rgba(27,20,40,.6);border-radius:999px;padding:3px 9px 2px;pointer-events:none}
 .credit{margin-top:26px;text-align:center;font-size:14px;color:#7f83b8}
+/* 친구 */
+.bbtn{display:flex;gap:8px;flex-wrap:wrap}
+.mycode{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#1b1f3b;color:#fff;border:3px solid var(--ink);border-radius:12px;padding:10px 12px}
+.mycode b{font-size:20px;color:#ffd23f;font-weight:400}.mycode span{font-size:15px;color:#c7c9ee}.mycode .btn{margin-left:auto;min-height:40px}
+.muted{color:#7a5a48;font-size:15px;margin:8px 0}
+.row2{display:flex;gap:8px;align-items:flex-end}.row2 label{flex:1}.row2 .btn{flex:none}
+.fcard{background:#fffaf0;border:3px solid var(--ink);border-radius:12px;padding:10px 12px;margin-bottom:10px}
+.fhead{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:baseline}.fhead b{font-size:20px;font-weight:400}
+.fstat{font-size:15px;color:#2f8a42}
+.fheroes{display:flex;gap:6px;overflow-x:auto;padding:6px 0}
+.fh{flex:none;width:64px;text-align:center;font-size:13px;line-height:1.2;border-radius:8px;padding:4px 2px;background:#f1deb6}
+.fh.ok{background:#d9f2c6}.fh canvas{display:block;margin:0 auto;width:42px;height:48px}
+.fh span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.fh small{color:#c97c0c}
+.fact{text-align:right}.mini{border:0;background:none;color:#a05a48;font-size:14px;text-decoration:underline;cursor:pointer;min-height:32px}
 /* toast + evolution */
 #toast{pointer-events:none;position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));z-index:70;transform:translate(-50%,calc(100% + 60px));transition:transform .3s;background:var(--ink);color:#fff;border:3px solid #ffd23f;border-radius:12px;padding:10px 16px;font-size:18px;max-width:92vw;text-align:center}
 #toast.on{transform:translate(-50%,0)}
@@ -219,7 +233,7 @@ input.code{font-size:20px;text-transform:uppercase}
 </section>
 
 <main>
-  <div class="bhead"><h2 id="bh">오늘의 퀘스트</h2><button class="btn blue" data-act="new">+ 새 퀘스트</button></div>
+  <div class="bhead"><h2 id="bh">오늘의 퀘스트</h2><div class="bbtn"><button class="btn ghost" data-act="friends" id="friendsBtn" hidden>친구</button><button class="btn blue" data-act="new">+ 새 퀘스트</button></div></div>
   <div id="list"></div>
   <p class="note" id="sync">기록은 이 폰에 저장돼요.</p>
   <div class="backup" id="acct" hidden><button class="btn ghost" data-act="copycode">회원코드 <span id="myCode" class="code"></span></button><button class="btn ghost" data-act="pin">비밀번호 바꾸기</button><button class="btn ghost" data-act="logout">로그아웃</button></div>
@@ -401,7 +415,7 @@ let auth=null,dirty=false,pushing=false,pushAgain=false,pushT=0;
 try{auth=JSON.parse(localStorage.getItem(AKEY)||'null');dirty=localStorage.getItem(DKEY)==='1'}catch(e){}
 const setDirty=v=>{dirty=v;try{localStorage.setItem(DKEY,v?'1':'0')}catch(e){}};
 async function rpc(fn,args){const r=await fetch(API.url+'/rest/v1/rpc/'+fn,{method:'POST',headers:{'Content-Type':'application/json',apikey:API.key,Authorization:'Bearer '+API.key},body:JSON.stringify(args)});if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}
-function syncLine(t){setSync(t||(!ONLINE?'기록은 이 폰에 저장돼요. 폰을 바꾸기 전에 백업 파일을 저장해 두세요.':dirty?'저장 대기 중… 인터넷이 연결되면 자동으로 저장돼요.':'기록이 서버에 저장됐어요. 다른 기기에서도 회원코드로 이어서 할 수 있어요.'));const a=$('#acct');if(a)a.hidden=!(ONLINE&&auth);const c=$('#myCode');if(c&&auth)c.textContent=auth.code}
+function syncLine(t){setSync(t||(!ONLINE?'기록은 이 폰에 저장돼요. 폰을 바꾸기 전에 백업 파일을 저장해 두세요.':dirty?'저장 대기 중… 인터넷이 연결되면 자동으로 저장돼요.':'기록이 서버에 저장됐어요. 다른 기기에서도 회원코드로 이어서 할 수 있어요.'));const a=$('#acct');if(a)a.hidden=!(ONLINE&&auth);const fb=$('#friendsBtn');if(fb)fb.hidden=!(ONLINE&&auth);const c=$('#myCode');if(c&&auth)c.textContent=auth.code}
 async function push(){
  if(!ONLINE||!auth)return;if(pushing){pushAgain=true;return}pushing=true;
  try{const r=await rpc('rq_save',{p_token:auth.token,p_data:{heroes:S.heroes}});if(r.ok)setDirty(false);else if(r.error==='NO_SESSION'){pushing=false;return sessionLost()}}catch(e){}
@@ -459,6 +473,45 @@ function openLogout(){openModal(`<h2>로그아웃</h2><p>이 기기에서 로그
 async function doLogout(){const t=auth&&auth.token;closeModal();clearLocal();showAuth('login');try{if(t)await rpc('rq_logout',{p_token:t})}catch(e){}}
 addEventListener('online',()=>{if(dirty)push()});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)pull()});
+/* ---------- 친구 ---------- */
+let FR={me:null,list:[]};
+const FERR={NOT_FOUND:'그 친구코드를 가진 모험가가 없어요.',SELF:'내 친구코드예요. 친구의 코드를 넣어 주세요.',ALREADY:'이미 친구예요.',TOO_MANY:'친구는 50명까지 추가할 수 있어요.',NICK_FORMAT:'이름은 1~12자로 정해 주세요.'};
+const frMsg=t=>{const p=$('#frErr');if(p)p.textContent=t};
+async function openFriends(){
+ if(!auth)return;openModal(`<h2>친구</h2><div id="frBody"><p class="muted">불러오는 중…</p></div>`);
+ try{const [p,f]=await Promise.all([rpc('rq_profile',{p_token:auth.token}),rpc('rq_friends',{p_token:auth.token})]);
+  if(p.error==='NO_SESSION'||f.error==='NO_SESSION'){closeModal();return sessionLost()}
+  if(!p.ok||!f.ok)throw 0;FR.me=p;FR.list=f.friends||[];drawFriends()}
+ catch(e){const b=$('#frBody');if(b)b.innerHTML='<p>인터넷 연결을 확인해 주세요.</p><div class="foot"><button class="btn ghost" data-act="close">닫기</button></div>'}
+}
+function friendCard(fr){
+ const hs=clean({heroes:fr.heroes}).heroes,act=hs.filter(h=>info(h).state==='on'),done=act.filter(h=>info(h).done).length;
+ const top=[...hs].sort((a,b)=>info(b).lv-info(a).lv);
+ return `<div class="fcard"><div class="fhead"><b>${esc(fr.nick)}</b><span class="fstat">${act.length?`오늘 ${done}/${act.length} 클리어`:'진행 중인 원정 없음'}</span></div>
+ <div class="fheroes">${top.length?top.map(h=>{const I=info(h);return `<div class="fh${I.done?' ok':''}"><canvas data-spr="${h.cls}|${I.stage}"></canvas><span>${esc(h.name)}</span><small>Lv.${I.lv}</small></div>`}).join(''):'<p class="muted">아직 용사가 없어요</p>'}</div>
+ <div class="fact"><button type="button" class="mini" data-act="unfriend" data-id="${esc(fr.friend_code)}">친구 끊기</button></div></div>`;
+}
+function drawFriends(){
+ const b=$('#frBody');if(!b)return;
+ b.innerHTML=`<div class="mycode"><span>내 친구코드</span><b class="code">${esc(FR.me.friend_code)}</b><button type="button" class="btn ghost" data-act="sharefc">공유</button></div>
+ <p class="muted">이 코드를 친구에게 알려 주세요. 로그인용 회원코드와 달라서 알려줘도 안전해요. 친구에게는 용사 이름·레벨·클리어 기록만 보이고, 할 일 내용은 보이지 않아요.</p>
+ <form id="fNick" class="row2"><label class="f">친구에게 보일 내 이름<input name="nick" maxlength="12" value="${esc(FR.me.nick)}"></label><button class="btn ghost">저장</button></form>
+ <form id="fAdd" class="row2"><label class="f">친구코드로 추가<input name="fc" class="code" maxlength="6" autocapitalize="characters" spellcheck="false" placeholder="6자리"></label><button class="btn">추가</button></form>
+ <p class="err" id="frErr"></p>
+ <h3>친구 ${FR.list.length}명</h3>
+ <div class="flist">${FR.list.length?FR.list.map(friendCard).join(''):'<p class="muted">아직 친구가 없어요. 친구코드를 받아서 추가해 보세요.</p>'}</div>
+ <div class="foot"><button type="button" class="btn ghost" data-act="close">닫기</button></div>`;
+ paintAll(b);
+ const fa=$('#fAdd');fa.fc.addEventListener('input',e=>{e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6)});
+ fa.addEventListener('submit',async e=>{e.preventDefault();const v=fa.fc.value;if(v.length!==6)return frMsg('친구코드 6자리를 입력해 주세요.');
+  try{const r=await rpc('rq_add_friend',{p_token:auth.token,p_friend_code:v});if(r.ok){toast('친구를 추가했어요!');openFriends()}else if(r.error==='NO_SESSION'){closeModal();sessionLost()}else frMsg(FERR[r.error]||'추가하지 못했어요.')}catch(err){frMsg('인터넷 연결을 확인해 주세요.')}});
+ $('#fNick').addEventListener('submit',async e=>{e.preventDefault();try{const r=await rpc('rq_set_nick',{p_token:auth.token,p_nick:e.target.nick.value});if(r.ok){FR.me.nick=r.nick;toast('이름을 저장했어요')}else frMsg(FERR[r.error]||'저장하지 못했어요.')}catch(err){frMsg('인터넷 연결을 확인해 주세요.')}});
+}
+async function shareFC(){const fc=FR.me&&FR.me.friend_code;if(!fc)return;const text=`현실퀘스트에서 같이 퀘스트 깨요! 내 친구코드: ${fc}\n${location.origin+location.pathname}`;
+ if(navigator.share){try{await navigator.share({text});return}catch(e){if(e&&e.name==='AbortError')return}}
+ try{await navigator.clipboard.writeText(text);toast('친구코드와 앱 주소를 복사했어요')}catch(e){toast(`친구코드: <b>${esc(fc)}</b>`)}}
+async function unfriend(fc,btn){if(btn.dataset.sure!=='1'){btn.dataset.sure='1';btn.textContent='정말 끊을까요? 한 번 더 누르기';return}
+ try{const r=await rpc('rq_remove_friend',{p_token:auth.token,p_friend_code:fc});if(r.ok){toast('친구를 끊었어요');openFriends()}}catch(e){frMsg('인터넷 연결을 확인해 주세요.')}}
 function bootAuth(){try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
  if(!ONLINE){syncLine();return}if(auth){syncLine();pull()}else showAuth(S.heroes.length?'new':'new')}
 const hero=id=>S.heroes.find(h=>h.id===id);
@@ -723,7 +776,7 @@ $('#imp').addEventListener('change',async e=>{const f=e.target.files[0];e.target
  catch(err){toast('현실퀘스트 백업 파일이 아니에요')}});
 document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)return;const id=b.dataset.id;
  ({new:()=>openForm(),demo,close:closeModal,check:()=>toggle(id),open:()=>openDetail(id),edit:()=>openForm(id),askdel:()=>openDetail(id,true),
-   del:()=>{S.heroes=S.heroes.filter(h=>h.id!==id);save();render();closeModal();toast('용사가 마을을 떠났어요')},evoclose:()=>{$('#evo').hidden=true},copycode:copyCode,pin:openPin,logout:openLogout,dologout:doLogout,export:exportBackup,import:()=>$('#imp').click(),doimport:()=>{if(!pendingImport)return;S=pendingImport;pendingImport=null;ents.forEach(e=>e.tag.remove());ents.clear();save();render();closeModal();toast('백업을 불러왔어요')}})[b.dataset.act]?.()});
+   del:()=>{S.heroes=S.heroes.filter(h=>h.id!==id);save();render();closeModal();toast('용사가 마을을 떠났어요')},evoclose:()=>{$('#evo').hidden=true},copycode:copyCode,friends:openFriends,sharefc:shareFC,unfriend:()=>unfriend(id,b),pin:openPin,logout:openLogout,dologout:doLogout,export:exportBackup,import:()=>$('#imp').click(),doimport:()=>{if(!pendingImport)return;S=pendingImport;pendingImport=null;ents.forEach(e=>e.tag.remove());ents.clear();save();render();closeModal();toast('백업을 불러왔어요')}})[b.dataset.act]?.()});
 
 /* ---------- 타이틀 ---------- */
 const splash=$('#splash');let parading=true;
