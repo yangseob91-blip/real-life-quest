@@ -1050,7 +1050,7 @@ function wardrobe(h,I){const own=Object.keys(COND).filter(id=>has('c:'+id));
 /* ---------- 효과음 · 배경음악 (8비트, 직접 합성) ---------- */
 const SND={sfx:true,bgm:true};try{Object.assign(SND,JSON.parse(localStorage.getItem('rq-sound')||'{}'))}catch(e){}
 let AC=null,MG=null,BG=null,bgmTimer=0,bgmStep=0,bgmNext=0;
-function ac(){if(!AC){const K=window.AudioContext||window.webkitAudioContext;if(!K)return null;AC=new K();MG=AC.createGain();MG.gain.value=.55;MG.connect(AC.destination);BG=AC.createGain();BG.gain.value=.13;BG.connect(MG)}if(AC.state==='suspended')AC.resume();return AC}
+function ac(){if(!AC){try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(e){}const K=window.AudioContext||window.webkitAudioContext;if(!K)return null;AC=new K();MG=AC.createGain();MG.gain.value=.55;MG.connect(AC.destination);BG=AC.createGain();BG.gain.value=.6;BG.connect(MG)}if(AC.state==='suspended')AC.resume();return AC}
 function tone(f,t0,dur,type,vol,dest){const o=AC.createOscillator(),g=AC.createGain();o.type=type||'square';o.frequency.setValueAtTime(f,t0);g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(vol,t0+.006);g.gain.exponentialRampToValueAtTime(.0001,t0+dur);o.connect(g);g.connect(dest||MG);o.start(t0);o.stop(t0+dur+.03)}
 function noise(t0,dur,vol,dest){const n=AC.sampleRate*dur|0,buf=AC.createBuffer(1,n,AC.sampleRate),d=buf.getChannelData(0);for(let i=0;i<n;i++)d[i]=Math.random()*2-1;const s=AC.createBufferSource(),g=AC.createGain();s.buffer=buf;g.gain.setValueAtTime(vol,t0);g.gain.exponentialRampToValueAtTime(.0001,t0+dur);s.connect(g);g.connect(dest||MG);s.start(t0)}
 const NF=m=>440*2**((m-69)/12);
