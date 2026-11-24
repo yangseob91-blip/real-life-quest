@@ -339,13 +339,16 @@ const COS={
 };
 const KEYS=Object.keys(CLS);
 const cname=(k,g)=>(g==='f'&&CLS[k].nf)||CLS[k].n;
-const STAGE=['견습','초보','숙련','정예','베테랑','영웅','챔피언','전설','신화'];
+const STAGE=['견습','새내기','초보','수련','숙련','정식','정예','노련한','베테랑','명예로운','영웅','용맹한','챔피언','위대한','전설','고대의','신화','별빛','천상의','초월'];
+// 20단계 → 기본 그림 9종 + 단계마다 장식 추가
+const BASE=s=>Math.max(1,Math.min(9,Math.ceil(s*9/20)));
 const SW=28,SH=32,FEET=30,CX=14;
 const hex=c=>{const n=parseInt(c.slice(1),16);return[n>>16,n>>8&255,n&255]};
 
 const shade=(c,f=.72)=>'#'+hex(c).map(v=>Math.round(v*f).toString(16).padStart(2,'0')).join('');
 // fr: 0~3 걷기, 4 서 있기 / view: 'f' 정면, 's' 반측면(오른쪽, 왼쪽은 좌우반전) / gen: 'm' 남캐, 'f' 여캐
-function buildSprite(k,st,fr,view,gen,cos){
+function buildSprite(k,sg,fr,view,gen,cos){
+ const st=BASE(sg);let sub=0;while(sub<sg-1&&BASE(sg-sub-1)===st)sub++;
  const CO=cos&&COS[cos]?COS[cos]:null,C=CLS[k],g=new Array(SW*SH).fill(0),side=view==='s',fem=gen==='f';
  const P=(x,y,c)=>{if(x>=0&&y>=0&&x<SW&&y<SH)g[y*SW+x]=c};
  const R=(a,b,c2,d,c)=>{for(let y=b;y<=d;y++)for(let x=a;x<=c2;x++)P(x,y,c)};
@@ -538,6 +541,10 @@ function buildSprite(k,st,fr,view,gen,cos){
   else{const t=top-1;R(CX-3,t-1,CX+2,t,GOLD);P(CX-3,t-2,GOLD);P(CX-1,t-2,GOLD);P(CX,t-2,GOLD);P(CX+2,t-2,GOLD);P(CX-1,t-1,'#e0443a');P(CX,t-1,'#4aa8ff');R(CX-3,t,CX+2,t,GOLD_D)}}
  if(!side&&C.w==='shield'&&st>=2)shield(CX-9,bodyTop-1);weapon(hx,hy2);if(!side){
   if(C.w==='dagger'&&st>=7){const lx=CX-6+(fr===1?-1:0),ly=hy+[0,-1,0,1,0][fr];R(lx,ly-4,lx,ly-1,mat);R(lx-1,ly-3,lx-1,ly-1,matD);P(lx,ly,'#5a3a22')}}
+ // 단계 장식: 같은 그림 안에서도 한 단계 오를 때마다 늘어나요
+ if(sub>=1){const gx=side?CX+1:CX-3;R(gx,bodyTop+1,gx+1,bodyTop+2,sg>=15?'#ff6bd6':'#5aa9ff');P(gx,bodyTop+1,WHITE)}
+ if(sub>=2){const sx=side?x0-2:x1+2,sy=y0+1;P(sx,sy-1,GOLD);P(sx-1,sy,GOLD);P(sx,sy,'#fff6b0');P(sx+1,sy,GOLD);P(sx,sy+1,GOLD)}
+ if(sg>=20){const hy=Math.max(0,top-6);R(CX-3,hy,CX+2,hy,'#fff6b0');P(CX-4,hy+1,'#fff6b0');P(CX+3,hy+1,'#fff6b0')}
  // 외곽선
  const o=g.slice();
  for(let y=0;y<SH;y++)for(let x=0;x<SW;x++){if(g[y*SW+x])continue;if((x>0&&g[y*SW+x-1])||(x<SW-1&&g[y*SW+x+1])||(y>0&&g[(y-1)*SW+x])||(y<SH-1&&g[(y+1)*SW+x]))o[y*SW+x]=OUT}
@@ -574,7 +581,7 @@ const diff=(a,b)=>Math.round((parse(b)-parse(a))/864e5);
 const addD=(s,n)=>{const d=parse(s);d.setDate(d.getDate()+n);return iso(d)};
 function info(h){
  const n=h.checks.length,days=h.days,exact=Math.min(99,1+98*n/days),lv=n>=days?99:Math.floor(exact);
- const pct=lv>=99?100:Math.round((exact-lv)*100),stage=Math.min(9,Math.ceil(lv/11)),day=diff(h.start,today())+1;
+ const pct=lv>=99?100:Math.round((exact-lv)*100),stage=Math.min(20,Math.ceil(lv/5)),day=diff(h.start,today())+1;
  const state=day<1?'wait':day>days?'over':'on',done=h.checks.includes(today());
  const streak=streakOf(h.checks);
  return{n,lv,pct,stage,day,state,done,streak,fx:fxTier(streak),per:98/days};
@@ -844,13 +851,13 @@ function fxFront(X,Y,t,ft,ht){
  if(ft>=1&&(t*2.5+X*.07)%1<.55){tx.fillStyle='#ffffff';const px=X+6,py=ht-3;tx.fillRect(px,py,1,1);tx.fillRect(px-1,py,3,1);tx.fillRect(px,py-1,1,3)}
 }
 function drawHero(e,t){
- const h=hero(e.id);if(!h)return;const st=info(h).stage,mv=e.wait<=0,X=Math.round(e.x),Y=Math.round(e.y);
+ const h=hero(e.id);if(!h)return;const sg=info(h).stage,st=BASE(sg),mv=e.wait<=0,X=Math.round(e.x),Y=Math.round(e.y);
  const bob=mv&&e.fr%2?-1:0,hop=e.hop>0?-Math.round(Math.sin((1-e.hop/.6)*Math.PI)*9):0;
  tx.globalAlpha=.3;ell(tx,X,Y+1,7,1,'#1d1030');tx.globalAlpha=1;
  const ft=fxTier(streakOf(h.checks)),ht=Y-FEET+[15,14,12][st<=3?0:st<=6?1:2]+bob+hop;if(ft)fxBack(e,X,Y,t,ft,ht);
  if(st>=8){tx.globalAlpha=.18;ell(tx,X,Y-12,13,15,st>=9?GOLD:GLOW);tx.globalAlpha=1;
   for(let i=0;i<5;i++){const a=t*1.7+i*1.26+X*.1;if((t*3+i*.37)%1>.65)continue;tx.fillStyle=st>=9?GOLD:'#c8fbff';const px=Math.round(X+Math.cos(a)*11),py=Math.round(Y-13+Math.sin(a*1.3)*12);tx.fillRect(px,py,1,1);tx.fillRect(px-1,py,3,1);tx.fillRect(px,py-1,1,3)}}
- const c=spr(h.cls,st,e.hop>0?1:e.fr,e.view,h.gen,h.cos),yy=Y-FEET+bob+hop;
+ const c=spr(h.cls,sg,e.hop>0?1:e.fr,e.view,h.gen,h.cos),yy=Y-FEET+bob+hop;
  if(e.view==='s'&&e.dir<0){tx.save();tx.translate(X,0);tx.scale(-1,1);tx.drawImage(c,-CX,yy);tx.restore()}else tx.drawImage(c,X-CX,yy);
  if(ft)fxFront(X,Y,t,ft,ht);
  const top=[15,14,12][st<=3?0:st<=6?1:2]-(st>=4?6:2);
@@ -867,7 +874,7 @@ function card(h){
  return `<article class="card${I.done?' clear':''}${I.state!=='on'?' off':''}">
  <button class="por" data-act="open" data-id="${id}" style="--c:${C.main}" aria-label="${esc(h.name)} 상세 보기"><canvas data-spr="${h.cls}|${I.stage}|${h.gen}|${h.cos||''}"></canvas></button>
  <div><div class="r1"><span class="nm">${esc(h.name)}</span><span class="lv">LV.${I.lv}</span></div>
- <div class="sub">${STAGE[I.stage-1]} ${cname(h.cls,h.gen)} · 진화 ${I.stage}/9단계</div>
+ <div class="sub">${STAGE[I.stage-1]} ${cname(h.cls,h.gen)} · 진화 ${I.stage}/20단계</div>
  <div class="task">${esc(h.task)}</div>
  <div class="bar${I.lv>=99?' max':''}"><i style="width:${I.pct}%"></i></div>
  <div class="meta"><span>${dayLabel(h,I)}</span><span>클리어 ${I.n}/${h.days}</span>${I.streak>1?`<span>연속 ${I.streak}일${I.fx?' · '+FXN[I.fx-1]:''}</span>`:''}<span>1회 +${I.per.toFixed(1)} Lv</span></div></div>
@@ -913,7 +920,7 @@ function openForm(id){
  <p class="calc" id="calc"></p>
  <div class="foot"><button type="button" class="btn ghost" data-act="close">취소</button><button class="btn">${h?'저장하기':'모험 시작!'}</button></div></form>`);
  const f=$('#f');
- const upd=()=>{const C=CLS[draft.cls];paint($('#pv1'),spr(draft.cls,1,4,'f',draft.gen));paint($('#pv9'),spr(draft.cls,9,4,'f',draft.gen));
+ const upd=()=>{const C=CLS[draft.cls];paint($('#pv1'),spr(draft.cls,1,4,'f',draft.gen));paint($('#pv9'),spr(draft.cls,20,4,'f',draft.gen));
   $('#clsGrid').innerHTML=KEYS.map(k=>`<button type="button" data-cls="${k}" aria-pressed="${k===draft.cls}"><canvas data-spr="${k}|3|${draft.gen}"></canvas>${cname(k,draft.gen)}</button>`).join('');paintAll($('#clsGrid'));
   sheet.querySelectorAll('[data-gen]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.gen===draft.gen));
   $('#tchips').innerHTML=C.task.map(t=>`<button type="button" data-task="${esc(t)}">${esc(t)}</button>`).join('');
@@ -935,7 +942,7 @@ function openForm(id){
 function openDetail(id,confirmDel){
  const h=hero(id);if(!h)return;const I=info(h),C=CLS[h.cls],sid=esc(h.id);
  let cal='';for(let i=0;i<h.days;i++){const d=addD(h.start,i),ok=h.checks.includes(d),past=d<today();cal+=`<span class="${ok?'ok':past?'miss':''}${d===today()?' today':''}" title="${d}">${i+1}</span>`}
- const road=STAGE.map((n,i)=>{const s=i+1,got=I.stage>=s;return `<div class="${I.stage===s?'now':''}"><canvas data-${got?'spr':'sil'}="${h.cls}|${s}|${h.gen}"></canvas>${got?n:'???'}<small>Lv.${i*11+1}~</small></div>`}).join('');
+ const road=STAGE.map((n,i)=>{const s=i+1,got=I.stage>=s;return `<div class="${I.stage===s?'now':''}"><canvas data-${got?'spr':'sil'}="${h.cls}|${s}|${h.gen}"></canvas>${got?n:'???'}<small>Lv.${i*5+1}~</small></div>`}).join('');
  const main=I.state==='on'?`<button class="btn ${I.done?'done':''}" data-act="check" data-id="${sid}">${I.done?'오늘 클리어 취소':'퀘스트 클리어'}</button>`:'';
  openModal(`<div class="dtop"><div class="por" style="--c:${C.main};cursor:default"><canvas data-spr="${h.cls}|${I.stage}|${h.gen}|${h.cos||''}"></canvas></div>
  <div><h2 style="margin:0">${esc(h.name)}</h2><div class="sub">${STAGE[I.stage-1]} ${cname(h.cls,h.gen)} · <span class="lv">LV.${I.lv}</span></div><div class="task">${esc(h.task)}</div><div class="bar${I.lv>=99?' max':''}"><i style="width:${I.pct}%"></i></div></div></div>
@@ -951,7 +958,7 @@ function openDetail(id,confirmDel){
 let tt=0;function toast(html){const t=$('#toast');t.innerHTML=html;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2600)}
 function evolve(h,st,lv){
  const ev=$('#evo'),c=$('#evoC');paint(c,spr(h.cls,st,4,'f',h.gen));showText($('#evoT'),st>=9?'최종 진화!':'진화!',22,Math.min(innerWidth*.8,420),6);
- $('#evoP').textContent=`${h.name}이(가) ${STAGE[st-1]} ${cname(h.cls,h.gen)}(으)로 진화했어요`;$('#evoS').textContent=`Lv.${lv} · 진화 ${st}/9단계`;
+ $('#evoP').textContent=`${h.name}이(가) ${STAGE[st-1]} ${cname(h.cls,h.gen)}(으)로 진화했어요`;$('#evoS').textContent=`Lv.${lv} · 진화 ${st}/20단계`;
  ev.hidden=false;c.classList.remove('flash');void c.offsetWidth;c.classList.add('flash');ev.querySelector('button').focus();sfx('evo');
 }
 function toggle(id){
@@ -980,7 +987,7 @@ const FX=[3,7,14,30,66,100],FXN=['반짝이','파란 불꽃','별 파티클','�
 const fxTier=n=>FX.filter(x=>n>=x).length;
 
 /* ---------- 칭호 ---------- */
-const TITLES=[['s3','작심삼일 돌파자','best',3],['s7','일주일의 용사','best',7],['s14','꾸준함의 견습생','best',14],['s21','습관 연금술사','best',21],['s30','한 달의 기사','best',30],['s50','흔들리지 않는 자','best',50],['s66','습관의 주인','best',66],['s100','백일의 전설','best',100],['s365','일 년의 신화','best',365],
+const TITLES=[['t1','모험을 시작한','total',1],['s2','내일도 온','best',2],['t3','작은 습관의','total',3],['s5','멈추지 않는','best',5],['t5','다섯 걸음의','total',5],['t20','꾸준히 걷는','total',20],['s3','작심삼일 돌파자','best',3],['s7','일주일의 용사','best',7],['s14','꾸준함의 견습생','best',14],['s21','습관 연금술사','best',21],['s30','한 달의 기사','best',30],['s50','흔들리지 않는 자','best',50],['s66','습관의 주인','best',66],['s100','백일의 전설','best',100],['s365','일 년의 신화','best',365],
  ['t10','첫걸음을 뗀','total',10],['t50','성실한','total',50],['t100','백전노장','total',100],['t300','불굴의','total',300],['t500','살아있는 전설','total',500],
  ['dawn','새벽의 용사','flag'],['night','야행성 모험가','flag'],['back','부활한 자','flag'],['perfect','개근상','perfect',30],['party','파티의 리더','friends',5],['allclear','오늘도 해낸','flag']];
 const FLAGTXT={dawn:'오전 7시 전에 클리어',night:'밤 11시 이후에 클리어',back:'일주일 쉬었다가 다시 클리어',allclear:'하루 퀘스트를 전부 클리어'};
@@ -989,7 +996,9 @@ const titleName=id=>{const t=TITLES.find(x=>x[0]===id);return t?t[1]:''};
 /* ---------- 옷 해금 조건 ---------- */
 const BASIC=['cat','dog','bunny','chick','bear','penguin','frog','hamster','squirrel','sheep','pig','cow','duck','raccoon','koala','otter','panda','monkey','giraffe','zebra','elephant','hippo','lion','tiger','polar','owl','bee'];
 const COND={};
-BASIC.forEach((id,i)=>COND[id]=['total',(i+1)*5,'기본']);
+// 초반엔 빨리, 갈수록 천천히
+const BASIC_N=[1,2,3,5,7,10,13,16,20,25,30,35,40,50,60,70,80,90,100,120,140,160,180,200,230,260,300];
+BASIC.forEach((id,i)=>COND[id]=['total',BASIC_N[i],'기본']);
 [['capy',3],['badger',7],['redpanda',14],['sloth',30],['shark',50],['dragon',100]].forEach(([id,n])=>COND[id]=['best',n,'희귀']);
 COND.unicorn=['lv99',1,'전설'];COND.trex=['cls',9,'전설'];COND.alpaca=['friends',3,'전설'];
 [['santa',12,12],['rudolph',12,12],['snowman',12,12],['hanbok',1,2],['pouch',1,2],['blossom',4,4],['melon',7,8],['tube',7,8],['pumpkin',10,10],['ghost',10,10],['bat',10,10]].forEach(([id,a,b])=>COND[id]=['season',7,'시즌',a,b]);
@@ -1028,15 +1037,15 @@ function checkUnlocks(quiet){
  if(quiet||got.length>3){const nc=got.filter(k=>k[0]==='c').length,nt=got.length-nc;save();if(!quiet)sfx('unlock');toast(`옷 <b>${nc}</b>벌, 칭호 <b>${nt}</b>개를 받았어요! 컬렉션에서 확인해 보세요`);return got.length}
  const pv=S.heroes[0]||{cls:'warrior',gen:'m'};
  got.forEach(k=>{const id=k.slice(2);
-  if(k[0]==='c')rewardQ.push({title:'새 옷 획득!',text:`${COS[id].n} 옷을 얻었어요`,sub:`${COND[id][2]} · 용사 상세 화면에서 입힐 수 있어요`,src:spr(pv.cls,5,4,'f',pv.gen,id)});
-  else{rewardQ.push({title:'새 칭호!',text:`[${titleName(id)}] 칭호를 얻었어요`,sub:'컬렉션에서 칭호를 달 수 있어요',src:spr(pv.cls,5,4,'f',pv.gen,S.heroes[0]&&S.heroes[0].cos||''),snd:'title'})}});
+  if(k[0]==='c')rewardQ.push({title:'새 옷 획득!',text:`${COS[id].n} 옷을 얻었어요`,sub:`${COND[id][2]} · 용사 상세 화면에서 입힐 수 있어요`,src:spr(pv.cls,10,4,'f',pv.gen,id)});
+  else{rewardQ.push({title:'새 칭호!',text:`[${titleName(id)}] 칭호를 얻었어요`,sub:'컬렉션에서 칭호를 달 수 있어요',src:spr(pv.cls,10,4,'f',pv.gen,S.heroes[0]&&S.heroes[0].cos||''),snd:'title'})}});
  save();setTimeout(showNextReward,400);return got.length}
 
 /* ---------- 컬렉션 (옷장·칭호) ---------- */
 let colTab='cos';
 function openCollection(tab){colTab=tab||colTab;const st=stats(),pv=S.heroes[0]||{cls:'warrior',gen:'m'};
  const nC=Object.keys(COND).filter(id=>has('c:'+id)).length,nT=TITLES.filter(t=>has('t:'+t[0])).length;
- const group=(name,ids)=>`<h3>${name}</h3><div class="cgrid">${ids.map(id=>{const got=has('c:'+id);return `<div class="cc${got?' got':''}"><canvas data-${got?'spr':'sil'}="${pv.cls}|5|${pv.gen}|${id}"></canvas><b>${got?COS[id].n:'???'}</b><small>${got?'획득!':esc(condText(COND[id],st))}</small></div>`}).join('')}</div>`;
+ const group=(name,ids)=>`<h3>${name}</h3><div class="cgrid">${ids.map(id=>{const got=has('c:'+id);return `<div class="cc${got?' got':''}"><canvas data-${got?'spr':'sil'}="${pv.cls}|10|${pv.gen}|${id}"></canvas><b>${got?COS[id].n:'???'}</b><small>${got?'획득!':esc(condText(COND[id],st))}</small></div>`}).join('')}</div>`;
  const ids=t=>Object.keys(COND).filter(id=>COND[id][2]===t);
  const cosHtml=`<p class="muted">옷은 용사 상세 화면의 <b>옷 입히기</b>에서 아무 용사에게나 입힐 수 있어요.</p>${group('기본 동물 · 누적 클리어',ids('기본'))}${group('희귀 동물 · 연속 클리어',ids('희귀'))}${group('전설',ids('전설'))}${group('시즌 한정',ids('시즌'))}`;
  const titleHtml=`<p class="muted">달고 있는 칭호는 친구 목록에도 보여요. 연속 기록은 마지막 클리어 후 3일까지 유지돼요.</p>
@@ -1047,7 +1056,7 @@ function openCollection(tab){colTab=tab||colTab;const st=stats(),pv=S.heroes[0]|
 }
 function wardrobe(h,I){const own=Object.keys(COND).filter(id=>has('c:'+id));
  const cell=(id,name)=>`<button type="button" class="wc${(h.cos||'')===id?' on':''}" data-act="wear" data-id="${esc(h.id)}" data-c="${id}"><canvas data-spr="${h.cls}|${I.stage}|${h.gen}|${id}"></canvas>${name}</button>`;
- return `<h3>옷 입히기</h3><div class="road wardrobe">${cell('','기본 옷')}${own.map(id=>cell(id,COS[id].n)).join('')}</div>${own.length?'':'<p class="muted">퀘스트를 5번 클리어하면 첫 옷(고양이)을 받아요.</p>'}<p><button type="button" class="mini" data-act="collection">전체 옷장 보기</button></p>`}
+ return `<h3>옷 입히기</h3><div class="road wardrobe">${cell('','기본 옷')}${own.map(id=>cell(id,COS[id].n)).join('')}</div>${own.length?'':'<p class="muted">퀘스트를 처음 클리어하면 첫 옷(고양이)을 받아요.</p>'}<p><button type="button" class="mini" data-act="collection">전체 옷장 보기</button></p>`}
 
 /* ---------- 효과음 · 배경음악 (8비트, 직접 합성) ---------- */
 const SND={sfx:true,bgm:true};try{Object.assign(SND,JSON.parse(localStorage.getItem('rq-sound')||'{}'))}catch(e){}
@@ -1118,7 +1127,7 @@ const splash=$('#splash');let parading=true;
 function closeSplash(){if(splash.classList.contains('out'))return;unlockAudio();splash.classList.add('out');parading=false;setTimeout(()=>splash.hidden=true,520)}
 splash.addEventListener('click',closeSplash);splash.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')closeSplash()});
 (function parade(){const c=$('#parade'),k=Math.min(3,Math.max(2,Math.floor(innerWidth/(SW*10)))),x=c.getContext('2d');c.width=SW*KEYS.length;c.height=SH;c.style.width=SW*KEYS.length*k+'px';c.style.height=SH*k+'px';
- const loop=ts=>{if(!parading)return;x.clearRect(0,0,c.width,c.height);KEYS.forEach((key,i)=>{const fr=Math.floor(ts/120+i)%4;x.drawImage(spr(key,[3,5,6,7,8,9,6,9,8][i],fr,'s',i%2?'f':'m'),i*SW,fr%2?-1:0)});requestAnimationFrame(loop)};requestAnimationFrame(loop)})();
+ const loop=ts=>{if(!parading)return;x.clearRect(0,0,c.width,c.height);KEYS.forEach((key,i)=>{const fr=Math.floor(ts/120+i)%4;x.drawImage(spr(key,[6,10,12,14,16,20,12,20,16][i],fr,'s',i%2?'f':'m'),i*SW,fr%2?-1:0)});requestAnimationFrame(loop)};requestAnimationFrame(loop)})();
 Promise.race([document.fonts.load('22px "Do Hyeon"'),new Promise(r=>setTimeout(r,1500))]).then(()=>{
  showText($('#logo'),'현실퀘스트',26,innerWidth*.86,7);showText($('#authLogo'),'현실퀘스트',26,Math.min(innerWidth*.8,420),6);(()=>{const t=$('#title');t.innerHTML='';const k=innerWidth<600?2:3;[...'현실퀘스트'].forEach((ch,i)=>{const F=pixText(ch,13,'#fff7b0','#ffb52e',OUT,'#0c0e22');const c=document.createElement('canvas');c.width=F.width;c.height=F.height;c.getContext('2d').drawImage(F,0,0);c.style.width=F.width*k+'px';c.style.height=F.height*k+'px';if(i)c.style.marginLeft=(-7*k)+'px';c.style.animationDelay=`${(i*.15).toFixed(2)}s, ${(i*.12).toFixed(2)}s`;t.appendChild(c)})})();
  setTimeout(closeSplash,RM?900:2600)});
