@@ -138,8 +138,14 @@ input{font:inherit;font-size:17px;width:100%;min-height:44px;margin-top:4px;padd
 input.code{font-size:20px;text-transform:uppercase}
 .big.code{font-size:clamp(24px,8vw,34px);text-align:center;background:#1b1f3b;color:#ffd23f;border:3px solid var(--ink);border-radius:12px;padding:18px 8px 14px;margin:8px 0 12px}
 .btn .code{font-size:13px;margin-left:4px}
-/* 상단 머리띠: 아이폰 가장자리 흐림이 단색 위에만 걸리도록 */
-.hud{position:relative;background:#1b1f3b;border-bottom:4px solid var(--ink);align-items:center;padding:calc(env(safe-area-inset-top) + 10px) max(3vw,12px,env(safe-area-inset-right)) 10px max(3vw,12px,env(safe-area-inset-left))}
+/* 타이틀: 하늘 위에 떠서 움직이는 로고 (위쪽 흐림은 하늘에 걸리도록) */
+.hud{padding:calc(env(safe-area-inset-top) + 30px) max(3vw,12px,env(safe-area-inset-right)) 10px max(3vw,12px,env(safe-area-inset-left));align-items:center}
+.title{display:flex;align-items:flex-end;animation:drop .9s cubic-bezier(.3,1.6,.5,1) both}
+.title canvas{display:block;animation:wave 1.8s ease-in-out infinite,glint 3.6s linear infinite;filter:drop-shadow(0 3px 0 rgba(12,14,34,.55))}
+@keyframes wave{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(-6px) rotate(-4deg)}50%{transform:translateY(0) rotate(0)}75%{transform:translateY(1px) rotate(2deg)}}
+@keyframes drop{0%{transform:translateY(-70px) scale(.5);opacity:0}100%{transform:none;opacity:1}}
+@keyframes glint{0%,84%,100%{filter:drop-shadow(0 3px 0 rgba(12,14,34,.55)) brightness(1)}90%{filter:drop-shadow(0 3px 0 rgba(12,14,34,.55)) brightness(1.7)}}
+@media(prefers-reduced-motion:reduce){.title,.title canvas{animation:none}}
 /* 제작자 표기 */
 .sign{font-size:15px;color:#a9acd6;margin:0;letter-spacing:.03em}
 #splash .sign{position:absolute;bottom:max(18px,env(safe-area-inset-bottom))}
@@ -200,10 +206,10 @@ input.code{font-size:20px;text-transform:uppercase}
   <p class="sign">made by 양섭</p>
 </div>
 
-<div class="hud"><canvas id="mini" aria-label="현실퀘스트"></canvas><span class="pill" id="pill"></span></div>
 <section class="scene" id="scene">
   <canvas id="town" aria-label="용사들이 돌아다니는 마을 광장"></canvas>
   <div id="tags"></div>
+  <div class="hud"><div class="title" id="title" role="img" aria-label="현실퀘스트"></div><span class="pill" id="pill"></span></div>
   <div class="empty" id="empty" hidden>
     <p>광장이 조용하네요. 첫 용사를 소집해서<br>할 일을 퀘스트로 바꿔 보세요.</p>
     <div class="row"><button class="btn" data-act="new">+ 용사 소집</button><button class="btn ghost" data-act="demo">예시 용사 불러오기</button></div>
@@ -459,27 +465,28 @@ const hero=id=>S.heroes.find(h=>h.id===id);
 
 /* ---------- 마을 광장 ---------- */
 const town=$('#town'),tx=town.getContext('2d'),scene=$('#scene');
-let PX=3,W=0,H=0,plazaTop=0,fx=0,fy=0,frx=26,fry=9,sky=null,ground=null,period='',lamps=[],clouds=[],flags=[];
+let PX=3,SKY=0,W=0,H=0,plazaTop=0,fx=0,fy=0,frx=26,fry=9,sky=null,ground=null,period='',lamps=[],clouds=[],flags=[];
 const ents=new Map();
 const periodNow=()=>{const h=new Date().getHours();return h>=7&&h<17?'day':(h>=17&&h<19)||(h>=5&&h<7)?'dusk':'night'};
 const PAL={day:{sky:['#79c6f4','#8fd1f6','#a6dbf8','#c0e7fa'],hill:'#72c15c',hill2:'#58a64a'},dusk:{sky:['#4c3f8f','#a65590','#ef8f6c','#ffcf8a'],hill:'#5f8a4a',hill2:'#466a3c'},night:{sky:['#0d1130','#141a44','#1b2255','#232b66'],hill:'#2a4646',hill2:'#1f3434'}};
 function ell(x,cx,cy,rx,ry,col){x.fillStyle=col;for(let dy=-ry;dy<=ry;dy++){const w=Math.round(rx*Math.sqrt(Math.max(0,1-(dy*dy)/(ry*ry||1))));x.fillRect(cx-w,cy+dy,w*2+1,1)}}
 function rng(s){return()=>(s=(s*16807)%2147483647)/2147483647}
+function safeTop(){const d=document.createElement('div');d.style.cssText='position:fixed;top:0;left:0;width:1px;height:env(safe-area-inset-top);visibility:hidden';document.body.appendChild(d);const h=d.offsetHeight;d.remove();return h}
 function layout(){
  const cw=scene.clientWidth,ch=Math.max(300,Math.min(470,innerHeight*.54));
- PX=cw<600?2:3;W=Math.ceil(cw/PX);H=Math.floor(ch/PX);
+ PX=cw<600?2:3;W=Math.ceil(cw/PX);SKY=Math.ceil((safeTop()+66)/PX);H=Math.floor(ch/PX)+SKY;
  town.width=W;town.height=H;town.style.width=W*PX+'px';town.style.height=H*PX+'px';scene.style.height=H*PX+'px';
- plazaTop=Math.round(H*.42);fx=Math.round(W/2);fy=Math.round(plazaTop+(H-plazaTop)*.42);frx=Math.max(18,Math.min(30,Math.round(W*.11)));fry=Math.round(frx*.36);
+ plazaTop=SKY+Math.round((H-SKY)*.42);fx=Math.round(W/2);fy=Math.round(plazaTop+(H-plazaTop)*.42);frx=Math.max(18,Math.min(30,Math.round(W*.11)));fry=Math.round(frx*.36);
  period=periodNow();drawStatic();
- const r=rng(3);clouds=[0,1,2,3].map(i=>({x:r()*W,y:6+r()*plazaTop*.4,s:3+r()*3,v:1.5+r()*2}));
+ const r=rng(3);clouds=[0,1,2,3].map(i=>({x:r()*W,y:SKY*.4+r()*plazaTop*.45,s:3+r()*3,v:1.5+r()*2}));
  ents.forEach(e=>{const b=box();e.x=Math.max(b.x0,Math.min(b.x1,e.x));e.y=Math.max(b.y0,Math.min(b.y1,e.y));if(inF(e.x,e.y))e.y=b.y1;e.wait=.2});
 }
 function drawStatic(){
  const p=PAL[period],night=period==='night';
  sky=mk(W,H);const s=sky.getContext('2d'),bh=Math.ceil(plazaTop/4);
  p.sky.forEach((c,i)=>{s.fillStyle=c;s.fillRect(0,i*bh,W,bh+1)});
- if(night){const r=rng(7);for(let i=0;i<W/5;i++){s.fillStyle=r()<.3?'#ffe9a8':WHITE;s.fillRect(r()*W|0,r()*plazaTop*.7|0,1,1)}ell(s,W*.82|0,14,5,5,'#fff3c4');ell(s,(W*.82|0)+3,12,4,4,p.sky[0])}
- else if(period==='day')ell(s,W*.86|0,14,6,6,'#fff6b0');else ell(s,W*.8|0,plazaTop-16,8,8,'#ffd98a');
+ if(night){const r=rng(7);for(let i=0;i<W/5;i++){s.fillStyle=r()<.3?'#ffe9a8':WHITE;s.fillRect(r()*W|0,r()*plazaTop*.7|0,1,1)}ell(s,W*.82|0,SKY+8,5,5,'#fff3c4');ell(s,(W*.82|0)+3,SKY+6,4,4,p.sky[0])}
+ else if(period==='day')ell(s,W*.86|0,SKY+8,6,6,'#fff6b0');else ell(s,W*.8|0,plazaTop-16,8,8,'#ffd98a');
  for(let x=0;x<W;x++){const a=Math.round(9+5*Math.sin(x/23)+3*Math.sin(x/9+1));s.fillStyle=p.hill2;s.fillRect(x,plazaTop-a-10,1,a+10);const b=Math.round(5+4*Math.sin(x/17+2));s.fillStyle=p.hill;s.fillRect(x,plazaTop-b-4,1,b+4)}
  ground=mk(W,H);const g=ground.getContext('2d'),r=rng(42);flags=[];
  g.fillStyle=night?'#8a8598':'#e2cfa5';g.fillRect(0,plazaTop,W,H-plazaTop);
@@ -488,7 +495,7 @@ function drawStatic(){
  g.fillStyle=night?'#99949f':'#ecdcb8';for(let i=0;i<W*H/70;i++)g.fillRect(r()*W|0,plazaTop+r()*(H-plazaTop)|0,1,1);
  g.fillStyle=night?'#5c586b':'#b39a70';g.fillRect(0,plazaTop+1,W,2);
  // ---- 중세 성 ----
- const pt=plazaTop,ST=night?['#8a88a6','#6e6c8a','#55536e','#3e3c55']:['#e6dfd0','#c6bca8','#a19784','#7c7362'];
+ const pt=plazaTop,ph=plazaTop-SKY,ST=night?['#8a88a6','#6e6c8a','#55536e','#3e3c55']:['#e6dfd0','#c6bca8','#a19784','#7c7362'];
  const stone=(x,y,w,h)=>{g.fillStyle=OUT;g.fillRect(x-1,y-1,w+2,h+1);g.fillStyle=ST[1];g.fillRect(x,y,w,h);
   g.fillStyle=ST[2];for(let yy=y+4,row=0;yy<y+h;yy+=4,row++){g.fillRect(x,yy,w,1);for(let xx=x+(row%2?4:1);xx<x+w;xx+=8)g.fillRect(xx,yy-3,1,3)}
   for(let i=0;i<w*h/40;i++){g.fillStyle=r()<.5?ST[0]:ST[2];g.fillRect(x+(r()*w|0),y+(r()*h|0),2,1)}
@@ -498,13 +505,13 @@ function drawStatic(){
   g.fillStyle=OUT;g.fillRect(cx-(w>>1)-2,by+1,w+4,1);g.fillRect(cx,by-h-6,1,6);flags.push({x:cx+1,y:by-h-6,c})};
  const win=(x,y)=>{g.fillStyle=OUT;g.fillRect(x,y+1,4,6);g.fillRect(x+1,y,2,1);g.fillStyle=night?'#ffd86a':'#3b3352';g.fillRect(x+1,y+1,2,5)};
  const banner=(x,y,h,c)=>{g.fillStyle=OUT;g.fillRect(x-1,y-1,7,h+3);g.fillStyle=c;g.fillRect(x,y,5,h);g.fillStyle=OUT;g.fillRect(x+2,y+h,1,2);g.fillStyle=c;g.fillRect(x,y+h,2,1);g.fillRect(x+3,y+h,2,1);g.fillStyle=GOLD;g.fillRect(x,y,5,1);const m=y+(h>>1);g.fillRect(x+2,m-2,1,5);g.fillRect(x+1,m-1,3,3)};
- const wallTop=pt-Math.round(pt*.27),kw=Math.max(56,Math.min(96,Math.round(W*.26))),kx=fx-(kw>>1),kt=pt-Math.round(pt*.58);
+ const wallTop=pt-Math.round(ph*.27),kw=Math.max(56,Math.min(96,Math.round(W*.26))),kx=fx-(kw>>1),kt=pt-Math.round(ph*.58);
  stone(kx,kt,kw,pt-kt);cren(kx,kt,kw);
  for(let x=kx+6;x<kx+kw-8;x+=12)win(x,kt+5);
- const tw=18,tt=pt-Math.round(pt*.72);stone(fx-(tw>>1),tt,tw,pt-tt);win(fx-2,tt+5);cone(fx,tt-1,tw+6,Math.round(pt*.2),'#3c70d8','#2a52a8');
+ const tw=18,tt=pt-Math.round(ph*.72);stone(fx-(tw>>1),tt,tw,pt-tt);win(fx-2,tt+5);cone(fx,tt-1,tw+6,Math.round(ph*.2),'#3c70d8','#2a52a8');
  stone(0,wallTop,W,pt-wallTop+1);cren(0,wallTop,W);
- [-1,1].forEach((d,i)=>{const sx=fx+d*((kw>>1)+10),w=16,t=pt-Math.round(pt*.55);stone(sx-(w>>1),t,w,pt-t);win(sx-2,t+6);cone(sx,t-1,w+6,Math.round(pt*.17),i?'#d8453b':'#3c70d8',i?'#a02c26':'#2a52a8')});
- [Math.round(W*.1),Math.round(W*.9)].forEach(cx=>{if(Math.abs(cx-fx)<(kw>>1)+40)return;const w=14,t=pt-Math.round(pt*.42);stone(cx-(w>>1),t,w,pt-t);cren(cx-(w>>1),t,w);win(cx-2,t+5);banner(cx-2,t+13,9,'#3c70d8')});
+ [-1,1].forEach((d,i)=>{const sx=fx+d*((kw>>1)+10),w=16,t=pt-Math.round(ph*.55);stone(sx-(w>>1),t,w,pt-t);win(sx-2,t+6);cone(sx,t-1,w+6,Math.round(ph*.17),i?'#d8453b':'#3c70d8',i?'#a02c26':'#2a52a8')});
+ [Math.round(W*.1),Math.round(W*.9)].forEach(cx=>{if(Math.abs(cx-fx)<(kw>>1)+40)return;const w=14,t=pt-Math.round(ph*.42);stone(cx-(w>>1),t,w,pt-t);cren(cx-(w>>1),t,w);win(cx-2,t+5);banner(cx-2,t+13,9,'#3c70d8')});
  // 성문
  const gw=20,gh=pt-wallTop-1,gx=fx-(gw>>1);g.fillStyle=OUT;g.fillRect(gx-1,pt-gh+3,gw+2,gh-2);g.fillRect(gx+2,pt-gh,gw-4,3);g.fillRect(gx,pt-gh+1,gw,3);
  g.fillStyle='#2a2230';g.fillRect(gx+1,pt-gh+3,gw-2,gh-3);g.fillRect(gx+3,pt-gh+1,gw-6,2);
@@ -725,7 +732,7 @@ splash.addEventListener('click',closeSplash);splash.addEventListener('keydown',e
 (function parade(){const c=$('#parade'),k=Math.min(3,Math.max(2,Math.floor(innerWidth/(SW*7)))),x=c.getContext('2d');c.width=SW*6;c.height=SH;c.style.width=SW*6*k+'px';c.style.height=SH*k+'px';
  const loop=ts=>{if(!parading)return;x.clearRect(0,0,c.width,c.height);KEYS.forEach((key,i)=>{const fr=Math.floor(ts/120+i)%4;x.drawImage(spr(key,[3,5,6,7,8,9][i],fr,'s'),i*SW,fr%2?-1:0)});requestAnimationFrame(loop)};requestAnimationFrame(loop)})();
 Promise.race([document.fonts.load('22px "Do Hyeon"'),new Promise(r=>setTimeout(r,1500))]).then(()=>{
- showText($('#logo'),'현실퀘스트',26,innerWidth*.86,7);showText($('#authLogo'),'현실퀘스트',26,Math.min(innerWidth*.8,420),6);showText($('#mini'),'현실퀘스트',14,200,2);
+ showText($('#logo'),'현실퀘스트',26,innerWidth*.86,7);showText($('#authLogo'),'현실퀘스트',26,Math.min(innerWidth*.8,420),6);(()=>{const t=$('#title');t.innerHTML='';const k=innerWidth<600?2:3;[...'현실퀘스트'].forEach((ch,i)=>{const F=pixText(ch,13,'#fff7b0','#ffb52e',OUT,'#0c0e22');const c=document.createElement('canvas');c.width=F.width;c.height=F.height;c.getContext('2d').drawImage(F,0,0);c.style.width=F.width*k+'px';c.style.height=F.height*k+'px';if(i)c.style.marginLeft=(-7*k)+'px';c.style.animationDelay=`${(i*.15).toFixed(2)}s, ${(i*.12).toFixed(2)}s`;t.appendChild(c)})})();
  setTimeout(closeSplash,RM?900:2600)});
 
 addEventListener('resize',()=>{clearTimeout(window.__rz);window.__rz=setTimeout(layout,120)});
