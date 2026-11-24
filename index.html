@@ -187,6 +187,10 @@ input.code{font-size:20px;text-transform:uppercase}
 .adm{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:10px 0;padding:8px 10px;border:2px dashed #c97c0c;border-radius:10px;background:#fff4d6}.adm b{font-weight:400;color:#c97c0c;margin-right:4px}.adm .btn{min-height:36px;padding:4px 10px;font-size:15px}
 .hcol{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.hcol button{width:40px;height:40px;border-radius:50%;border:3px solid var(--ink);cursor:pointer;font-size:12px;color:var(--ink);padding:0}.hcol button[aria-pressed=true]{box-shadow:0 0 0 3px var(--gold)}
 .pnote{list-style:none;padding:0;margin:8px 0;display:grid;gap:8px}.pnote li{background:#fffaf0;border:2px solid var(--ink);border-radius:10px;padding:8px 12px}.pnote b{display:block;font-weight:400;font-size:18px}.pnote span{font-size:14px;color:#7a5a48}
+.fhlist{display:grid;gap:6px;margin:6px 0}.fhero{display:flex;align-items:center;gap:8px;background:#f1deb6;border-radius:8px;padding:4px 8px}.fhero.ok{background:#d9f2c6}.fhero canvas{flex:none;width:42px;height:48px}
+.fhinfo{flex:1;min-width:0;font-size:14px;line-height:1.3}.fhinfo b{font-weight:400;font-size:16px}.fhinfo small{color:#c97c0c}.ftask{display:block;color:#5a4636;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cheer{flex:none;min-height:40px;min-width:58px;border:2px solid var(--ink);border-radius:10px;background:#ff8fb6;color:var(--ink);font-size:15px;cursor:pointer}.cheer.done{background:#e8dcc4;color:#8a7a68;cursor:default}
+.freq{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#fff4d6;border:2px dashed #c97c0c;border-radius:10px;padding:6px 10px;margin-bottom:6px}.freq b{font-weight:400;font-size:17px}.freq span{display:flex;gap:6px}.freq .btn{min-height:38px;padding:4px 12px}
 /* toast + evolution */
 #toast{pointer-events:none;position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));z-index:70;transform:translate(-50%,calc(100% + 60px));transition:transform .3s;background:var(--ink);color:#fff;border:3px solid #ffd23f;border-radius:12px;padding:10px 16px;font-size:18px;max-width:92vw;text-align:center}
 #toast.on{transform:translate(-50%,0)}
@@ -704,7 +708,7 @@ $('#fLogin').addEventListener('submit',async e=>{e.preventDefault();const f=e.ta
  if(code.length!==6)return authMsg('login','회원코드 6자리를 입력해 주세요.');if(!/^\d{6}$/.test(pin))return authMsg('login','비밀번호는 숫자 6자리예요.');
  busy(f,true);try{const r=await rpc('rq_login',{p_code:code,p_pin:pin});
   if(!r.ok)authMsg('login',errText(r));else{setAuth({code:r.code,token:r.token});setDirty(false);S=clean(r.data);try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
-   if(typeof ents!=='undefined'){ents.forEach(e=>e.tag.remove());ents.clear()}f.reset();authEl.hidden=true;render();syncLine();checkUnlocks(true);setTimeout(()=>showPatch(),600);toast(`<b>${esc(r.code)}</b> 다시 오신 걸 환영해요!`)}}
+   if(typeof ents!=='undefined'){ents.forEach(e=>e.tag.remove());ents.clear()}f.reset();authEl.hidden=true;render();syncLine();checkUnlocks(true);setTimeout(checkInbox,2500);setTimeout(()=>showPatch(),600);toast(`<b>${esc(r.code)}</b> 다시 오신 걸 환영해요!`)}}
  catch(err){authMsg('login','인터넷 연결을 확인해 주세요.')}busy(f,false)});
 $('#revealOk').addEventListener('click',()=>{authEl.hidden=true;render();toast('광장에 오신 걸 환영해요!')});
 async function copyCode(){try{await navigator.clipboard.writeText(auth.code);toast('회원코드를 복사했어요')}catch(e){toast(`회원코드: <b>${esc(auth.code)}</b>`)}}
@@ -723,46 +727,68 @@ async function doLogout(){const t=auth&&auth.token;closeModal();clearLocal();sho
 addEventListener('online',()=>{if(dirty)push()});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)pull()});
 /* ---------- 친구 ---------- */
-let FR={me:null,list:[]};
-const FERR={NOT_FOUND:'그 친구코드를 가진 모험가가 없어요.',SELF:'내 친구코드예요. 친구의 코드를 넣어 주세요.',ALREADY:'이미 친구예요.',TOO_MANY:'친구는 50명까지 추가할 수 있어요.',NICK_FORMAT:'이름은 1~12자로 정해 주세요.'};
+let FR={me:null,list:[],inc:[],out:[]};const CHEER={};
+const FERR={REQUESTED:'이미 친구 요청을 보냈어요. 상대가 수락하면 친구가 돼요.',NOT_FRIEND:'친구에게만 응원할 수 있어요.',NOT_FOUND:'그 친구코드를 가진 모험가가 없어요.',SELF:'내 친구코드예요. 친구의 코드를 넣어 주세요.',ALREADY:'이미 친구예요.',TOO_MANY:'친구는 50명까지 추가할 수 있어요.',NICK_FORMAT:'이름은 1~12자로 정해 주세요.'};
 const frMsg=t=>{const p=$('#frErr');if(p)p.textContent=t;if(t)sfx('err')};
 async function openFriends(){
  if(!auth)return;openModal(`<h2>친구</h2><div id="frBody"><p class="muted">불러오는 중…</p></div>`);
  try{const [p,f]=await Promise.all([rpc('rq_profile',{p_token:auth.token}),rpc('rq_friends',{p_token:auth.token})]);
   if(p.error==='NO_SESSION'||f.error==='NO_SESSION'){closeModal();return sessionLost()}
-  if(!p.ok||!f.ok)throw 0;FR.me=p;FR.list=f.friends||[];drawFriends();if(S.fcount!==FR.list.length){S.fcount=FR.list.length;save();checkUnlocks()}}
+  if(!p.ok||!f.ok)throw 0;FR.me=p;FR.list=f.friends||[];FR.inc=f.incoming||[];FR.out=f.outgoing||[];setFrBadge(FR.inc.length);drawFriends();if(S.fcount!==FR.list.length){S.fcount=FR.list.length;save();checkUnlocks()}}
  catch(e){const b=$('#frBody');if(b)b.innerHTML='<p>인터넷 연결을 확인해 주세요.</p><div class="foot"><button class="btn ghost" data-act="close">닫기</button></div>'}
 }
 function friendCard(fr){
  const hs=clean({heroes:fr.heroes}).heroes,act=hs.filter(h=>info(h).state==='on'),done=act.filter(h=>info(h).done).length;
  const top=[...hs].sort((a,b)=>info(b).lv-info(a).lv);
  return `<div class="fcard"><div class="fhead"><b>${fr.title&&titleName(fr.title)?`<span class="ftitle">[${esc(titleName(fr.title))}]</span> `:''}${esc(fr.nick)}</b><span class="fstat">${act.length?`오늘 ${done}/${act.length} 클리어`:'진행 중인 원정 없음'}</span></div>
- <div class="fheroes">${top.length?top.map(h=>{const I=info(h);return `<div class="fh${I.done?' ok':''}"><canvas data-spr="${h.cls}|${I.stage}|${HG(h)}|${h.cos||''}"></canvas><span>${esc(h.name)}</span><small>Lv.${I.lv}</small></div>`}).join(''):'<p class="muted">아직 용사가 없어요</p>'}</div>
+ <div class="fhlist">${top.length?top.map(h=>{const I=info(h),ch=(fr.cheered||[]).includes(h.id);return `<div class="fhero${I.done?' ok':''}"><canvas data-spr="${h.cls}|${I.stage}|${HG(h)}|${h.cos||''}"></canvas><div class="fhinfo"><b>${esc(h.name)}</b> <small>Lv.${I.lv}${I.done?' · 오늘 클리어':''}${I.streak>1?` · 연속 ${I.streak}일`:''}</small><span class="ftask">${esc(h.task||'')}</span></div><button type="button" class="cheer${ch?' done':''}" data-act="cheer" data-fc="${esc(fr.friend_code)}" data-hid="${esc(h.id)}" ${ch?'disabled':''}>${ch?'응원함':'응원'}</button></div>`}).join(''):'<p class="muted">아직 용사가 없어요</p>'}</div>
  <div class="fact"><button type="button" class="mini" data-act="unfriend" data-id="${esc(fr.friend_code)}">친구 끊기</button></div></div>`;
 }
 function drawFriends(){
  const b=$('#frBody');if(!b)return;
  b.innerHTML=`<div class="mycode"><span>내 친구코드</span><b class="code">${esc(FR.me.friend_code)}</b><button type="button" class="btn ghost" data-act="sharefc">공유</button></div>
- <p class="muted">이 코드를 친구에게 알려 주세요. 로그인용 회원코드와 달라서 알려줘도 안전해요. 친구에게는 용사 이름·레벨·클리어 기록만 보이고, 할 일 내용은 보이지 않아요.</p>
+ <p class="muted">이 코드를 친구에게 알려 주세요. 로그인용 회원코드와 달라서 알려줘도 안전해요. 친구 요청은 내가 수락해야 이어지고, 친구가 되면 서로의 용사와 퀘스트 내용이 보여요.</p>
  <form id="fNick" class="row2"><label class="f">친구에게 보일 내 이름<input name="nick" maxlength="12" value="${esc(FR.me.nick)}"></label><button class="btn ghost">저장</button></form>
  <form id="fAdd" class="row2"><label class="f">친구코드로 추가<input name="fc" class="code" maxlength="6" autocapitalize="characters" spellcheck="false" placeholder="6자리"></label><button class="btn">추가</button></form>
  <p class="err" id="frErr"></p>
+ ${FR.inc.length?`<h3>받은 친구 요청 ${FR.inc.length}</h3>${FR.inc.map(r=>`<div class="freq"><b>${esc(r.nick)}</b><span><button type="button" class="btn" data-act="facc" data-id="${esc(r.friend_code)}">수락</button><button type="button" class="btn ghost" data-act="frej" data-id="${esc(r.friend_code)}">거절</button></span></div>`).join('')}`:''}
+ ${FR.out.length?`<p class="muted">수락을 기다리는 중: ${FR.out.map(r=>`${esc(r.nick)} <button type="button" class="mini" data-act="fcancel" data-id="${esc(r.friend_code)}">취소</button>`).join(' · ')}</p>`:''}
  <h3>친구 ${FR.list.length}명</h3>
  <div class="flist">${FR.list.length?FR.list.map(friendCard).join(''):'<p class="muted">아직 친구가 없어요. 친구코드를 받아서 추가해 보세요.</p>'}</div>
  <div class="foot"><button type="button" class="btn ghost" data-act="close">닫기</button></div>`;
  paintAll(b);
  const fa=$('#fAdd');fa.fc.addEventListener('input',e=>{e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6)});
  fa.addEventListener('submit',async e=>{e.preventDefault();const v=fa.fc.value;if(v.length!==6)return frMsg('친구코드 6자리를 입력해 주세요.');
-  try{const r=await rpc('rq_add_friend',{p_token:auth.token,p_friend_code:v});if(r.ok){sfx('friend');toast('친구를 추가했어요!');openFriends()}else if(r.error==='NO_SESSION'){closeModal();sessionLost()}else frMsg(FERR[r.error]||'추가하지 못했어요.')}catch(err){frMsg('인터넷 연결을 확인해 주세요.')}});
+  try{const r=await rpc('rq_add_friend',{p_token:auth.token,p_friend_code:v});if(r.ok){sfx('friend');toast(r.accepted?'친구가 됐어요!':'친구 요청을 보냈어요. 상대가 수락하면 친구가 돼요');openFriends()}else if(r.error==='NO_SESSION'){closeModal();sessionLost()}else frMsg(FERR[r.error]||'추가하지 못했어요.')}catch(err){frMsg('인터넷 연결을 확인해 주세요.')}});
  $('#fNick').addEventListener('submit',async e=>{e.preventDefault();try{const r=await rpc('rq_set_nick',{p_token:auth.token,p_nick:e.target.nick.value});if(r.ok){FR.me.nick=r.nick;toast('이름을 저장했어요')}else frMsg(FERR[r.error]||'저장하지 못했어요.')}catch(err){frMsg('인터넷 연결을 확인해 주세요.')}});
 }
+async function cheer(b){if(b.disabled||!auth)return;b.disabled=true;
+ try{const r=await rpc('rq_cheer',{p_token:auth.token,p_friend_code:b.dataset.fc,p_hero_id:b.dataset.hid});
+  if(r.ok){sfx('friend');b.classList.add('done');b.textContent='응원함';const f=FR.list.find(x=>x.friend_code===b.dataset.fc);if(f)(f.cheered=f.cheered||[]).push(b.dataset.hid);toast(r.already?'오늘은 이미 응원했어요':'응원을 보냈어요!')}
+  else if(r.error==='NO_SESSION'){closeModal();sessionLost()}else{b.disabled=false;frMsg(FERR[r.error]||'응원하지 못했어요.')}}
+ catch(e){b.disabled=false;frMsg('인터넷 연결을 확인해 주세요.')}}
+async function respondFriend(fc,ok){try{const r=await rpc('rq_respond_friend',{p_token:auth.token,p_friend_code:fc,p_accept:ok});
+ if(r.ok){if(ok){sfx('friend');toast('친구가 됐어요!')}else toast('친구 요청을 거절했어요');openFriends()}
+ else if(r.error==='NO_SESSION'){closeModal();sessionLost()}else frMsg(FERR[r.error]||'처리하지 못했어요.')}catch(e){frMsg('인터넷 연결을 확인해 주세요.')}}
+async function cancelRequest(fc){try{const r=await rpc('rq_remove_friend',{p_token:auth.token,p_friend_code:fc});if(r.ok){toast('친구 요청을 취소했어요');openFriends()}}catch(e){frMsg('인터넷 연결을 확인해 주세요.')}}
+function setFrBadge(n){const b=$('#friendsBtn');if(b)b.textContent=n?`친구 (${n})`:'친구'}
+// 받은 응원·친구 요청 확인
+let inboxBusy=false;
+async function checkInbox(){if(!auth||!ONLINE||inboxBusy)return;inboxBusy=true;
+ try{const r=await rpc('rq_inbox',{p_token:auth.token});if(!r.ok)return;setFrBadge(r.requests||0);
+  (r.cheers||[]).forEach((c,i)=>setTimeout(()=>{const h=hero(c.hero_id);if(h)CHEER[h.id]=-1;sfx('friend');
+   toast(`<b>${esc(c.nick)}</b>님이 ${h?`<b>${esc(h.name)}</b>을(를)`:'내 용사를'} 응원했어요!`)},800+i*2800));
+  if(r.requests&&!(r.cheers||[]).length)toast(`친구 요청이 <b>${r.requests}</b>개 와 있어요`)}
+ catch(e){}finally{inboxBusy=false}}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(checkInbox,1500)});
+setInterval(()=>{if(!document.hidden)checkInbox()},180000);
 async function shareFC(){const fc=FR.me&&FR.me.friend_code;if(!fc)return;const text=`현실퀘스트에서 같이 퀘스트 깨요! 내 친구코드: ${fc}\n${location.origin+location.pathname}`;
  if(navigator.share){try{await navigator.share({text});return}catch(e){if(e&&e.name==='AbortError')return}}
  try{await navigator.clipboard.writeText(text);toast('친구코드와 앱 주소를 복사했어요')}catch(e){toast(`친구코드: <b>${esc(fc)}</b>`)}}
 async function unfriend(fc,btn){if(btn.dataset.sure!=='1'){btn.dataset.sure='1';btn.textContent='정말 끊을까요? 한 번 더 누르기';return}
  try{const r=await rpc('rq_remove_friend',{p_token:auth.token,p_friend_code:fc});if(r.ok){toast('친구를 끊었어요');openFriends()}}catch(e){frMsg('인터넷 연결을 확인해 주세요.')}}
 function bootAuth(){try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
- if(!ONLINE){syncLine();return}if(auth){syncLine();pull()}else showAuth(S.heroes.length?'new':'new')}
+ if(!ONLINE){syncLine();return}if(auth){syncLine();pull();setTimeout(checkInbox,4500)}else showAuth(S.heroes.length?'new':'new')}
 const hero=id=>S.heroes.find(h=>h.id===id);
 
 /* ---------- 마을 광장 ---------- */
@@ -920,6 +946,7 @@ function drawHero(e,t){
  const c=spr(h.cls,sg,e.hop>0?1:e.fr,e.view,HG(h),h.cos),yy=Y-FEET+bob+hop;
  if(e.view==='s'&&e.dir<0){tx.save();tx.translate(X,0);tx.scale(-1,1);tx.drawImage(c,-CX,yy);tx.restore()}else tx.drawImage(c,X-CX,yy);
  if(ft)fxFront(X,Y,t,ft,ht);
+ if(CHEER[h.id]!==undefined){if(CHEER[h.id]===-1)CHEER[h.id]=t;const c0=CHEER[h.id];if(t-c0>9)delete CHEER[h.id];else for(let i=0;i<3;i++){const ph=((t-c0)*.7+i/3)%1,px=Math.round(X-5+i*4+Math.sin(t*3+i)),py=Math.round(ht-3-ph*12);tx.globalAlpha=1-ph;tx.fillStyle='#ff5c8a';tx.fillRect(px,py,1,1);tx.fillRect(px+2,py,1,1);tx.fillRect(px,py+1,3,1);tx.fillRect(px+1,py+2,1,1)}tx.globalAlpha=1}
  const top=[15,14,12][st<=3?0:st<=6?1:2]-(st>=4?6:2);
  e.tag.style.transform=`translate(${X*PX}px,${(yy+top)*PX}px) translate(-50%,-100%)`;
 }
@@ -1175,8 +1202,8 @@ function admLevel(id,n){if(!isAdmin())return;const h=hero(id);if(!h)return;const
  const b=info(h);save();render();if(b.stage>a.stage){closeModal();evolve(h,b.stage,b.lv)}else{sfx(n==='-1'?'undo':'up');openDetail(id);toast(`Lv.${b.lv} · 클리어 ${b.n}회`)}}
 
 /* ---------- 패치노트 ---------- */
-const PATCH_V='2026-11-24c';
-const PATCH_NOTES=[['진화 20단계','5레벨마다 진화! 단계마다 보석·별·빛의 고리가 하나씩 늘어나요.'],['새 직업 11종 (총 20종)','격투가·음유시인·닌자·연금술사·드루이드·해적·발명가·소환사·성기사·인어·학자'],['헤어 82가지','스타일 9종 x 색 9종 + 대머리. 용사 정보 수정에서 바꿀 수 있어요.'],['컬렉션','동물·시즌 옷 47벌, 칭호 26개. 첫 클리어부터 옷을 받아요.'],['연속 클리어 이펙트','3일부터 반짝이, 100일엔 무지개 오라. 마지막 클리어 후 3일까지 유지돼요.'],['효과음·배경음악','오른쪽 위 ♪ 버튼으로 끄고 켤 수 있어요.']];
+const PATCH_V='2026-11-25a';
+const PATCH_NOTES=[['친구 응원하기','친구 용사에게 하루 한 번 응원을 보낼 수 있어요. 응원받은 용사 위로 하트가 떠요.'],['친구 요청·수락','친구코드를 넣으면 요청이 가고, 상대가 수락해야 친구가 돼요. 친구끼리는 서로의 퀘스트 내용이 보여요.'],['진화 20단계','5레벨마다 진화! 단계마다 보석·별·빛의 고리가 하나씩 늘어나요.'],['새 직업 11종 (총 20종)','격투가·음유시인·닌자·연금술사·드루이드·해적·발명가·소환사·성기사·인어·학자'],['헤어 82가지','스타일 9종 x 색 9종 + 대머리. 용사 정보 수정에서 바꿀 수 있어요.'],['컬렉션','동물·시즌 옷 47벌, 칭호 26개. 첫 클리어부터 옷을 받아요.'],['연속 클리어 이펙트','3일부터 반짝이, 100일엔 무지개 오라. 마지막 클리어 후 3일까지 유지돼요.'],['효과음·배경음악','오른쪽 위 ♪ 버튼으로 끄고 켤 수 있어요.']];
 function showPatch(force){try{if(!force&&localStorage.getItem('rq-patch')===PATCH_V)return}catch(e){}
  if(!force&&(!$('#auth').hidden||!modal.hidden||!$('#evo').hidden))return;
  try{localStorage.setItem('rq-patch',PATCH_V)}catch(e){}
@@ -1195,7 +1222,7 @@ $('#imp').addEventListener('change',async e=>{const f=e.target.files[0];e.target
 document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)return;const id=b.dataset.id,ac0=b.dataset.act;
  if(!['check','bgm','sfx','wear','settitle','collection','coltitle','new'].includes(ac0))sfx(ac0==='close'||ac0==='evoclose'?'close':'tap');
  ({new:()=>{sfx('open');openForm()},demo,close:closeModal,check:()=>toggle(id),open:()=>openDetail(id),edit:()=>openForm(id),askdel:()=>openDetail(id,true),
-   del:()=>{S.heroes=S.heroes.filter(h=>h.id!==id);save();render();closeModal();toast('용사가 마을을 떠났어요')},evoclose:()=>{$('#evo').hidden=true;showNextReward()},collection:()=>{sfx('open');openCollection()},coltitle:()=>{sfx('open');openCollection('title')},coltab:()=>openCollection(b.dataset.t),settitle:()=>{S.title=b.dataset.t||'';save();sfx('title');render();openCollection('title')},wear:()=>{const h=hero(id);if(!h)return;h.cos=b.dataset.c||'';save();render();sfx('poke');openDetail(id)},bgm:toggleBgm,sfx:toggleSfx,patch:()=>showPatch(true),adm:()=>admLevel(id,b.dataset.n),copycode:copyCode,friends:openFriends,sharefc:shareFC,unfriend:()=>unfriend(id,b),pin:openPin,logout:openLogout,dologout:doLogout,export:exportBackup,import:()=>$('#imp').click(),doimport:()=>{if(!pendingImport)return;S=pendingImport;pendingImport=null;ents.forEach(e=>e.tag.remove());ents.clear();save();render();closeModal();toast('백업을 불러왔어요')}})[b.dataset.act]?.()});
+   del:()=>{S.heroes=S.heroes.filter(h=>h.id!==id);save();render();closeModal();toast('용사가 마을을 떠났어요')},evoclose:()=>{$('#evo').hidden=true;showNextReward()},collection:()=>{sfx('open');openCollection()},coltitle:()=>{sfx('open');openCollection('title')},coltab:()=>openCollection(b.dataset.t),settitle:()=>{S.title=b.dataset.t||'';save();sfx('title');render();openCollection('title')},wear:()=>{const h=hero(id);if(!h)return;h.cos=b.dataset.c||'';save();render();sfx('poke');openDetail(id)},bgm:toggleBgm,sfx:toggleSfx,cheer:()=>cheer(b),facc:()=>respondFriend(id,true),frej:()=>respondFriend(id,false),fcancel:()=>cancelRequest(id),patch:()=>showPatch(true),adm:()=>admLevel(id,b.dataset.n),copycode:copyCode,friends:openFriends,sharefc:shareFC,unfriend:()=>unfriend(id,b),pin:openPin,logout:openLogout,dologout:doLogout,export:exportBackup,import:()=>$('#imp').click(),doimport:()=>{if(!pendingImport)return;S=pendingImport;pendingImport=null;ents.forEach(e=>e.tag.remove());ents.clear();save();render();closeModal();toast('백업을 불러왔어요')}})[b.dataset.act]?.()});
 
 /* ---------- 타이틀 ---------- */
 const splash=$('#splash');let parading=true;
