@@ -52,7 +52,7 @@ button{font:inherit;color:inherit;touch-action:manipulation}
 .tag .nm b{font:9px "Press Start 2P",monospace;color:#ffd23f;margin-right:4px}
 .tag .q{font:13px/1 "Press Start 2P",monospace;color:var(--ink);background:#ffd23f;border:2px solid var(--ink);border-radius:6px;padding:3px 4px 2px;animation:bob 1s ease-in-out infinite}
 @keyframes bob{50%{transform:translateY(-3px)}}
-.hud{position:absolute;left:0;right:0;top:0;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:max(10px,env(safe-area-inset-top)) max(3vw,10px,env(safe-area-inset-right)) 10px max(3vw,10px,env(safe-area-inset-left));pointer-events:none}
+.hud{position:absolute;left:0;right:0;top:0;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:10px max(3vw,10px,env(safe-area-inset-right)) 10px max(3vw,10px,env(safe-area-inset-left));pointer-events:none}
 .hud>*{pointer-events:auto}
 .pill{font-size:16px;background:rgba(27,20,40,.8);border:2px solid #000;border-radius:999px;padding:4px 12px;color:#fff;white-space:nowrap}
 .pill b{color:#ffd23f}
@@ -138,6 +138,9 @@ input{font:inherit;font-size:17px;width:100%;min-height:44px;margin-top:4px;padd
 input.code{font-size:20px;text-transform:uppercase}
 .big.code{font-size:clamp(24px,8vw,34px);text-align:center;background:#1b1f3b;color:#ffd23f;border:3px solid var(--ink);border-radius:12px;padding:18px 8px 14px;margin:8px 0 12px}
 .btn .code{font-size:13px;margin-left:4px}
+/* 상태 표시줄 영역: 블러 없이 단색으로 */
+body::before{content:'';position:fixed;left:0;right:0;top:0;height:env(safe-area-inset-top);background:#1b1f3b;z-index:45;pointer-events:none}
+.scene{margin-top:env(safe-area-inset-top)}
 /* 제작자 표기 */
 .sign{font-size:15px;color:#a9acd6;margin:0;letter-spacing:.03em}
 #splash .sign{position:absolute;bottom:max(18px,env(safe-area-inset-bottom))}
