@@ -1,5 +1,5 @@
 // 현실퀘스트 오프라인 지원. 앱을 고치면 VERSION 숫자를 올려 주세요.
-const VERSION='rq-4';
+const VERSION='rq-5';
 const SHELL=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png','./icon-maskable-512.png','./apple-touch-icon.png'];
 const FONT_HOSTS=['fonts.googleapis.com','fonts.gstatic.com'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(VERSION).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting()))});
@@ -14,3 +14,8 @@ self.addEventListener('fetch',e=>{
   e.respondWith(fetch(new Request(r.url,{cache:'no-store',credentials:'same-origin'})).then(res=>{if(res.ok){const cp=res.clone();caches.open(VERSION).then(c=>c.put('./index.html',cp))}return res}).catch(()=>caches.match('./index.html')));return}
  e.respondWith(caches.match(r).then(m=>m||fetch(r).then(res=>{if(res.ok){const cp=res.clone();caches.open(VERSION).then(c=>c.put(r,cp))}return res})));
 });
+// 푸시 알림 표시
+self.addEventListener('push',e=>{let d={};try{d=e.data?e.data.json():{}}catch(_){d={body:e.data?e.data.text():''}}
+ e.waitUntil(self.registration.showNotification(d.title||'현실퀘스트',{body:d.body||'',tag:d.tag||'rq',renotify:!!d.tag,icon:'./icon-192.png',badge:'./icon-192.png'}))});
+self.addEventListener('notificationclick',e=>{e.notification.close();
+ e.waitUntil(self.clients.matchAll({type:'window',includeUncontrolled:true}).then(cs=>{for(const c of cs)if('focus' in c)return c.focus();return self.clients.openWindow('./')}))});
