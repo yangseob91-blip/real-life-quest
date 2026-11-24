@@ -12,6 +12,7 @@
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>현실퀘스트</title>
+<meta name="author" content="양섭">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Press+Start+2P&display=swap">
@@ -137,6 +138,11 @@ input{font:inherit;font-size:17px;width:100%;min-height:44px;margin-top:4px;padd
 input.code{font-size:20px;text-transform:uppercase}
 .big.code{font-size:clamp(24px,8vw,34px);text-align:center;background:#1b1f3b;color:#ffd23f;border:3px solid var(--ink);border-radius:12px;padding:18px 8px 14px;margin:8px 0 12px}
 .btn .code{font-size:13px;margin-left:4px}
+/* 제작자 표기 */
+.sign{font-size:15px;color:#a9acd6;margin:0;letter-spacing:.03em}
+#splash .sign{position:absolute;bottom:max(18px,env(safe-area-inset-bottom))}
+.wm{position:absolute;left:10px;bottom:10px;font-size:13px;color:#fff;background:rgba(27,20,40,.6);border-radius:999px;padding:3px 9px 2px;pointer-events:none}
+.credit{margin-top:26px;text-align:center;font-size:14px;color:#7f83b8}
 /* toast + evolution */
 #toast{pointer-events:none;position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));z-index:70;transform:translate(-50%,calc(100% + 60px));transition:transform .3s;background:var(--ink);color:#fff;border:3px solid #ffd23f;border-radius:12px;padding:10px 16px;font-size:18px;max-width:92vw;text-align:center}
 #toast.on{transform:translate(-50%,0)}
@@ -159,6 +165,7 @@ input.code{font-size:20px;text-transform:uppercase}
   <div class="en">REAL LIFE QUEST</div>
   <canvas id="parade" aria-hidden="true"></canvas>
   <div class="press">터치하여 시작</div>
+  <p class="sign">made by 양섭</p>
 </div>
 
 <div id="auth" hidden>
@@ -188,6 +195,7 @@ input.code{font-size:20px;text-transform:uppercase}
       <div class="foot" style="justify-content:center"><button type="button" class="btn ghost" id="revealCopy">코드 복사</button><button type="button" class="btn" id="revealOk">적어뒀어요!</button></div>
     </div>
   </div>
+  <p class="sign">made by 양섭</p>
 </div>
 
 <section class="scene" id="scene">
@@ -198,6 +206,7 @@ input.code{font-size:20px;text-transform:uppercase}
     <p>광장이 조용하네요. 첫 용사를 소집해서<br>할 일을 퀘스트로 바꿔 보세요.</p>
     <div class="row"><button class="btn" data-act="new">+ 용사 소집</button><button class="btn ghost" data-act="demo">예시 용사 불러오기</button></div>
   </div>
+  <span class="wm">made by 양섭</span>
   <button class="btn fab" data-act="new" id="fab">+ 용사 소집</button>
 </section>
 
@@ -208,6 +217,7 @@ input.code{font-size:20px;text-transform:uppercase}
   <div class="backup" id="acct" hidden><button class="btn ghost" data-act="copycode">회원코드 <span id="myCode" class="code"></span></button><button class="btn ghost" data-act="pin">비밀번호 바꾸기</button><button class="btn ghost" data-act="logout">로그아웃</button></div>
   <div class="backup"><button class="btn ghost" data-act="export">백업 파일 저장</button><button class="btn ghost" data-act="import">백업 불러오기</button></div>
   <input type="file" id="imp" accept=".json,application/json" hidden>
+  <p class="credit">현실퀘스트 · made by 양섭 · © 2026</p>
 </main>
 
 <div class="modal" id="modal" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
