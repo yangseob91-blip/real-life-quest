@@ -138,9 +138,8 @@ input{font:inherit;font-size:17px;width:100%;min-height:44px;margin-top:4px;padd
 input.code{font-size:20px;text-transform:uppercase}
 .big.code{font-size:clamp(24px,8vw,34px);text-align:center;background:#1b1f3b;color:#ffd23f;border:3px solid var(--ink);border-radius:12px;padding:18px 8px 14px;margin:8px 0 12px}
 .btn .code{font-size:13px;margin-left:4px}
-/* 상태 표시줄 영역: 블러 없이 단색으로 */
-body::before{content:'';position:fixed;left:0;right:0;top:0;height:env(safe-area-inset-top);background:#1b1f3b;z-index:45;pointer-events:none}
-.scene{margin-top:env(safe-area-inset-top)}
+/* 상단 머리띠: 아이폰 가장자리 흐림이 단색 위에만 걸리도록 */
+.hud{position:relative;background:#1b1f3b;border-bottom:4px solid var(--ink);align-items:center;padding:calc(env(safe-area-inset-top) + 10px) max(3vw,12px,env(safe-area-inset-right)) 10px max(3vw,12px,env(safe-area-inset-left))}
 /* 제작자 표기 */
 .sign{font-size:15px;color:#a9acd6;margin:0;letter-spacing:.03em}
 #splash .sign{position:absolute;bottom:max(18px,env(safe-area-inset-bottom))}
@@ -201,10 +200,10 @@ body::before{content:'';position:fixed;left:0;right:0;top:0;height:env(safe-area
   <p class="sign">made by 양섭</p>
 </div>
 
+<div class="hud"><canvas id="mini" aria-label="현실퀘스트"></canvas><span class="pill" id="pill"></span></div>
 <section class="scene" id="scene">
   <canvas id="town" aria-label="용사들이 돌아다니는 마을 광장"></canvas>
   <div id="tags"></div>
-  <div class="hud"><canvas id="mini" aria-label="현실퀘스트"></canvas><span class="pill" id="pill"></span></div>
   <div class="empty" id="empty" hidden>
     <p>광장이 조용하네요. 첫 용사를 소집해서<br>할 일을 퀘스트로 바꿔 보세요.</p>
     <div class="row"><button class="btn" data-act="new">+ 용사 소집</button><button class="btn ghost" data-act="demo">예시 용사 불러오기</button></div>
