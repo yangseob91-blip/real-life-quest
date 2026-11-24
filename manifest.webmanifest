@@ -1,0 +1,30 @@
+{
+ "name": "현실퀘스트",
+ "short_name": "현실퀘스트",
+ "description": "할 일을 퀘스트로 깨면 도트 용사가 자라는 다이어트·할 일 앱",
+ "lang": "ko",
+ "start_url": "./",
+ "scope": "./",
+ "display": "standalone",
+ "orientation": "portrait",
+ "background_color": "#10132b",
+ "theme_color": "#1b1f3b",
+ "icons": [
+  {
+   "src": "icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png"
+  },
+  {
+   "src": "icon-maskable-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ]
+}
