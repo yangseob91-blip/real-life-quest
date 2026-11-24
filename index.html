@@ -1063,10 +1063,18 @@ const SFXD={
  friend:[[76,0,.08],[81,.09,.08],[85,.18,.22]],hero:[[67,0,.06],[72,.06,.06],[79,.12,.18]],
  poke:[[91,0,.04,.06],[96,.04,.05,.06]],err:[[48,0,.14,.12,'sawtooth']],streak:[[84,0,.05],[88,.05,.05],[91,.1,.05],[96,.15,.05],[100,.2,.2]]};
 function sfx(n){if(!SND.sfx)return;const a=ac();if(!a)return;const t=a.currentTime+.01;(SFXD[n]||[]).forEach(([m,dl,l,v,ty])=>tone(NF(m),t+dl,l,ty||'square',v||.1))}
-// 마을 테마: C - Am - F - G, 8마디
-const MEL=[64,0,67,0,72,71,69,67, 69,0,64,0,60,62,64,0, 65,0,69,0,72,69,67,65, 67,0,62,0,59,60,62,0, 64,67,72,0,74,72,71,67, 69,0,72,0,71,69,64,0, 65,69,72,69,67,65,64,62, 62,64,65,62,67,0,0,0];
-const BAS=[48,60,48,60,45,57,45,57,41,53,41,53,43,55,43,55];
-function bgmTick(){if(!AC||!SND.bgm)return;const spb=60/112/2;while(bgmNext<AC.currentTime+.25){const s=bgmStep%64,m=MEL[s];if(m)tone(NF(m),bgmNext,spb*.9,'square',.11,BG);if(s%2===0)tone(NF(BAS[(s>>2)%16]),bgmNext,spb*1.7,'triangle',.22,BG);if(s%4===2)noise(bgmNext,.03,.05,BG);bgmNext+=spb;bgmStep++}}
+// 마을 테마 (신나는 버전): C - G - Am - F - C - G - F - G, 8마디, 템포 140
+const MEL=[72,0,76,79,84,79,76,79, 74,0,79,83,86,83,79,74, 76,0,72,76,81,79,76,72, 77,76,74,72,74,0,72,0, 79,79,84,79,76,79,72,76, 74,79,83,86,83,79,74,71, 72,74,77,81,79,77,76,74, 74,76,79,83,84,0,84,0];
+const BAS=[48,43,45,41,48,43,41,43];
+function bgmTick(){if(!AC||!SND.bgm)return;if(AC.state!=='running'){bgmNext=AC.currentTime+.05;return}const spb=60/140/2;if(bgmNext<AC.currentTime)bgmNext=AC.currentTime+.05;
+ while(bgmNext<AC.currentTime+.25){const s=bgmStep%64,m=MEL[s],r=BAS[s>>3];
+  if(m)tone(NF(m),bgmNext,spb*.8,'square',.1,BG);
+  if(m&&s%2===0)tone(NF(m+12),bgmNext+spb*.5,spb*.35,'square',.03,BG);
+  tone(NF(s%2?r+12:r),bgmNext,spb*.85,'triangle',.24,BG);
+  if(s%4===0)tone(55,bgmNext,.09,'sine',.3,BG);
+  if(s%4===2)noise(bgmNext,.06,.09,BG);
+  if(s%2===1)noise(bgmNext,.02,.035,BG);
+  bgmNext+=spb;bgmStep++}}
 function startBgm(){if(!SND.bgm||bgmTimer)return;const a=ac();if(!a)return;bgmNext=a.currentTime+.1;bgmTimer=setInterval(bgmTick,60);bgmTick()}
 function stopBgm(){clearInterval(bgmTimer);bgmTimer=0}
 function soundUI(){const b=$('#bgmBtn');if(b){b.classList.toggle('off',!SND.bgm);b.setAttribute('aria-pressed',SND.bgm)}const a=$('#sfxT'),g=$('#bgmT');if(a)a.textContent=`효과음 ${SND.sfx?'켜짐':'꺼짐'}`;if(g)g.textContent=`배경음악 ${SND.bgm?'켜짐':'꺼짐'}`}
@@ -1074,7 +1082,11 @@ function saveSnd(){try{localStorage.setItem('rq-sound',JSON.stringify(SND))}catc
 function toggleBgm(){SND.bgm=!SND.bgm;saveSnd();if(SND.bgm)startBgm();else stopBgm()}
 function toggleSfx(){SND.sfx=!SND.sfx;saveSnd();if(SND.sfx)sfx('tap')}
 let audioReady=false;
-addEventListener('pointerdown',()=>{if(audioReady)return;audioReady=true;ac();startBgm()},{once:false});
+function unlockAudio(){const a=ac();if(!a)return;try{const b=a.createBuffer(1,1,22050),src=a.createBufferSource();src.buffer=b;src.connect(a.destination);src.start(0)}catch(e){}
+ if(a.state==='running'){audioReady=true;startBgm()}else a.resume().then(()=>{audioReady=true;startBgm()}).catch(()=>{})}
+['pointerdown','touchend','click','keydown'].forEach(ev=>addEventListener(ev,()=>{if(!audioReady)unlockAudio()},true));
+// 브라우저가 허락하면 터치 없이 바로 재생 (PC 등). 아이폰은 첫 터치 때 시작
+setTimeout(()=>{try{const a=ac();if(a&&a.state==='running'){audioReady=true;startBgm()}}catch(e){}},300);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stopBgm();else if(audioReady)startBgm()});
 function exportBackup(){
  const blob=new Blob([JSON.stringify({app:'real-life-quest',v:2,saved:new Date().toISOString(),...S},null,1)],{type:'application/json'});
@@ -1094,7 +1106,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(
 
 /* ---------- 타이틀 ---------- */
 const splash=$('#splash');let parading=true;
-function closeSplash(){if(splash.classList.contains('out'))return;splash.classList.add('out');parading=false;setTimeout(()=>splash.hidden=true,520)}
+function closeSplash(){if(splash.classList.contains('out'))return;unlockAudio();splash.classList.add('out');parading=false;setTimeout(()=>splash.hidden=true,520)}
 splash.addEventListener('click',closeSplash);splash.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')closeSplash()});
 (function parade(){const c=$('#parade'),k=Math.min(3,Math.max(2,Math.floor(innerWidth/(SW*10)))),x=c.getContext('2d');c.width=SW*KEYS.length;c.height=SH;c.style.width=SW*KEYS.length*k+'px';c.style.height=SH*k+'px';
  const loop=ts=>{if(!parading)return;x.clearRect(0,0,c.width,c.height);KEYS.forEach((key,i)=>{const fr=Math.floor(ts/120+i)%4;x.drawImage(spr(key,[3,5,6,7,8,9,6,9,8][i],fr,'s',i%2?'f':'m'),i*SW,fr%2?-1:0)});requestAnimationFrame(loop)};requestAnimationFrame(loop)})();
