@@ -92,7 +92,8 @@ main{max-width:920px;margin:0 auto;padding:22px max(4vw,14px,env(safe-area-inset
 .sheet h3{margin:18px 0 8px;font-size:20px;font-weight:400}
 label.f{display:block;margin-top:12px;font-size:17px}
 input{font:inherit;font-size:17px;width:100%;min-height:44px;margin-top:4px;padding:6px 12px;border:3px solid var(--ink);border-radius:10px;background:#fffaf0;color:var(--ink)}
-.cls{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;margin-top:6px}
+.cls{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:6px;margin-top:6px}
+.tabs.gen{margin:6px 0 0}
 .cls button{border:3px solid var(--ink);border-radius:10px;background:var(--paper2);padding:4px 0 2px;cursor:pointer;display:flex;flex-direction:column;align-items:center;font-size:15px}
 .cls button[aria-pressed=true]{background:var(--gold);box-shadow:inset 0 -3px 0 rgba(0,0,0,.15)}
 .cls canvas{display:block;width:42px;height:48px}
@@ -255,31 +256,39 @@ const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
 /* ---------- 도트 스프라이트 ---------- */
 const OUT='#2b1d2e',SKIN='#ffd8b1',SKIN_D='#f2b48e',BLUSH='#ff8fa3',WOOD='#b0743a',WOOD_D='#7a4a22',STEEL='#e3e9f2',STEEL_D='#9aa6ba',GLOW='#8ff3ff',GLOW_D='#3cc6e8',GOLD='#ffd23f',GOLD_D='#d6931c',WHITE='#ffffff';
 const CLS={
- warrior:{n:'전사',main:'#d8453b',dark:'#8f2626',hair:'#7a4220',hairL:'#a8612f',eye:'#c0392b',w:'sword',task:['헬스장 1시간','스쿼트 100개','점심 산책 30분']},
+ warrior:{n:'전사',main:'#d8453b',dark:'#8f2626',hair:'#7a4220',hairL:'#a8612f',hairF:'#c0502a',hairFL:'#e07a48',eye:'#c0392b',w:'sword',task:['헬스장 1시간','스쿼트 100개','점심 산책 30분']},
  mage:{n:'마법사',main:'#7d4fd8',dark:'#4b2c8c',hair:'#4a3a8a',hairL:'#6c5bb8',eye:'#7d4fd8',w:'staff',robe:1,trim:'#b896ff',task:['영어 단어 30개','책 20쪽 읽기','일본어 30분']},
  archer:{n:'궁수',main:'#3fa452',dark:'#246a31',hair:'#e0a83e',hairL:'#f5cc6b',eye:'#2f8a42',w:'bow',task:['물 2리터 마시기','만 보 걷기','채소 한 접시']},
- rogue:{n:'도적',main:'#4b5068',dark:'#2b2e3e',hair:'#2a2a3a',hairL:'#4a4a66',eye:'#b8323a',w:'dagger',task:['야식 참기','군것질 0회','배달앱 안 열기']},
- healer:{n:'힐러',main:'#fbf7ee',dark:'#d6c6a6',hair:'#f4a7c4',hairL:'#ffd0e1',eye:'#e0558a',w:'cross',robe:1,trim:'#ff7aa8',task:['밤 12시 전에 자기','스트레칭 10분','명상 5분']},
- knight:{n:'기사',main:'#3c70d8',dark:'#24458c',hair:'#e8c46a',hairL:'#fbe39a',eye:'#2f5fc0',w:'shield',task:['계단으로 다니기','플랭크 3분','아침 운동']}
+ rogue:{n:'도적',main:'#4b5068',dark:'#2b2e3e',hair:'#2a2a3a',hairL:'#4a4a66',hairF:'#5a2d4a',hairFL:'#83466e',eye:'#b8323a',w:'dagger',task:['야식 참기','군것질 0회','배달앱 안 열기']},
+ healer:{n:'힐러',main:'#fbf7ee',dark:'#d6c6a6',hair:'#c9a27a',hairL:'#e6c49c',hairF:'#f4a7c4',hairFL:'#ffd0e1',eye:'#e0558a',w:'cross',robe:1,trim:'#ff7aa8',task:['밤 12시 전에 자기','스트레칭 10분','명상 5분']},
+ knight:{n:'기사',main:'#3c70d8',dark:'#24458c',hair:'#e8c46a',hairL:'#fbe39a',eye:'#2f5fc0',w:'shield',task:['계단으로 다니기','플랭크 3분','아침 운동']},
+ star:{n:'별술사',nf:'별의 마녀',main:'#2f3f8f',dark:'#1d2763',hair:'#d9dcef',hairL:'#ffffff',hairF:'#b48cff',hairFL:'#d8c4ff',eye:'#5aa9ff',w:'starwand',robe:1,trim:'#ffd23f',task:['책 30쪽 읽기','자격증 공부 1시간','일기 쓰기']},
+ fox:{n:'여우 신관',nf:'여우 무녀',main:'#fbf7ee',dark:'#d6c6a6',lower:'#d8453b',lowerD:'#9c2a24',hair:'#f0a030',hairL:'#ffc864',eye:'#c0392b',w:'bell',robe:1,trim:'#d8453b',task:['명상 10분','밤 12시 전에 자기','감사일기 3줄']},
+ pat:{n:'파티시에',main:'#ffffff',dark:'#d9d2c6',hair:'#6b3a1e',hairL:'#8f5a33',hairF:'#f5cc6b',hairFL:'#ffe39a',eye:'#e0558a',w:'whisk',task:['도시락 싸기','단백질 챙겨 먹기','설탕 음료 끊기']}
 };
 const KEYS=Object.keys(CLS);
+const cname=(k,g)=>(g==='f'&&CLS[k].nf)||CLS[k].n;
 const STAGE=['견습','초보','숙련','정예','베테랑','영웅','챔피언','전설','신화'];
 const SW=28,SH=32,FEET=30,CX=14;
 const hex=c=>{const n=parseInt(c.slice(1),16);return[n>>16,n>>8&255,n&255]};
 
 const shade=(c,f=.72)=>'#'+hex(c).map(v=>Math.round(v*f).toString(16).padStart(2,'0')).join('');
-// fr: 0~3 걷기, 4 서 있기 / view: 'f' 정면, 's' 옆(오른쪽 보기, 왼쪽은 좌우반전)
-function buildSprite(k,st,fr,view){
- const C=CLS[k],g=new Array(SW*SH).fill(0),side=view==='s';
+// fr: 0~3 걷기, 4 서 있기 / view: 'f' 정면, 's' 반측면(오른쪽, 왼쪽은 좌우반전) / gen: 'm' 남캐, 'f' 여캐
+function buildSprite(k,st,fr,view,gen){
+ const C=CLS[k],g=new Array(SW*SH).fill(0),side=view==='s',fem=gen==='f';
  const P=(x,y,c)=>{if(x>=0&&y>=0&&x<SW&&y<SH)g[y*SW+x]=c};
  const R=(a,b,c2,d,c)=>{for(let y=b;y<=d;y++)for(let x=a;x<=c2;x++)P(x,y,c)};
  const grp=st<=3?0:st<=6?1:2,legH=[2,2,3][grp],bodyH=[4,5,6][grp];
  const legTop=FEET-legH+1,bodyBot=legTop-1,bodyTop=bodyBot-bodyH+1,y1=bodyTop-1,y0=y1-9,x0=CX-6,x1=CX+5,hy=bodyBot,ey=y0+5;
  const plain=st<=2,main=plain?'#cdb68a':C.main,dark=plain?'#9a8460':C.dark,boot=plain?'#6b4a2e':'#4a3022';
+ const lowC=C.lower&&!plain?C.lower:main,lowD=C.lowerD&&!plain?C.lowerD:dark;
+ const Hc=fem&&C.hairF?C.hairF:C.hair,HL=fem&&C.hairFL?C.hairFL:C.hairL;
+ const legC=fem&&!C.robe?'#fff2e6':dark,legC2=fem&&!C.robe?'#e8d8c8':shade(dark);
  const metal=st>=8?GOLD:STEEL,metalD=st>=8?GOLD_D:STEEL_D;
  const mat=st<=2?WOOD:st<=6?STEEL:GLOW,matD=st<=2?WOOD_D:st<=6?STEEL_D:GLOW_D;
- const capeC=k==='healer'?'#e95b8f':k==='rogue'?'#6a2a3a':C.dark,flap=[0,-1,0,1,0][fr];
+ const capeC=k==='healer'?'#e95b8f':k==='rogue'?'#6a2a3a':k==='pat'?'#ff9ab8':C.dark,flap=[0,-1,0,1,0][fr];
  const shC=C.robe?(st>=8?GOLD:C.dark):metal,shD=C.robe?(st>=8?GOLD_D:C.dark):metalD;
+ const sw5=[1,0,-1,0,0][fr];
  const sword=(wx,y,len)=>{R(wx,y-1-len,wx+1,y-2,mat);R(wx+1,y-1-len,wx+1,y-2,matD);P(wx,y-2-len,mat);R(wx-1,y-1,wx+2,y-1,st>=7?GOLD:'#8a6a4a');R(wx,y,wx,y+1,'#5a3a22')};
  const shield=(sx,sy)=>{const sc=st<=2?WOOD:st<=6?STEEL:GOLD,sd=st<=2?WOOD_D:st<=6?STEEL_D:GOLD_D;R(sx,sy,sx+4,sy+5,sc);R(sx+1,sy+6,sx+3,sy+6,sc);P(sx+2,sy+7,sc);R(sx+4,sy,sx+4,sy+5,sd);if(st>=3){const ec=st>=7?'#e0443a':C.main;R(sx+2,sy+1,sx+2,sy+4,ec);R(sx+1,sy+2,sx+3,sy+2,ec)}};
  const weapon=(hx,y)=>{if(st<2)return;const wx=hx+1;
@@ -288,72 +297,104 @@ function buildSprite(k,st,fr,view){
   else if(C.w==='bow'){[0,1,2,2,2,2,2,1,0].forEach((o,i)=>P(wx+1+o,y-5+i,mat));R(wx,y-4,wx,y+2,'#f4f0e6');P(wx+3,y-1,'#5a3a22');P(wx+3,y,'#5a3a22')}
   else if(C.w==='dagger'){R(wx,y-4,wx,y-1,mat);R(wx+1,y-3,wx+1,y-1,matD);P(wx,y,'#5a3a22')}
   else if(C.w==='cross'){const t=y-8-grp*2,cc=st<=2?WOOD:st<=6?'#ff5c8a':GOLD;R(wx,t,wx,y+2,st<=2?WOOD:'#f0e2c0');R(wx,t-3,wx+1,t,cc);R(wx-1,t-2,wx+2,t-1,cc)}
-  else if(C.w==='shield'&&st>=3)sword(wx,y,4+grp)};
+  else if(C.w==='shield'&&st>=3)sword(wx,y,4+grp);
+  else if(C.w==='starwand'){const t=y-5-grp;R(wx,t,wx,y+1,st<=2?WOOD:'#f0e2c0');const sc=st<=2?'#e8c46a':GOLD;
+   if(st<=2)R(wx-1,t-2,wx+1,t-1,sc);else{R(wx-1,t-2,wx+1,t-2,sc);R(wx,t-3,wx,t-1,sc);P(wx-2,t-2,sc);P(wx+2,t-2,sc);P(wx,t-4,sc);if(st>=7){P(wx-2,t-4,GLOW);P(wx+2,t-4,GLOW);P(wx-2,t,GLOW);P(wx+2,t,GLOW)}}}
+  else if(C.w==='bell'){const t=y-6-grp;R(wx,t,wx,y+2,st<=2?WOOD:'#d8453b');const bc=st<=2?'#e8c46a':GOLD;P(wx,t-1,bc);P(wx-1,t,bc);P(wx+1,t,bc);P(wx-1,t-2,bc);P(wx+1,t-2,bc);
+   if(st>=5){P(wx+1,t+1,'#ff6b9a');P(wx+2,t+2,'#ff6b9a');P(wx+1,t+3,'#5aa9ff')}}
+  else if(C.w==='whisk'){if(st>=7){const cx2=wx;R(cx2-1,y-6,cx2+4,y-5,'#fff4dc');R(cx2-1,y-4,cx2+4,y-1,'#f4a7c4');R(cx2-1,y-3,cx2+4,y-3,'#fff4dc');P(cx2,y-7,'#e0443a');P(cx2+3,y-7,'#e0443a');if(st>=9)R(cx2+1,y-9,cx2+1,y-7,'#ffd23f');P(cx2,y,'#5a3a22')}
+   else{R(wx,y-1,wx,y+1,WOOD);R(wx-1,y-6,wx+1,y-2,'#cfd6e0');P(wx,y-5,'#9aa6ba');P(wx,y-3,'#9aa6ba');P(wx-1,y-6,0);P(wx+1,y-6,0)}}};
  const arm=(sx,dx,dy,col)=>{const ey2=hy+dy,n=ey2-(bodyTop+1);for(let i=0;i<n;i++)P(sx+Math.round(dx*i/Math.max(1,n)),bodyTop+1+i,col);P(sx+dx,ey2,SKIN)};
+ // 여우 꼬리: 진화 단계만큼 (1~9개)
+ const tails=(ox,oy,a0,a1)=>{const n=Math.min(9,st),L=6+grp*2;for(let t=0;t<n;t++){const a=n===1?(a0+a1)/2:a0+(a1-a0)*t/(n-1)+flap*.05;for(let j=0;j<=L;j++){const x=Math.round(ox+Math.sin(a)*j),y=Math.round(oy-Math.cos(a)*j*.75);const c=j>=L-1?WHITE:(j===L-3?C.hairL:Hc);P(x,y,c);P(x+1,y,c)}}};
+ // 별술사 사역마 고양이 (7단계~)
+ const cat=(cx,cy)=>{const b='#2a2438';R(cx,cy-2,cx+3,cy,b);P(cx,cy-3,b);P(cx+3,cy-3,b);P(cx+1,cy-1,'#ffd23f');P(cx+2,cy-1,'#ffd23f');P(cx-1,cy,b);P(cx-2,cy-1,b)};
+ const skirt=(a,b2)=>{if(!fem||C.robe)return;const sc=k==='pat'&&st>=3?'#ff9ab8':main;R(a,bodyBot,b2,bodyBot,sc);const l=a-1+(sw5<0?sw5:0),r=b2+1+(sw5>0?sw5:0);R(l,bodyBot+1,r,bodyBot+1,shade(sc,.85))};
  let hx,hy2;
  if(side){ // 45도 반측면 (오른쪽을 봄)
   const sw0=[-1,0,1,0,0][fr],legA=[1,0,-1,0,0][fr],liftN=fr===3,liftF=fr===1;
   if(st>=9)[2,4,6,7,7,6,5,3,2].forEach((n,i)=>{const y=bodyTop-4+i+(i<4?flap:0),c=j=>j===n-1?GOLD:(i%2?'#e6eeff':WHITE);for(let j=0;j<n;j++)P(CX-6-j,y,c(j));const m=Math.ceil(n/2);for(let j=0;j<m;j++)P(CX+5+j,y-1,j===m-1?GOLD:(i%2?'#e6eeff':WHITE))});
+  if(k==='fox')tails(CX-3,FEET-3,-2.4,-0.5);
   if(st>=6){const f=[1,2,1,0,0][fr];R(CX-6,bodyTop,CX+2,FEET-1,capeC);R(CX-7-f,FEET-3,CX+2,FEET-1,capeC);if(st>=8)R(CX-7-f,FEET-1,CX+2,FEET-1,GOLD)}
+  if(fem)R(x0,y1-1,x0+4,y1+4,Hc);
   if(C.w==='shield'&&st>=2)shield(CX-10,bodyTop-1);
   arm(CX-5,-sw0,sw0,shade(main));
   const leg=(bx,dx,lift,col)=>{const fy=FEET-(lift?1:0);if(C.robe){if(!lift)R(bx+dx,FEET,bx+dx+2,FEET,boot);return}
    for(let y=legTop;y<=fy;y++){const x=bx+Math.round(dx*(y-legTop+1)/(fy-legTop+1));R(x,y,x+1,y,col)}R(bx+dx,fy,bx+dx+2,fy,boot)};
-  leg(CX-3,-legA,liftF,shade(dark));leg(CX,legA,liftN,dark);
+  leg(CX-3,-legA,liftF,legC2);leg(CX,legA,liftN,legC);
   R(CX-4,bodyTop,CX+3,bodyBot,main);R(CX-4,bodyTop,CX-3,bodyBot,dark);
-  if(C.robe){const sw=[1,0,-1,0,0][fr];R(CX-4,bodyBot,CX+3,FEET-1,main);R(CX-5+sw,FEET-2,CX+4+sw,FEET-1,main);R(CX-4,bodyBot,CX-3,FEET-3,dark);R(CX-5+sw,FEET-1,CX+4+sw,FEET-1,dark);if(st>=3)R(CX+1,bodyTop+1,CX+1,FEET-2,st>=8?GOLD:C.trim)}
+  if(C.robe){const sw=sw5;R(CX-4,bodyBot,CX+3,FEET-1,lowC);R(CX-5+sw,FEET-2,CX+4+sw,FEET-1,lowC);R(CX-4,bodyBot,CX-3,FEET-3,lowD);R(CX-5+sw,FEET-1,CX+4+sw,FEET-1,lowD);if(st>=3)R(CX+1,bodyTop+1,CX+1,FEET-2,st>=8?GOLD:C.trim)}
   else R(CX-4,bodyBot,CX+3,bodyBot,st>=8?GOLD:dark);
+  skirt(CX-4,CX+3);
+  if(k==='pat'&&st>=3){R(CX-1,bodyTop+1,CX+3,bodyBot,'#ff9ab8');P(CX+1,bodyTop+3,WHITE)}
   P(CX,bodyTop,SKIN);P(CX+1,bodyTop,SKIN);
   if(st>=5){const yb=bodyTop+bodyH-3;R(CX-4,yb,CX+3,yb,'#6b4423');P(CX,yb,GOLD);P(CX+1,yb,GOLD)}
   arm(CX+4,sw0,-sw0,main);
   if(st>=5){R(CX-5,bodyTop,CX-4,bodyTop+1,shD);R(CX+3,bodyTop,CX+5,bodyTop+1,shC);P(CX+5,bodyTop+1,shD)}
   hx=CX+4+sw0;hy2=hy-sw0;
   R(x0,y0,x1,y1,SKIN);[[x0,y0],[x1,y0],[x0,y1],[x1,y1]].forEach(([x,y])=>P(x,y,0));R(x0+1,y1,x1-1,y1,SKIN_D);
-  const Hc=C.hair;R(x0+1,y0,x1-1,y0,Hc);R(x0,y0+1,x1,y0+2,Hc);R(x0,y0+3,x0+2,y0+7,Hc);P(x0+3,y0+3,Hc);P(x0+3,y0+4,Hc);
-  [x0+5,x0+6,x0+8,x1-1,x1].forEach(x=>P(x,y0+3,Hc));P(x1,y0+4,Hc);R(x0+2,y0+1,x0+4,y0+1,C.hairL);
+  R(x0+1,y0,x1-1,y0,Hc);R(x0,y0+1,x1,y0+2,Hc);R(x0,y0+3,x0+2,y0+7,Hc);P(x0+3,y0+3,Hc);P(x0+3,y0+4,Hc);
+  [x0+5,x0+6,x0+8,x1-1,x1].forEach(x=>P(x,y0+3,Hc));P(x1,y0+4,Hc);R(x0+2,y0+1,x0+4,y0+1,HL);
+  if(fem){R(x0,y0+3,x0+2,y1+1,Hc);R(x1,y0+3,x1,y0+7,Hc)}
   if(k==='healer'){R(x0,y0+3,x0+2,y1+1,Hc);R(x1,y0+3,x1,y0+7,Hc)}
-  if(k==='archer'){const b=fr%2;R(x0-1,y0+2,x0-1,y0+6,Hc);R(x0-2,y0+5+b,x0-2,y0+7+b,Hc)}
+  if(k==='archer'){const b=fr%2;R(x0-1,y0+2,x0-1,y0+6+(fem?2:0),Hc);R(x0-2,y0+5+b,x0-2,y0+7+b+(fem?2:0),Hc)}
   R(CX-2,ey,CX-1,ey+2,OUT);P(CX-2,ey,WHITE);P(CX-1,ey+2,C.eye);R(CX+3,ey,CX+4,ey+2,OUT);P(CX+3,ey,WHITE);P(CX+4,ey+2,C.eye);
-  P(CX-3,ey+3,BLUSH);P(CX+4,ey+3,BLUSH);P(CX+1,ey+3,'#b4434a');P(CX+2,ey+3,'#b4434a');
+  if(fem){P(CX-3,ey,OUT);P(CX+5,ey,OUT)}
+  P(CX-3,ey+3,BLUSH);P(CX+4,ey+3,BLUSH);P(CX+1,ey+3,fem?'#e0607a':'#b4434a');if(!fem)P(CX+2,ey+3,'#b4434a');
  }else{
   const lDy=[0,-1,0,1,0][fr],rDy=-lDy;
   if(st>=9)[2,4,6,7,7,6,5,3,2].forEach((n,i)=>{const y=bodyTop-4+i+(i<4?flap:0);for(let j=0;j<n;j++){const c=j===n-1?GOLD:(i%2?'#e6eeff':WHITE);P(CX-6-j,y,c);P(CX+5+j,y,c)}});
+  if(k==='fox')tails(CX,FEET-3,-1.35,1.35);
   if(st>=6){R(CX-5,bodyTop,CX+4,FEET-1,capeC);R(CX-6,FEET-3,CX+5,FEET-1,capeC);if(st>=8)R(CX-6,FEET-1,CX+5,FEET-1,GOLD)}
+  if(fem)R(x0,y1-1,x1,y1+3,Hc);
   const lL=fr===1,lR=fr===3;
-  if(!C.robe){const a=FEET-(lL?1:0),b=FEET-(lR?1:0);R(CX-3,legTop,CX-2,a,dark);R(CX-3,a,CX-2,a,boot);R(CX+1,legTop,CX+2,b,dark);R(CX+1,b,CX+2,b,boot)}
+  if(!C.robe){const a=FEET-(lL?1:0),b=FEET-(lR?1:0);R(CX-3,legTop,CX-2,a,legC);R(CX-3,a,CX-2,a,boot);R(CX+1,legTop,CX+2,b,legC);R(CX+1,b,CX+2,b,boot)}
   else{if(!lL)R(CX-3,FEET,CX-2,FEET,boot);if(!lR)R(CX+1,FEET,CX+2,FEET,boot)}
   R(CX-4,bodyTop,CX+3,bodyBot,main);R(CX+3,bodyTop,CX+3,bodyBot,dark);
-  if(C.robe){const sw=[1,0,-1,0,0][fr];R(CX-4,bodyBot,CX+3,FEET-1,main);R(CX-5+(sw<0?sw:0),FEET-2,CX+4+(sw>0?sw:0),FEET-1,main);R(CX+3,bodyBot,CX+3,FEET-3,dark);R(CX-5,FEET-1,CX+4,FEET-1,dark);if(st>=3)R(CX-1,bodyTop+1,CX,FEET-1,st>=8?GOLD:C.trim)}
+  if(C.robe){const sw=sw5;R(CX-4,bodyBot,CX+3,FEET-1,lowC);R(CX-5+(sw<0?sw:0),FEET-2,CX+4+(sw>0?sw:0),FEET-1,lowC);R(CX+3,bodyBot,CX+3,FEET-3,lowD);R(CX-5,FEET-1,CX+4,FEET-1,lowD);if(st>=3)R(CX-1,bodyTop+1,CX,FEET-1,st>=8?GOLD:C.trim)}
   else R(CX-4,bodyBot,CX+3,bodyBot,st>=8?GOLD:dark);
+  skirt(CX-4,CX+3);
+  if(k==='pat'&&st>=3){R(CX-3,bodyTop+1,CX+2,bodyBot,'#ff9ab8');R(CX-2,bodyTop+3,CX-1,bodyTop+3,WHITE)}
   P(CX-1,bodyTop,SKIN);P(CX,bodyTop,SKIN);
   if(st>=5){const yb=bodyTop+bodyH-3;R(CX-4,yb,CX+3,yb,'#6b4423');P(CX-1,yb,GOLD);P(CX,yb,GOLD)}
   arm(CX-5,lDy<0?-1:0,lDy,main);arm(CX+4,rDy<0?1:0,rDy,dark);
   if(st>=5){R(CX-6,bodyTop,CX-4,bodyTop+1,shC);R(CX+3,bodyTop,CX+5,bodyTop+1,shC);P(CX-6,bodyTop+1,shD);P(CX+5,bodyTop+1,shD)}
   hx=CX+4+(rDy<0?1:0);hy2=hy+rDy;
   R(x0,y0,x1,y1,SKIN);[[x0,y0],[x1,y0],[x0,y1],[x1,y1]].forEach(([x,y])=>P(x,y,0));R(x0+1,y1,x1-1,y1,SKIN_D);
-  const Hc=C.hair;R(x0+1,y0,x1-1,y0,Hc);R(x0,y0+1,x1,y0+2,Hc);R(x0,y0+3,x0,y0+6,Hc);R(x1,y0+3,x1,y0+6,Hc);
-  [x0+1,x0+2,x0+4,x0+7,x0+8,x1-1].forEach(x=>P(x,y0+3,Hc));P(x0+1,y0+4,Hc);P(x1-1,y0+4,Hc);R(x0+3,y0+1,x0+4,y0+1,C.hairL);
-  if(k==='healer'){R(x0,y0+3,x0,y1+1,Hc);R(x1,y0+3,x1,y1+1,Hc)}
-  if(k==='archer')R(x1+1,y0+2,x1+1,y0+7,Hc);
+  R(x0+1,y0,x1-1,y0,Hc);R(x0,y0+1,x1,y0+2,Hc);R(x0,y0+3,x0,y0+6,Hc);R(x1,y0+3,x1,y0+6,Hc);
+  [x0+1,x0+2,x0+4,x0+7,x0+8,x1-1].forEach(x=>P(x,y0+3,Hc));P(x0+1,y0+4,Hc);P(x1-1,y0+4,Hc);R(x0+3,y0+1,x0+4,y0+1,HL);
+  if(fem||k==='healer'){R(x0,y0+3,x0,y1+1,Hc);R(x1,y0+3,x1,y1+1,Hc)}
+  if(k==='archer')R(x1+1,y0+2,x1+1,y0+7+(fem?3:0),Hc);
   R(CX-4,ey,CX-3,ey+2,OUT);R(CX+2,ey,CX+3,ey+2,OUT);P(CX-4,ey,WHITE);P(CX+2,ey,WHITE);P(CX-3,ey+2,C.eye);P(CX+3,ey+2,C.eye);
-  P(CX-5,ey+3,BLUSH);P(CX+4,ey+3,BLUSH);P(CX-1,ey+3,'#b4434a');P(CX,ey+3,'#b4434a');
+  if(fem){P(CX-5,ey,OUT);P(CX+4,ey,OUT)}
+  P(CX-5,ey+3,BLUSH);P(CX+4,ey+3,BLUSH);if(fem)P(CX-1,ey+3,'#e0607a');else{P(CX-1,ey+3,'#b4434a');P(CX,ey+3,'#b4434a')}
  }
- // 머리 장비 (4단계~)
+ // 머리 장비
  let top=y0,tip=null;
+ const witchHat=(hc,band)=>{R(x0-1,y0+1,x1+1,y0+2,hc);R(x0-1,y0+2,x1+1,y0+2,shade(hc));
+  const lean=side?-1:1;[10,8,6,5,4,3,2].forEach((w,i)=>{const s=CX-5+((10-w)>>1)+lean*Math.floor(i*.8);R(s,y0-i,s+w-1,y0-i,hc);if(i===6)tip=[lean>0?s+w:s-1,y0-i-1]});
+  if(band)R(x0,y0,x1,y0,GOLD);top=y0-6};
+ if(k==='fox'){const e=Hc,ins='#ffd0e1';R(x0+1,y0-2,x0+2,y0-1,e);P(x0+1,y0-3,e);P(x0+2,y0-1,ins);R(x1-2,y0-2,x1-1,y0-1,e);P(x1-1,y0-3,e);P(x1-2,y0-1,ins);top=y0-3;
+  if(st>=4){R(x0+3,y0+1,x1-3,y0+1,'#d8453b');if(fem){P(x1,y0+2,'#d8453b');P(x1+1,y0+1,'#d8453b');P(x1+1,y0+3,'#d8453b')}}
+  if(st>=8){P(x0+3,y0+1,GOLD);P(x1-3,y0+1,GOLD)}}
+ if(k==='star'&&st>=2){witchHat(main,true);const sp=side?x0+1:x1-1;P(sp,y0+1,'#ffd23f');P(sp-1,y0+1,'#ffd23f')}
+ if(k==='pat'&&st>=3){R(x0+1,y0-4,x1-1,y0+1,WHITE);R(x0,y0-6,x1,y0-3,WHITE);P(x0,y0-6,0);P(x1,y0-6,0);R(x1-1,y0-5,x1,y0-3,'#e6e0d6');R(x0+1,y0+1,x1-1,y0+1,'#e6e0d6');P(x0+3,y0-6,'#e6e0d6');P(x0+7,y0-6,'#e6e0d6');top=y0-6}
  if(st>=4){
   if(k==='warrior'||k==='knight'){R(x0,y0-1,x1,y0+2,metal);P(x0,y0-1,0);P(x1,y0-1,0);R(x0+1,y0-2,x1-1,y0-2,metal);R(x0,y0+2,x1,y0+2,metalD);
    if(side)R(x0,y0+3,x0+2,y0+6,metal);else{R(x0,y0+3,x0,y0+5,metal);R(x1,y0+3,x1,y0+5,metal)}P(x0+3,y0-1,WHITE);top=y0-2;
    if(k==='warrior'&&st>=7){const hc='#fff3d6';P(x0-1,y0-2,hc);P(x0-2,y0-3,hc);P(x0-2,y0-4,hc);P(x1+1,y0-2,hc);P(x1+2,y0-3,hc);P(x1+2,y0-4,hc)}
-   if(k==='knight'&&st<9){const pc='#e0443a',s2=side?-2:0;R(CX-1+s2,y0-4,CX+s2,y0-3,pc);R(CX+1+s2,y0-5,CX+2+s2,y0-4,pc);if(side)R(CX-4,y0-4,CX-3,y0-2,pc);top=y0-5}}
-  else if(k==='mage'){const hc=C.main;R(x0-1,y0+1,x1+1,y0+2,hc);R(x0-1,y0+2,x1+1,y0+2,C.dark);
-   const lean=side?-1:1;[10,8,6,5,4,3,2].forEach((w,i)=>{const s=CX-5+((10-w)>>1)+lean*Math.floor(i*.8)+(side?0:0);R(s,y0-i,s+w-1,y0-i,hc);if(i===6)tip=[lean>0?s+w:s-1,y0-i-1]});
-   if(st>=7)R(x0,y0,x1,y0,GOLD);top=y0-6}
+   if(k==='knight'&&st<9){const pc='#e0443a',s2=side?-2:0;R(CX-1+s2,y0-4,CX+s2,y0-3,pc);R(CX+1+s2,y0-5,CX+2+s2,y0-4,pc);if(side)R(CX-4,y0-4,CX-3,y0-2,pc);top=y0-5}
+   if(fem&&!side){R(x0,y0+6,x0,y1+1,Hc);R(x1,y0+6,x1,y1+1,Hc)}}
+  else if(k==='mage')witchHat(C.main,st>=7);
   else if(k==='archer'){R(x0,y0-1,x1,y0+1,C.main);P(x0,y0-1,0);P(x1,y0-1,0);R(x0-1,y0+2,x1+1,y0+2,C.dark);const fc=st>=8?GOLD:'#e0443a',fx2=side?x0+2:x1;P(fx2-1,y0-2,fc);P(fx2,y0-2,fc);P(fx2+(side?-1:0),y0-3,fc);P(fx2+(side?-2:1),y0-4,fc);top=y0-1}
   else if(k==='rogue'){const bc=st>=8?GOLD:'#c0353d',t2=[0,1,0,1,0][fr];R(x0,y0+1,x1,y0+2,bc);P(x0-1,y0+2,bc);P(x0-2,y0+3-t2,bc);P(x0-3,y0+3-t2,bc);P(x0-2,y0+4,bc);if(st>=6)R(x0+1,ey+3,x1-1,y1,'#3a3d50')}
   else if(k==='healer'){R(x0-1,y0-1,x1+1,y0+2,WHITE);P(x0-1,y0-1,0);P(x1+1,y0-1,0);if(side)R(x0-1,y0+3,x0+2,y1+2,WHITE);else{R(x0-1,y0+3,x0-1,y1+1,WHITE);R(x1+1,y0+3,x1+1,y1+1,WHITE)}
    const cc=st>=8?GOLD:'#ff5c8a';R(CX-1,y0-1,CX,y0+1,cc);R(CX-2,y0,CX+1,y0,cc);top=y0-1}
  }
- if(st>=9){if(k==='mage'&&tip){const[a,b]=tip;R(a-1,b,a+1,b,GOLD);R(a,b-1,a,b+1,GOLD)}
+ // 여캐 리본 (머리 장비가 없을 때)
+ if(fem&&top===y0&&k!=='rogue'){const rb=k==='healer'?'#ff5c8a':'#ff6b9a',bx=side?x0+2:x1-2;P(bx-1,y0-1,rb);P(bx+1,y0-1,rb);P(bx,y0,rb);P(bx-1,y0,rb);P(bx+1,y0,rb);P(bx,y0-1,shade(rb))}
+ if(k==='star'&&st>=7)cat(side?CX-9:CX-9,bodyTop);
+ if(st>=9){if((k==='mage'||k==='star')&&tip){const[a,b]=tip;R(a-1,b,a+1,b,GOLD);R(a,b-1,a,b+1,GOLD)}
   else{const t=top-1;R(CX-3,t-1,CX+2,t,GOLD);P(CX-3,t-2,GOLD);P(CX-1,t-2,GOLD);P(CX,t-2,GOLD);P(CX+2,t-2,GOLD);P(CX-1,t-1,'#e0443a');P(CX,t-1,'#4aa8ff');R(CX-3,t,CX+2,t,GOLD_D)}}
  if(!side&&C.w==='shield'&&st>=2)shield(CX-9,bodyTop-1);weapon(hx,hy2);if(!side){
   if(C.w==='dagger'&&st>=7){const lx=CX-6+(fr===1?-1:0),ly=hy+[0,-1,0,1,0][fr];R(lx,ly-4,lx,ly-1,mat);R(lx-1,ly-3,lx-1,ly-1,matD);P(lx,ly,'#5a3a22')}}
@@ -365,8 +406,8 @@ function buildSprite(k,st,fr,view){
  cx.putImageData(id,0,0);return cv;
 }
 const cache={};
-const spr=(k,st,fr=4,v='f')=>{const key=k+st+fr+v;return cache[key]||(cache[key]=buildSprite(k,st,fr,v))};
-function sil(k,st){const key='s'+k+st;if(cache[key])return cache[key];const c=mk(SW,SH),x=c.getContext('2d');x.drawImage(spr(k,st),0,0);x.globalCompositeOperation='source-in';x.fillStyle='#4a4470';x.fillRect(0,0,SW,SH);return cache[key]=c}
+const spr=(k,st,fr=4,v='f',g='m')=>{const key=k+st+fr+v+g;return cache[key]||(cache[key]=buildSprite(k,st,fr,v,g))};
+function sil(k,st,g='m'){const key='s'+k+st+g;if(cache[key])return cache[key];const c=mk(SW,SH),x=c.getContext('2d');x.drawImage(spr(k,st,4,'f',g),0,0);x.globalCompositeOperation='source-in';x.fillStyle='#4a4470';x.fillRect(0,0,SW,SH);return cache[key]=c}
 function paint(c,src){c.width=SW;c.height=SH;const x=c.getContext('2d');x.clearRect(0,0,SW,SH);x.drawImage(src,0,0)}
 function mk(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;return c}
 
@@ -405,7 +446,7 @@ const uid=()=>'h'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 let S={heroes:[]};
 const DATE=/^\d{4}-\d{2}-\d{2}$/;
 function clean(d){const out=[];(Array.isArray(d&&d.heroes)?d.heroes:[]).forEach(h=>{if(!h||!CLS[h.cls])return;const days=Math.max(3,Math.min(365,parseInt(h.days)||30));
- out.push({id:String(h.id||uid()).slice(0,40),name:String(h.name||'이름 없는 용사').slice(0,12),cls:h.cls,task:String(h.task||'').slice(0,40),days,start:DATE.test(h.start)?h.start:today(),checks:[...new Set((h.checks||[]).filter(x=>typeof x==='string'&&DATE.test(x)))].sort()})});return{heroes:out}}
+ out.push({id:String(h.id||uid()).slice(0,40),name:String(h.name||'이름 없는 용사').slice(0,12),cls:h.cls,gen:h.gen==='f'?'f':'m',task:String(h.task||'').slice(0,40),days,start:DATE.test(h.start)?h.start:today(),checks:[...new Set((h.checks||[]).filter(x=>typeof x==='string'&&DATE.test(x)))].sort()})});return{heroes:out}}
 try{const raw=localStorage.getItem(KEY);if(raw)S=clean(JSON.parse(raw))}catch(e){}
 const setSync=t=>$('#sync').textContent=t;
 /* ---------- 회원 로그인 · 서버 저장 ---------- */
@@ -488,7 +529,7 @@ function friendCard(fr){
  const hs=clean({heroes:fr.heroes}).heroes,act=hs.filter(h=>info(h).state==='on'),done=act.filter(h=>info(h).done).length;
  const top=[...hs].sort((a,b)=>info(b).lv-info(a).lv);
  return `<div class="fcard"><div class="fhead"><b>${esc(fr.nick)}</b><span class="fstat">${act.length?`오늘 ${done}/${act.length} 클리어`:'진행 중인 원정 없음'}</span></div>
- <div class="fheroes">${top.length?top.map(h=>{const I=info(h);return `<div class="fh${I.done?' ok':''}"><canvas data-spr="${h.cls}|${I.stage}"></canvas><span>${esc(h.name)}</span><small>Lv.${I.lv}</small></div>`}).join(''):'<p class="muted">아직 용사가 없어요</p>'}</div>
+ <div class="fheroes">${top.length?top.map(h=>{const I=info(h);return `<div class="fh${I.done?' ok':''}"><canvas data-spr="${h.cls}|${I.stage}|${h.gen}"></canvas><span>${esc(h.name)}</span><small>Lv.${I.lv}</small></div>`}).join(''):'<p class="muted">아직 용사가 없어요</p>'}</div>
  <div class="fact"><button type="button" class="mini" data-act="unfriend" data-id="${esc(fr.friend_code)}">친구 끊기</button></div></div>`;
 }
 function drawFriends(){
@@ -655,7 +696,7 @@ function drawHero(e,t){
  tx.globalAlpha=.3;ell(tx,X,Y+1,7,1,'#1d1030');tx.globalAlpha=1;
  if(st>=8){tx.globalAlpha=.18;ell(tx,X,Y-12,13,15,st>=9?GOLD:GLOW);tx.globalAlpha=1;
   for(let i=0;i<5;i++){const a=t*1.7+i*1.26+X*.1;if((t*3+i*.37)%1>.65)continue;tx.fillStyle=st>=9?GOLD:'#c8fbff';const px=Math.round(X+Math.cos(a)*11),py=Math.round(Y-13+Math.sin(a*1.3)*12);tx.fillRect(px,py,1,1);tx.fillRect(px-1,py,3,1);tx.fillRect(px,py-1,1,3)}}
- const c=spr(h.cls,st,e.hop>0?1:e.fr,e.view),yy=Y-FEET+bob+hop;
+ const c=spr(h.cls,st,e.hop>0?1:e.fr,e.view,h.gen),yy=Y-FEET+bob+hop;
  if(e.view==='s'&&e.dir<0){tx.save();tx.translate(X,0);tx.scale(-1,1);tx.drawImage(c,-CX,yy);tx.restore()}else tx.drawImage(c,X-CX,yy);
  const top=[15,14,12][st<=3?0:st<=6?1:2]-(st>=4?6:2);
  e.tag.style.transform=`translate(${X*PX}px,${(yy+top)*PX}px) translate(-50%,-100%)`;
@@ -669,15 +710,15 @@ function card(h){
  const I=info(h),C=CLS[h.cls],id=esc(h.id);
  const btn=I.state==='wait'?`<button class="btn ghost" disabled>출발 전</button>`:I.state==='over'?`<button class="btn ghost" data-act="open" data-id="${id}">기록 보기</button>`:I.done?`<button class="btn done" data-act="check" data-id="${id}">오늘 클리어!</button>`:`<button class="btn" data-act="check" data-id="${id}">퀘스트 클리어</button>`;
  return `<article class="card${I.done?' clear':''}${I.state!=='on'?' off':''}">
- <button class="por" data-act="open" data-id="${id}" style="--c:${C.main}" aria-label="${esc(h.name)} 상세 보기"><canvas data-spr="${h.cls}|${I.stage}"></canvas></button>
+ <button class="por" data-act="open" data-id="${id}" style="--c:${C.main}" aria-label="${esc(h.name)} 상세 보기"><canvas data-spr="${h.cls}|${I.stage}|${h.gen}"></canvas></button>
  <div><div class="r1"><span class="nm">${esc(h.name)}</span><span class="lv">LV.${I.lv}</span></div>
- <div class="sub">${STAGE[I.stage-1]} ${C.n} · 진화 ${I.stage}/9단계</div>
+ <div class="sub">${STAGE[I.stage-1]} ${cname(h.cls,h.gen)} · 진화 ${I.stage}/9단계</div>
  <div class="task">${esc(h.task)}</div>
  <div class="bar${I.lv>=99?' max':''}"><i style="width:${I.pct}%"></i></div>
  <div class="meta"><span>${dayLabel(h,I)}</span><span>클리어 ${I.n}/${h.days}</span>${I.streak>1?`<span>연속 ${I.streak}일</span>`:''}<span>1회 +${I.per.toFixed(1)} Lv</span></div></div>
  <div class="act">${btn}</div></article>`;
 }
-function paintAll(root){root.querySelectorAll('canvas[data-spr]').forEach(c=>{const[k,s]=c.dataset.spr.split('|');paint(c,spr(k,+s))});root.querySelectorAll('canvas[data-sil]').forEach(c=>{const[k,s]=c.dataset.sil.split('|');paint(c,sil(k,+s))})}
+function paintAll(root){root.querySelectorAll('canvas[data-spr]').forEach(c=>{const[k,s,g]=c.dataset.spr.split('|');paint(c,spr(k,+s,4,'f',g||'m'))});root.querySelectorAll('canvas[data-sil]').forEach(c=>{const[k,s,g]=c.dataset.sil.split('|');paint(c,sil(k,+s,g||'m'))})}
 function render(){
  const order=h=>{const I=info(h);return I.state==='on'?(I.done?1:0):I.state==='wait'?2:3};
  const hs=[...S.heroes].sort((a,b)=>order(a)-order(b));
@@ -700,12 +741,14 @@ addEventListener('keydown',e=>{if(e.key==='Escape'){if(!$('#evo').hidden)$('#evo
 let draft=null;
 function openForm(id){
  const h=id&&hero(id);
- draft=h?{...h}:{cls:'warrior',name:'',task:'',days:30,start:today()};
+ draft=h?{...h}:{cls:'warrior',gen:'m',name:'',task:'',days:30,start:today()};
  openModal(`<form id="f"><h2>${h?'용사 정보 수정':'용사 소집'}</h2>
  <div class="pv"><div><canvas id="pv1"></canvas><p>Lv.1 견습</p></div><span class="arr">▶</span><div><canvas id="pv9"></canvas><p>Lv.99 신화</p></div></div>
  <label class="f">용사의 이름<input name="name" maxlength="12" required placeholder="예: 아린" value="${esc(draft.name)}"></label>
+ <div class="f" style="margin-top:12px">캐릭터</div>
+ <div class="tabs gen"><button type="button" data-gen="m" aria-pressed="${draft.gen!=='f'}">남캐</button><button type="button" data-gen="f" aria-pressed="${draft.gen==='f'}">여캐</button></div>
  <div class="f" style="margin-top:12px">직업 고르기</div>
- <div class="cls">${KEYS.map(k=>`<button type="button" data-cls="${k}" aria-pressed="${k===draft.cls}"><canvas data-spr="${k}|3"></canvas>${CLS[k].n}</button>`).join('')}</div>
+ <div class="cls" id="clsGrid"></div>
  <label class="f">퀘스트 (매일 할 일)<input name="task" maxlength="40" required placeholder="예: 물 2리터 마시기" value="${esc(draft.task)}"></label>
  <div class="chips" id="tchips"></div>
  <label class="f">성장 기간 (일)<input name="days" type="number" inputmode="numeric" min="3" max="365" required value="${draft.days}"></label>
@@ -714,18 +757,20 @@ function openForm(id){
  <p class="calc" id="calc"></p>
  <div class="foot"><button type="button" class="btn ghost" data-act="close">취소</button><button class="btn">${h?'저장하기':'모험 시작!'}</button></div></form>`);
  const f=$('#f');
- const upd=()=>{const C=CLS[draft.cls];paint($('#pv1'),spr(draft.cls,1));paint($('#pv9'),spr(draft.cls,9));
-  sheet.querySelectorAll('[data-cls]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.cls===draft.cls));
+ const upd=()=>{const C=CLS[draft.cls];paint($('#pv1'),spr(draft.cls,1,4,'f',draft.gen));paint($('#pv9'),spr(draft.cls,9,4,'f',draft.gen));
+  $('#clsGrid').innerHTML=KEYS.map(k=>`<button type="button" data-cls="${k}" aria-pressed="${k===draft.cls}"><canvas data-spr="${k}|3|${draft.gen}"></canvas>${cname(k,draft.gen)}</button>`).join('');paintAll($('#clsGrid'));
+  sheet.querySelectorAll('[data-gen]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.gen===draft.gen));
   $('#tchips').innerHTML=C.task.map(t=>`<button type="button" data-task="${esc(t)}">${esc(t)}</button>`).join('');
   const d=Math.max(3,Math.min(365,parseInt(f.days.value)||30));
   $('#calc').innerHTML=`하루 한 번 클리어하면 <b>+${(98/d).toFixed(1)} Lv</b>. ${d}번 모두 깨면 <b>Lv.99</b>, 11레벨마다 한 단계씩 진화해요.`};
  f.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
   if(b.dataset.cls){draft.cls=b.dataset.cls;upd()}
+  if(b.dataset.gen){draft.gen=b.dataset.gen;upd()}
   if(b.dataset.task){f.task.value=b.dataset.task}
   if(b.dataset.days){f.days.value=b.dataset.days;upd()}});
  f.days.addEventListener('input',upd);
  f.addEventListener('submit',e=>{e.preventDefault();
-  const v={name:f.name.value.trim()||'이름 없는 용사',task:f.task.value.trim(),days:Math.max(3,Math.min(365,parseInt(f.days.value)||30)),start:DATE.test(f.start.value)?f.start.value:today(),cls:draft.cls};
+  const v={name:f.name.value.trim()||'이름 없는 용사',task:f.task.value.trim(),days:Math.max(3,Math.min(365,parseInt(f.days.value)||30)),start:DATE.test(f.start.value)?f.start.value:today(),cls:draft.cls,gen:draft.gen==='f'?'f':'m'};
   if(!v.task){f.task.focus();return}
   if(h)Object.assign(h,v);else S.heroes.push({id:uid(),...v,checks:[]});
   save();render();closeModal();toast(h?`${esc(v.name)}의 정보를 고쳤어요`:`<b>NEW</b> ${esc(v.name)}이(가) 광장에 도착했어요!`)});
@@ -734,10 +779,10 @@ function openForm(id){
 function openDetail(id,confirmDel){
  const h=hero(id);if(!h)return;const I=info(h),C=CLS[h.cls],sid=esc(h.id);
  let cal='';for(let i=0;i<h.days;i++){const d=addD(h.start,i),ok=h.checks.includes(d),past=d<today();cal+=`<span class="${ok?'ok':past?'miss':''}${d===today()?' today':''}" title="${d}">${i+1}</span>`}
- const road=STAGE.map((n,i)=>{const s=i+1,got=I.stage>=s;return `<div class="${I.stage===s?'now':''}"><canvas data-${got?'spr':'sil'}="${h.cls}|${s}"></canvas>${got?n:'???'}<small>Lv.${i*11+1}~</small></div>`}).join('');
+ const road=STAGE.map((n,i)=>{const s=i+1,got=I.stage>=s;return `<div class="${I.stage===s?'now':''}"><canvas data-${got?'spr':'sil'}="${h.cls}|${s}|${h.gen}"></canvas>${got?n:'???'}<small>Lv.${i*11+1}~</small></div>`}).join('');
  const main=I.state==='on'?`<button class="btn ${I.done?'done':''}" data-act="check" data-id="${sid}">${I.done?'오늘 클리어 취소':'퀘스트 클리어'}</button>`:'';
- openModal(`<div class="dtop"><div class="por" style="--c:${C.main};cursor:default"><canvas data-spr="${h.cls}|${I.stage}"></canvas></div>
- <div><h2 style="margin:0">${esc(h.name)}</h2><div class="sub">${STAGE[I.stage-1]} ${C.n} · <span class="lv">LV.${I.lv}</span></div><div class="task">${esc(h.task)}</div><div class="bar${I.lv>=99?' max':''}"><i style="width:${I.pct}%"></i></div></div></div>
+ openModal(`<div class="dtop"><div class="por" style="--c:${C.main};cursor:default"><canvas data-spr="${h.cls}|${I.stage}|${h.gen}"></canvas></div>
+ <div><h2 style="margin:0">${esc(h.name)}</h2><div class="sub">${STAGE[I.stage-1]} ${cname(h.cls,h.gen)} · <span class="lv">LV.${I.lv}</span></div><div class="task">${esc(h.task)}</div><div class="bar${I.lv>=99?' max':''}"><i style="width:${I.pct}%"></i></div></div></div>
  <div class="stats"><div><b>${I.state==='wait'?'D-'+(1-I.day):I.state==='over'?'종료':I.day+'일차'}</b>${h.days}일 원정</div><div><b>${I.n}회</b>클리어</div><div><b>${I.streak}일</b>연속</div><div><b>${Math.round(I.n/h.days*100)}%</b>달성률</div></div>
  <h3>진화의 길</h3><div class="road">${road}</div>
  <h3>원정 기록</h3><div class="cal">${cal}</div>
@@ -746,8 +791,8 @@ function openDetail(id,confirmDel){
 }
 let tt=0;function toast(html){const t=$('#toast');t.innerHTML=html;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2600)}
 function evolve(h,st,lv){
- const ev=$('#evo'),c=$('#evoC');paint(c,spr(h.cls,st));showText($('#evoT'),st>=9?'최종 진화!':'진화!',22,Math.min(innerWidth*.8,420),6);
- $('#evoP').textContent=`${h.name}이(가) ${STAGE[st-1]} ${CLS[h.cls].n}(으)로 진화했어요`;$('#evoS').textContent=`Lv.${lv} · 진화 ${st}/9단계`;
+ const ev=$('#evo'),c=$('#evoC');paint(c,spr(h.cls,st,4,'f',h.gen));showText($('#evoT'),st>=9?'최종 진화!':'진화!',22,Math.min(innerWidth*.8,420),6);
+ $('#evoP').textContent=`${h.name}이(가) ${STAGE[st-1]} ${cname(h.cls,h.gen)}(으)로 진화했어요`;$('#evoS').textContent=`Lv.${lv} · 진화 ${st}/9단계`;
  ev.hidden=false;c.classList.remove('flash');void c.offsetWidth;c.classList.add('flash');ev.querySelector('button').focus();
 }
 function toggle(id){
@@ -759,9 +804,9 @@ function toggle(id){
  save();render();if(!modal.hidden)openDetail(id);
 }
 function demo(){
- const mkH=(name,cls,task,days,ago,n)=>{const start=addD(today(),-ago),pool=[];for(let i=0;i<ago;i++)pool.push(addD(start,i));const r=rng(name.length*97+days);pool.sort(()=>r()-.5);return{id:uid(),name,cls,task,days,start,checks:pool.slice(0,Math.min(n,ago)).sort()}};
- S.heroes.push(mkH('아린','archer','물 2리터 마시기',30,12,10),mkH('도윤','warrior','헬스장 1시간',50,40,34),mkH('세라','healer','밤 12시 전에 자기',14,2,2),mkH('루카','mage','영어 단어 30개',100,96,90));
- save();render();toast('예시 용사 네 명이 광장에 모였어요');
+ const mkH=(name,cls,task,days,ago,n,gen='m')=>{const start=addD(today(),-ago),pool=[];for(let i=0;i<ago;i++)pool.push(addD(start,i));const r=rng(name.length*97+days);pool.sort(()=>r()-.5);return{id:uid(),name,cls,gen,task,days,start,checks:pool.slice(0,Math.min(n,ago)).sort()}};
+ S.heroes.push(mkH('아린','archer','물 2리터 마시기',30,12,10,'f'),mkH('도윤','warrior','헬스장 1시간',50,40,34),mkH('세라','fox','밤 12시 전에 자기',30,20,18,'f'),mkH('루카','star','영어 단어 30개',100,96,90,'f'),mkH('하준','pat','도시락 싸기',21,6,5));
+ save();render();toast('예시 용사 다섯 명이 광장에 모였어요');
 }
 function exportBackup(){
  const blob=new Blob([JSON.stringify({app:'real-life-quest',v:1,saved:new Date().toISOString(),heroes:S.heroes},null,1)],{type:'application/json'});
@@ -782,8 +827,8 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(
 const splash=$('#splash');let parading=true;
 function closeSplash(){if(splash.classList.contains('out'))return;splash.classList.add('out');parading=false;setTimeout(()=>splash.hidden=true,520)}
 splash.addEventListener('click',closeSplash);splash.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')closeSplash()});
-(function parade(){const c=$('#parade'),k=Math.min(3,Math.max(2,Math.floor(innerWidth/(SW*7)))),x=c.getContext('2d');c.width=SW*6;c.height=SH;c.style.width=SW*6*k+'px';c.style.height=SH*k+'px';
- const loop=ts=>{if(!parading)return;x.clearRect(0,0,c.width,c.height);KEYS.forEach((key,i)=>{const fr=Math.floor(ts/120+i)%4;x.drawImage(spr(key,[3,5,6,7,8,9][i],fr,'s'),i*SW,fr%2?-1:0)});requestAnimationFrame(loop)};requestAnimationFrame(loop)})();
+(function parade(){const c=$('#parade'),k=Math.min(3,Math.max(2,Math.floor(innerWidth/(SW*10)))),x=c.getContext('2d');c.width=SW*KEYS.length;c.height=SH;c.style.width=SW*KEYS.length*k+'px';c.style.height=SH*k+'px';
+ const loop=ts=>{if(!parading)return;x.clearRect(0,0,c.width,c.height);KEYS.forEach((key,i)=>{const fr=Math.floor(ts/120+i)%4;x.drawImage(spr(key,[3,5,6,7,8,9,6,9,8][i],fr,'s',i%2?'f':'m'),i*SW,fr%2?-1:0)});requestAnimationFrame(loop)};requestAnimationFrame(loop)})();
 Promise.race([document.fonts.load('22px "Do Hyeon"'),new Promise(r=>setTimeout(r,1500))]).then(()=>{
  showText($('#logo'),'현실퀘스트',26,innerWidth*.86,7);showText($('#authLogo'),'현실퀘스트',26,Math.min(innerWidth*.8,420),6);(()=>{const t=$('#title');t.innerHTML='';const k=innerWidth<600?2:3;[...'현실퀘스트'].forEach((ch,i)=>{const F=pixText(ch,13,'#fff7b0','#ffb52e',OUT,'#0c0e22');const c=document.createElement('canvas');c.width=F.width;c.height=F.height;c.getContext('2d').drawImage(F,0,0);c.style.width=F.width*k+'px';c.style.height=F.height*k+'px';if(i)c.style.marginLeft=(-7*k)+'px';c.style.animationDelay=`${(i*.15).toFixed(2)}s, ${(i*.12).toFixed(2)}s`;t.appendChild(c)})})();
  setTimeout(closeSplash,RM?900:2600)});
