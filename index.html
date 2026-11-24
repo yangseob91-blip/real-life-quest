@@ -730,7 +730,7 @@ addEventListener('resize',()=>{clearTimeout(window.__rz);window.__rz=setTimeout(
 layout();render();requestAnimationFrame(frame);bootAuth();
 setInterval(render,60000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)render()});
-if('serviceWorker' in navigator&&location.protocol!=='file:')navigator.serviceWorker.register('sw.js').catch(()=>{});
+if('serviceWorker' in navigator&&location.protocol!=='file:'){const had=!!navigator.serviceWorker.controller;let reloaded=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(had&&!reloaded){reloaded=true;location.reload()}});navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{r.update();document.addEventListener('visibilitychange',()=>{if(!document.hidden)r.update()})}).catch(()=>{})}
 }
 </script>
 </body>
