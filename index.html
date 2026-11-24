@@ -185,6 +185,8 @@ input.code{font-size:20px;text-transform:uppercase}
 .wardrobe .wc.on{background:var(--gold)}.wardrobe .wc canvas{display:block;margin:0 auto;width:42px;height:48px}
 .ftitle{color:#c97c0c;font-size:15px}
 .adm{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:10px 0;padding:8px 10px;border:2px dashed #c97c0c;border-radius:10px;background:#fff4d6}.adm b{font-weight:400;color:#c97c0c;margin-right:4px}.adm .btn{min-height:36px;padding:4px 10px;font-size:15px}
+.hcol{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.hcol button{width:40px;height:40px;border-radius:50%;border:3px solid var(--ink);cursor:pointer;font-size:12px;color:var(--ink);padding:0}.hcol button[aria-pressed=true]{box-shadow:0 0 0 3px var(--gold)}
+.pnote{list-style:none;padding:0;margin:8px 0;display:grid;gap:8px}.pnote li{background:#fffaf0;border:2px solid var(--ink);border-radius:10px;padding:8px 12px}.pnote b{display:block;font-weight:400;font-size:18px}.pnote span{font-size:14px;color:#7a5a48}
 /* toast + evolution */
 #toast{pointer-events:none;position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));z-index:70;transform:translate(-50%,calc(100% + 60px));transition:transform .3s;background:var(--ink);color:#fff;border:3px solid #ffd23f;border-radius:12px;padding:10px 16px;font-size:18px;max-width:92vw;text-align:center}
 #toast.on{transform:translate(-50%,0)}
@@ -259,7 +261,7 @@ input.code{font-size:20px;text-transform:uppercase}
   <div class="backup" id="acct" hidden><button class="btn ghost" data-act="copycode">회원코드 <span id="myCode" class="code"></span></button><button class="btn ghost" data-act="pin">비밀번호 바꾸기</button><button class="btn ghost" data-act="logout">로그아웃</button></div>
   <div class="backup"><button class="btn ghost" data-act="export">백업 파일 저장</button><button class="btn ghost" data-act="import">백업 불러오기</button></div>
   <input type="file" id="imp" accept=".json,application/json" hidden>
-  <p class="mytitle"><button type="button" class="mini" data-act="coltitle" id="myTitle">칭호 달기</button></p>
+  <p class="mytitle"><button type="button" class="mini" data-act="patch">업데이트 소식</button> · <button type="button" class="mini" data-act="coltitle" id="myTitle">칭호 달기</button></p>
   <div class="backup"><button class="btn ghost" data-act="sfx" id="sfxT">효과음 켜짐</button><button class="btn ghost" data-act="bgm" id="bgmT">배경음악 켜짐</button></div>
   <p class="credit">현실퀘스트 · made by 양섭 · © 2026</p>
 </main>
@@ -285,7 +287,18 @@ const CLS={
  knight:{n:'기사',main:'#3c70d8',dark:'#24458c',hair:'#e8c46a',hairL:'#fbe39a',eye:'#2f5fc0',w:'shield',task:['계단으로 다니기','플랭크 3분','아침 운동']},
  star:{n:'별술사',nf:'별의 마녀',main:'#2f3f8f',dark:'#1d2763',hair:'#d9dcef',hairL:'#ffffff',hairF:'#b48cff',hairFL:'#d8c4ff',eye:'#5aa9ff',w:'starwand',robe:1,trim:'#ffd23f',task:['책 30쪽 읽기','자격증 공부 1시간','일기 쓰기']},
  fox:{n:'여우 신관',nf:'여우 무녀',main:'#fbf7ee',dark:'#d6c6a6',lower:'#d8453b',lowerD:'#9c2a24',hair:'#f0a030',hairL:'#ffc864',eye:'#c0392b',w:'bell',robe:1,trim:'#d8453b',task:['명상 10분','밤 12시 전에 자기','감사일기 3줄']},
- pat:{n:'파티시에',main:'#ffffff',dark:'#d9d2c6',hair:'#6b3a1e',hairL:'#8f5a33',hairF:'#f5cc6b',hairFL:'#ffe39a',eye:'#e0558a',w:'whisk',task:['도시락 싸기','단백질 챙겨 먹기','설탕 음료 끊기']}
+ pat:{n:'파티시에',main:'#ffffff',dark:'#d9d2c6',hair:'#6b3a1e',hairL:'#8f5a33',hairF:'#f5cc6b',hairFL:'#ffe39a',eye:'#e0558a',w:'whisk',task:['도시락 싸기','단백질 챙겨 먹기','설탕 음료 끊기']},
+ fighter:{n:'격투가',nf:'무투가',main:'#f29a3a',dark:'#b8621a',hair:'#3a2a20',hairL:'#5a4434',hairF:'#c0502a',hairFL:'#e07a48',eye:'#c0392b',w:'knuckle',task:['홈트 20분','줄넘기 500개','푸시업 30개']},
+ bard:{n:'음유시인',main:'#3fbfb0',dark:'#24807a',hair:'#e0a83e',hairL:'#f5cc6b',hairF:'#ff9ab8',hairFL:'#ffd0e1',eye:'#24807a',w:'lute',task:['악기 연습 20분','노래 한 곡 연습','새 음악 듣기']},
+ ninja:{n:'닌자',nf:'쿠노이치',main:'#3a3d5c',dark:'#22243a',hair:'#22243a',hairL:'#3a3d5c',hairF:'#5a2d6a',hairFL:'#8a4a9a',eye:'#e0443a',w:'shuriken',task:['아침 7시 기상','휴대폰 1시간 덜 보기','자기 전 폰 안 보기']},
+ alch:{n:'연금술사',main:'#8a6a4a',dark:'#5a4430',hair:'#3fbf8a',hairL:'#7ae0b8',eye:'#3fbf8a',w:'flask',robe:1,trim:'#7ad07a',task:['영양제 챙겨 먹기','물 8잔 마시기','약 제시간에 먹기']},
+ druid:{n:'드루이드',main:'#6cc04a',dark:'#3f8a2a',hair:'#a8703c',hairL:'#c99050',hairF:'#f5cc6b',hairFL:'#ffe39a',eye:'#3f8a2a',w:'sprout',robe:1,trim:'#ffd23f',task:['채소 한 접시','화분 물 주기','30분 산책']},
+ pirate:{n:'해적',nf:'해적 선장',main:'#c0392b',dark:'#7a2018',hair:'#2a2438',hairL:'#4a4466',hairF:'#7a4220',hairFL:'#a8612f',eye:'#2f5fc0',w:'anchor',task:['방 정리 10분','설거지 바로 하기','빨래 개기']},
+ inventor:{n:'발명가',main:'#e8a33a',dark:'#a8701a',hair:'#d8642a',hairL:'#f29a5a',eye:'#3c70d8',w:'wrench',task:['코딩 1시간','업무 할 일 3개','사이드 프로젝트 30분']},
+ summoner:{n:'소환사',main:'#b48cff',dark:'#7a5ac0',hair:'#e6e0f8',hairL:'#ffffff',hairF:'#ffb3d9',hairFL:'#ffd8ec',eye:'#b48cff',w:'egg',robe:1,trim:'#ffd23f',task:['강아지 산책','반려동물 밥·물 챙기기','반려식물 돌보기']},
+ valk:{n:'성기사',nf:'발키리',main:'#f4f6ff',dark:'#c8ccdc',hair:'#e8c46a',hairL:'#fbe39a',eye:'#3c70d8',w:'spear',task:['한 달 챌린지','달리기 5km','큰 목표 한 걸음']},
+ mermaid:{n:'트리톤',nf:'인어',main:'#5ad0c8',dark:'#2f8a88',lower:'#3fbfb0',lowerD:'#24807a',hair:'#3c70d8',hairL:'#6c9cf0',hairF:'#ff6b9a',hairFL:'#ff9ab8',eye:'#2f8a88',w:'trident',robe:1,trim:'#ffd6e6',task:['수영 30분','물 2리터 마시기','반신욕 하기']},
+ scholar:{n:'학자',main:'#3a4a7a',dark:'#22305a',hair:'#6b3a1e',hairL:'#8f5a33',hairF:'#2a2438',hairFL:'#4a4466',eye:'#6b3a1e',w:'book',robe:1,trim:'#e8c46a',task:['책 20쪽 읽기','일기 쓰기','공부 1시간']}
 };
 // 옷: c 후드/옷색, d 그늘, b 배, bc 몸통색(따로일 때), ear 귀 모양, ei 귀 안쪽, e 귀 색, nz 코/부리, pt 무늬, tl 꼬리, s 점·뿔 색
 const COS={
@@ -338,7 +351,11 @@ const COS={
  bat:{n:'박쥐',c:'#4a3a6a',d:'#2a2040',ear:'bat',ei:'#ff8fa3',wing:'#2a2040',hec:'#ffd23f'}
 };
 const KEYS=Object.keys(CLS);
-const cname=(k,g)=>(g==='f'&&CLS[k].nf)||CLS[k].n;
+const cname=(k,g)=>((g||'')[0]==='f'&&CLS[k].nf)||CLS[k].n;
+// 헤어: 스타일 9종 x 색 9종 + 대머리 (+ 직업 기본)
+const HAIRS={short:'짧은 머리',spike:'삐죽 머리',bob:'단발',long:'긴 생머리',pony:'포니테일',twin:'양갈래',bun:'똥머리',curly:'뽀글 머리',mohawk:'모히칸',bald:'대머리'};
+const HCOL={blk:['검정','#2a2438','#4a4466'],brn:['갈색','#7a4220','#a8612f'],gold:['금발','#e8c46a','#fbe39a'],red:['빨강','#c0392b','#e0604a'],pink:['분홍','#f4a7c4','#ffd0e1'],blue:['파랑','#3c70d8','#6c9cf0'],mint:['민트','#4fc0a0','#8ae0c8'],silver:['은발','#c8ccdc','#ffffff'],purple:['보라','#7d4fd8','#a888f0']};
+const HG=h=>(h.gen==='f'?'f':'m')+((h.hs||h.hc)?'.'+(h.hs||'')+'.'+(h.hc||''):'');
 const STAGE=['견습','새내기','초보','수련','숙련','정식','정예','노련한','베테랑','명예로운','영웅','용맹한','챔피언','위대한','전설','고대의','신화','별빛','천상의','초월'];
 // 20단계 → 기본 그림 9종 + 단계마다 장식 추가
 const BASE=s=>Math.max(1,Math.min(9,Math.ceil(s*9/20)));
@@ -349,14 +366,14 @@ const shade=(c,f=.72)=>'#'+hex(c).map(v=>Math.round(v*f).toString(16).padStart(2
 // fr: 0~3 걷기, 4 서 있기 / view: 'f' 정면, 's' 반측면(오른쪽, 왼쪽은 좌우반전) / gen: 'm' 남캐, 'f' 여캐
 function buildSprite(k,sg,fr,view,gen,cos){
  const st=BASE(sg);let sub=0;while(sub<sg-1&&BASE(sg-sub-1)===st)sub++;
- const CO=cos&&COS[cos]?COS[cos]:null,C=CLS[k],g=new Array(SW*SH).fill(0),side=view==='s',fem=gen==='f';
+ const CO=cos&&COS[cos]?COS[cos]:null,C=CLS[k],g=new Array(SW*SH).fill(0),side=view==='s',[g0,HS0,HCK]=String(gen||'m').split('.'),fem=g0==='f',HS=HAIRS[HS0]?HS0:'';
  const P=(x,y,c)=>{if(x>=0&&y>=0&&x<SW&&y<SH)g[y*SW+x]=c};
  const R=(a,b,c2,d,c)=>{for(let y=b;y<=d;y++)for(let x=a;x<=c2;x++)P(x,y,c)};
  const grp=st<=3?0:st<=6?1:2,legH=[2,2,3][grp],bodyH=[4,5,6][grp];
  const legTop=FEET-legH+1,bodyBot=legTop-1,bodyTop=bodyBot-bodyH+1,y1=bodyTop-1,y0=y1-9,x0=CX-6,x1=CX+5,hy=bodyBot,ey=y0+5;
  const plain=st<=2,main=CO?(CO.bc||CO.c):plain?'#cdb68a':C.main,dark=CO?CO.d:plain?'#9a8460':C.dark,boot=CO?(CO.ft||CO.d):plain?'#6b4a2e':'#4a3022',robe=C.robe&&!CO;
  const lowC=C.lower&&!plain?C.lower:main,lowD=C.lowerD&&!plain?C.lowerD:dark;
- const Hc=fem&&C.hairF?C.hairF:C.hair,HL=fem&&C.hairFL?C.hairFL:C.hairL;
+ const Hc=HCOL[HCK]?HCOL[HCK][1]:fem&&C.hairF?C.hairF:C.hair,HL=HCOL[HCK]?HCOL[HCK][2]:fem&&C.hairFL?C.hairFL:C.hairL;
  const legC=CO?(CO.lg||main):fem&&!robe?'#fff2e6':dark,legC2=CO?shade(CO.lg||main):fem&&!robe?'#e8d8c8':shade(dark);
  const metal=st>=8?GOLD:STEEL,metalD=st>=8?GOLD_D:STEEL_D;
  const mat=st<=2?WOOD:st<=6?STEEL:GLOW,matD=st<=2?WOOD_D:st<=6?STEEL_D:GLOW_D;
@@ -376,6 +393,17 @@ function buildSprite(k,sg,fr,view,gen,cos){
    if(st<=2)R(wx-1,t-2,wx+1,t-1,sc);else{R(wx-1,t-2,wx+1,t-2,sc);R(wx,t-3,wx,t-1,sc);P(wx-2,t-2,sc);P(wx+2,t-2,sc);P(wx,t-4,sc);if(st>=7){P(wx-2,t-4,GLOW);P(wx+2,t-4,GLOW);P(wx-2,t,GLOW);P(wx+2,t,GLOW)}}}
   else if(C.w==='bell'){const t=y-6-grp;R(wx,t,wx,y+2,st<=2?WOOD:'#d8453b');const bc=st<=2?'#e8c46a':GOLD;P(wx,t-1,bc);P(wx-1,t,bc);P(wx+1,t,bc);P(wx-1,t-2,bc);P(wx+1,t-2,bc);
    if(st>=5){P(wx+1,t+1,'#ff6b9a');P(wx+2,t+2,'#ff6b9a');P(wx+1,t+3,'#5aa9ff')}}
+  else if(C.w==='knuckle'){const kc=st<=2?'#c9a27a':st<=6?'#e0443a':GOLD;R(wx-1,y-1,wx+1,y+1,kc);P(wx-1,y-1,shade(kc));if(st>=5)P(wx+1,y-2,WHITE)}
+  else if(C.w==='lute'){const bc=st>=7?GOLD:'#c9843c';R(wx-1,y-3,wx+2,y,bc);P(wx-1,y-3,0);P(wx+2,y,0);P(wx,y-2,'#5a3a22');R(wx+2,y-8,wx+2,y-4,WOOD);P(wx+3,y-9,WOOD);P(wx+3,y-8,'#f0e2c0')}
+  else if(C.w==='shuriken'){const cy=y-2;P(wx,cy-2,mat);P(wx,cy+2,mat);P(wx-2,cy,mat);P(wx+2,cy,mat);R(wx-1,cy-1,wx+1,cy+1,mat);P(wx,cy,'#2a2438');if(st>=7){P(wx+3,cy-4,mat);P(wx+4,cy-5,mat);P(wx+2,cy-5,mat);P(wx+3,cy-6,mat);P(wx+4,cy-3,mat)}}
+  else if(C.w==='flask'){const lc=st<=2?'#7ad07a':st<=6?'#5aa9ff':'#ff6bd6';R(wx,y-4,wx,y-3,'#d6ecff');R(wx-1,y-2,wx+1,y,lc);P(wx-1,y-2,'#d6ecff');if(st>=3){P(wx+1,y-6,lc);P(wx,y-7,'#ffffff')}}
+  else if(C.w==='sprout'){const t=y-7-grp*2;R(wx,t,wx,y+2,WOOD);P(wx-1,t-1,'#6cc04a');P(wx-2,t-2,'#6cc04a');P(wx+1,t-2,'#7ad07a');P(wx+2,t-3,'#7ad07a');P(wx,t-1,'#3f8a2a');if(st>=7){R(wx-1,t-4,wx+1,t-3,'#ff6b9a');P(wx,t-4,'#ffd23f')}}
+  else if(C.w==='anchor'){const ac=st<=2?'#8a8a96':st<=6?STEEL:GOLD;R(wx,y-6,wx,y+1,ac);P(wx,y-8,ac);P(wx-1,y-7,ac);P(wx+1,y-7,ac);R(wx-1,y-5,wx+1,y-5,ac);R(wx-2,y,wx-2,y+1,ac);R(wx+2,y,wx+2,y+1,ac);R(wx-1,y+2,wx+1,y+2,ac)}
+  else if(C.w==='wrench'){const mc=st<=2?'#8a8a96':st<=6?STEEL:GOLD;R(wx,y-5,wx,y+1,mc);R(wx-1,y-8,wx+1,y-6,mc);P(wx,y-8,0);P(wx,y-7,0);if(st>=5)P(wx,y-3,'#e0443a')}
+  else if(C.w==='egg'){if(st<4){R(wx-1,y-3,wx+1,y,'#fff4dc');P(wx,y-4,'#fff4dc');P(wx-1,y-2,'#b48cff');P(wx+1,y-1,'#7ad0ff')}else{const t=y-6-grp;R(wx,t,wx,y+2,'#f0e2c0');R(wx-1,t-2,wx+1,t-1,'#b48cff');P(wx,t-2,WHITE)}}
+  else if(C.w==='spear'){const t=y-10-grp*2;R(wx,t,wx,y+3,st<=2?WOOD:'#f0e2c0');R(wx-1,t-1,wx+1,t-1,mat);R(wx,t-4,wx,t-2,mat);P(wx-1,t-2,mat);P(wx+1,t-2,mat);if(st>=5){P(wx-1,t+1,'#e0443a');P(wx+1,t+2,'#e0443a')}}
+  else if(C.w==='trident'){const t=y-9-grp*2,tc=st<=2?'#8a8a96':st<=6?'#5ad0c8':GOLD;R(wx,t,wx,y+3,tc);R(wx-2,t-1,wx+2,t-1,tc);R(wx-2,t-3,wx-2,t-2,tc);R(wx+2,t-3,wx+2,t-2,tc);R(wx,t-4,wx,t-2,tc)}
+  else if(C.w==='book'){const bc=st<=2?'#8a6a4a':st<=6?'#3c70d8':'#7d4fd8';R(wx-1,y-3,wx+2,y,bc);R(wx,y-3,wx+1,y-1,'#fbf7ee');if(st>=7){P(wx+3,y-5,GOLD);P(wx-2,y-5,GOLD)}}
   else if(C.w==='whisk'){if(st>=7){const cx2=wx;R(cx2-1,y-6,cx2+4,y-5,'#fff4dc');R(cx2-1,y-4,cx2+4,y-1,'#f4a7c4');R(cx2-1,y-3,cx2+4,y-3,'#fff4dc');P(cx2,y-7,'#e0443a');P(cx2+3,y-7,'#e0443a');if(st>=9)R(cx2+1,y-9,cx2+1,y-7,'#ffd23f');P(cx2,y,'#5a3a22')}
    else{R(wx,y-1,wx,y+1,WOOD);R(wx-1,y-6,wx+1,y-2,'#cfd6e0');P(wx,y-5,'#9aa6ba');P(wx,y-3,'#9aa6ba');P(wx-1,y-6,0);P(wx+1,y-6,0)}}};
  const arm=(sx,dx,dy,col)=>{const ey2=hy+dy,n=ey2-(bodyTop+1);for(let i=0;i<n;i++)P(sx+Math.round(dx*i/Math.max(1,n)),bodyTop+1+i,col);P(sx+dx,ey2,SKIN)};
@@ -450,13 +478,29 @@ function buildSprite(k,sg,fr,view,gen,cos){
   else if(ear==='daenggi'){const rb='#d8453b';if(side)R(x0-2,y0+4,x0-1,y0+7,rb);else{R(x1-1,y0-1,x1+1,y0,rb);P(x1+2,y0+1,rb)}}
   else if(ear==='cap'){R(x0,y0-1,x1,y0+2,c);R(x0-1,y0,x1+1,y0+2,c);P(CX-1,y0,WHITE);P(CX,y0,WHITE);tp=y0-1}
   return tp};
+ // 고른 헤어 그리기
+ const hairF=()=>{const H=Hc,L=HL,s=side;
+  if(HS==='bald'){P(x0+3,y0+1,'#fff3e0');P(x0+4,y0+1,'#fff3e0');return}
+  if(HS==='mohawk'){if(s){R(x0+2,y0-2,x1-2,y0,H);R(x0+3,y0-3,x1-3,y0-3,H);P(x0+4,y0-2,L)}else{R(CX-1,y0-3,CX,y0+1,H);P(CX-2,y0-1,H);P(CX+1,y0-1,H);P(CX-1,y0-3,L)}return}
+  R(x0+1,y0,x1-1,y0,H);R(x0,y0+1,x1,y0+2,H);
+  if(s)R(x0,y0+3,x0+1,y0+5,H);else{P(x0,y0+3,H);P(x1,y0+3,H)}
+  if(HS==='short'){if(s)P(x0+6,y0+3,H);else{P(x0+1,y0+3,H);P(x1-1,y0+3,H);P(x0+4,y0+3,H)}}
+  if(HS==='spike'){for(let x=x0+1;x<=x1-1;x+=2)P(x,y0-1,H);P(x0+2,y0-2,H);P(CX-1,y0-2,H);P(x1-2,y0-2,H);if(!s){P(x0+2,y0+3,H);P(x1-2,y0+3,H)}}
+  if(HS==='bob'||HS==='long'){R(s?x0+2:x0+1,y0+3,x1-1,y0+3,H);if(s){R(x0-1,y0+1,x0+2,y1,H);P(x1,y0+4,H)}else{R(x0-1,y0+1,x0,y1,H);R(x1,y0+1,x1+1,y1,H)}}
+  if(HS==='pony'){if(s){R(x0-2,y0+1,x0-1,y0+7,H);P(x0-1,y0+1,'#ff6b9a')}else{P(x0+1,y0+3,H);P(x0+2,y0+3,H);P(x1-1,y0+3,H);R(x1+1,y0+1,x1+2,y0+7,H);P(x1+1,y0+1,'#ff6b9a')}}
+  if(HS==='twin'){R(x0-2,y0+2,x0-1,y0+8,H);P(x0-1,y0+2,'#ff6b9a');if(s)R(x1,y0+2,x1+1,y0+5,H);else{P(x0+1,y0+3,H);P(x1-1,y0+3,H);R(x1+1,y0+2,x1+2,y0+8,H);P(x1+1,y0+2,'#ff6b9a')}}
+  if(HS==='bun'){R(CX-2,y0-3,CX+1,y0-1,H);P(CX-1,y0-3,L);if(!s){P(x0+1,y0+3,H);P(x1-1,y0+3,H)}}
+  if(HS==='curly'){R(x0-1,y0-1,x1+1,y0+2,H);for(let x=x0;x<=x1;x+=2)P(x,y0-2,H);if(s)R(x0-1,y0+3,x0+1,y0+6,H);else{R(x0-1,y0+3,x0,y0+6,H);R(x1,y0+3,x1+1,y0+6,H)}[[x0+1,y0],[x0+5,y0-1],[x1-2,y0+1]].forEach(([x,y])=>P(x,y,L))}
+  else R(s?x0+2:x0+3,y0+1,x0+4,y0+1,L);
+ };
+ const hairB=()=>{if(HS==='long'){if(side)R(x0-1,y1-1,x0+3,y1+6,Hc);else R(x0,y1-1,x1,y1+5,Hc)}};
  let hx,hy2;
  if(side){ // 45도 반측면 (오른쪽을 봄)
   const sw0=[-1,0,1,0,0][fr],legA=[1,0,-1,0,0][fr],liftN=fr===3,liftF=fr===1;
   if(st>=9)[2,4,6,7,7,6,5,3,2].forEach((n,i)=>{const y=bodyTop-4+i+(i<4?flap:0),c=j=>j===n-1?GOLD:(i%2?'#e6eeff':WHITE);for(let j=0;j<n;j++)P(CX-6-j,y,c(j));const m=Math.ceil(n/2);for(let j=0;j<m;j++)P(CX+5+j,y-1,j===m-1?GOLD:(i%2?'#e6eeff':WHITE))});
   if(CO)cosBack();else if(k==='fox')tails(CX-3,FEET-3,-2.4,-0.5);
   if(st>=6&&!CO){const f=[1,2,1,0,0][fr];R(CX-6,bodyTop,CX+2,FEET-1,capeC);R(CX-7-f,FEET-3,CX+2,FEET-1,capeC);if(st>=8)R(CX-7-f,FEET-1,CX+2,FEET-1,GOLD)}
-  if(fem&&!CO)R(x0,y1-1,x0+4,y1+4,Hc);
+  if(HS){if(!CO)hairB()}else if(fem&&!CO)R(x0,y1-1,x0+4,y1+4,Hc);
   if(C.w==='shield'&&st>=2)shield(CX-10,bodyTop-1);
   arm(CX-5,-sw0,sw0,shade(main));
   const leg=(bx,dx,lift,col)=>{const fy=FEET-(lift?1:0);if(robe){if(!lift)R(bx+dx,FEET,bx+dx+2,FEET,boot);return}
@@ -474,11 +518,13 @@ function buildSprite(k,sg,fr,view,gen,cos){
   if(st>=5&&!CO){R(CX-5,bodyTop,CX-4,bodyTop+1,shD);R(CX+3,bodyTop,CX+5,bodyTop+1,shC);P(CX+5,bodyTop+1,shD)}
   hx=CX+4+sw0;hy2=hy-sw0;
   R(x0,y0,x1,y1,SKIN);[[x0,y0],[x1,y0],[x0,y1],[x1,y1]].forEach(([x,y])=>P(x,y,0));R(x0+1,y1,x1-1,y1,SKIN_D);
+  if(HS)hairF();else{
   R(x0+1,y0,x1-1,y0,Hc);R(x0,y0+1,x1,y0+2,Hc);R(x0,y0+3,x0+2,y0+7,Hc);P(x0+3,y0+3,Hc);P(x0+3,y0+4,Hc);
   [x0+5,x0+6,x0+8,x1-1,x1].forEach(x=>P(x,y0+3,Hc));P(x1,y0+4,Hc);R(x0+2,y0+1,x0+4,y0+1,HL);
   if(fem){R(x0,y0+3,x0+2,y1+1,Hc);R(x1,y0+3,x1,y0+7,Hc)}
   if(k==='healer'){R(x0,y0+3,x0+2,y1+1,Hc);R(x1,y0+3,x1,y0+7,Hc)}
   if(k==='archer'){const b=fr%2;R(x0-1,y0+2,x0-1,y0+6+(fem?2:0),Hc);R(x0-2,y0+5+b,x0-2,y0+7+b+(fem?2:0),Hc)}
+  }
   R(CX-2,ey,CX-1,ey+2,OUT);P(CX-2,ey,WHITE);P(CX-1,ey+2,C.eye);R(CX+3,ey,CX+4,ey+2,OUT);P(CX+3,ey,WHITE);P(CX+4,ey+2,C.eye);
   if(fem){P(CX-3,ey,OUT);P(CX+5,ey,OUT)}
   P(CX-3,ey+3,BLUSH);P(CX+4,ey+3,BLUSH);P(CX+1,ey+3,fem?'#e0607a':'#b4434a');if(!fem)P(CX+2,ey+3,'#b4434a');
@@ -487,7 +533,7 @@ function buildSprite(k,sg,fr,view,gen,cos){
   if(st>=9)[2,4,6,7,7,6,5,3,2].forEach((n,i)=>{const y=bodyTop-4+i+(i<4?flap:0);for(let j=0;j<n;j++){const c=j===n-1?GOLD:(i%2?'#e6eeff':WHITE);P(CX-6-j,y,c);P(CX+5+j,y,c)}});
   if(CO)cosBack();else if(k==='fox')tails(CX,FEET-3,-1.35,1.35);
   if(st>=6&&!CO){R(CX-5,bodyTop,CX+4,FEET-1,capeC);R(CX-6,FEET-3,CX+5,FEET-1,capeC);if(st>=8)R(CX-6,FEET-1,CX+5,FEET-1,GOLD)}
-  if(fem&&!CO)R(x0,y1-1,x1,y1+3,Hc);
+  if(HS){if(!CO)hairB()}else if(fem&&!CO)R(x0,y1-1,x1,y1+3,Hc);
   const lL=fr===1,lR=fr===3;
   if(!robe){const a=FEET-(lL?1:0),b=FEET-(lR?1:0);R(CX-3,legTop,CX-2,a,legC);R(CX-3,a,CX-2,a,boot);R(CX+1,legTop,CX+2,b,legC);R(CX+1,b,CX+2,b,boot)}
   else{if(!lL)R(CX-3,FEET,CX-2,FEET,boot);if(!lR)R(CX+1,FEET,CX+2,FEET,boot)}
@@ -503,10 +549,12 @@ function buildSprite(k,sg,fr,view,gen,cos){
   if(st>=5&&!CO){R(CX-6,bodyTop,CX-4,bodyTop+1,shC);R(CX+3,bodyTop,CX+5,bodyTop+1,shC);P(CX-6,bodyTop+1,shD);P(CX+5,bodyTop+1,shD)}
   hx=CX+4+(rDy<0?1:0);hy2=hy+rDy;
   R(x0,y0,x1,y1,SKIN);[[x0,y0],[x1,y0],[x0,y1],[x1,y1]].forEach(([x,y])=>P(x,y,0));R(x0+1,y1,x1-1,y1,SKIN_D);
+  if(HS)hairF();else{
   R(x0+1,y0,x1-1,y0,Hc);R(x0,y0+1,x1,y0+2,Hc);R(x0,y0+3,x0,y0+6,Hc);R(x1,y0+3,x1,y0+6,Hc);
   [x0+1,x0+2,x0+4,x0+7,x0+8,x1-1].forEach(x=>P(x,y0+3,Hc));P(x0+1,y0+4,Hc);P(x1-1,y0+4,Hc);R(x0+3,y0+1,x0+4,y0+1,HL);
   if(fem||k==='healer'){R(x0,y0+3,x0,y1+1,Hc);R(x1,y0+3,x1,y1+1,Hc)}
   if(k==='archer')R(x1+1,y0+2,x1+1,y0+7+(fem?3:0),Hc);
+  }
   R(CX-4,ey,CX-3,ey+2,OUT);R(CX+2,ey,CX+3,ey+2,OUT);P(CX-4,ey,WHITE);P(CX+2,ey,WHITE);P(CX-3,ey+2,C.eye);P(CX+3,ey+2,C.eye);
   if(fem){P(CX-5,ey,OUT);P(CX+4,ey,OUT)}
   P(CX-5,ey+3,BLUSH);P(CX+4,ey+3,BLUSH);if(fem)P(CX-1,ey+3,'#e0607a');else{P(CX-1,ey+3,'#b4434a');P(CX,ey+3,'#b4434a')}
@@ -534,9 +582,21 @@ function buildSprite(k,sg,fr,view,gen,cos){
   else if(k==='healer'){R(x0-1,y0-1,x1+1,y0+2,WHITE);P(x0-1,y0-1,0);P(x1+1,y0-1,0);if(side)R(x0-1,y0+3,x0+2,y1+2,WHITE);else{R(x0-1,y0+3,x0-1,y1+1,WHITE);R(x1+1,y0+3,x1+1,y1+1,WHITE)}
    const cc=st>=8?GOLD:'#ff5c8a';R(CX-1,y0-1,CX,y0+1,cc);R(CX-2,y0,CX+1,y0,cc);top=y0-1}
  }
+ if(st>=4&&!CO){
+  if(k==='fighter'){const bc=st>=8?GOLD:'#e0443a';R(x0,y0+2,x1,y0+2,bc);const tx=side?x0-1:x1+1;P(tx,y0+3,bc);P(tx+(side?-1:1),y0+4,bc)}
+  else if(k==='bard'){R(x0,y0-1,x1,y0+1,C.main);R(x0-1,y0+1,x1+1,y0+1,C.dark);const fx=side?x0+1:x1-1,d=side?-1:1;P(fx,y0-2,'#ff6b9a');P(fx+d,y0-3,'#ff6b9a');P(fx+d*2,y0-4,st>=8?GOLD:'#ffd23f');top=y0-1}
+  else if(k==='ninja'){R(x0,y0+2,x1,y0+2,'#e0443a');P(side?x0-1:x1+1,y0+3,'#e0443a');P(side?x0-2:x1+2,y0+4,'#e0443a');if(st>=6)R(x0+1,ey+3,x1-1,y1,C.dark)}
+  else if(k==='alch'||k==='inventor'){const lc=k==='alch'?'#9ad0ff':'#ffd23f';R(x0,y0+2,x1,y0+2,'#6b4423');R(side?CX:CX-4,y0+1,side?CX+1:CX-3,y0+2,lc);R(side?CX+3:CX+1,y0+1,side?CX+4:CX+2,y0+2,lc)}
+  else if(k==='druid'){[x0,x0+3,CX,x1-3,x1].forEach((x,i)=>{P(x,y0-1,i%2?'#3f8a2a':'#6cc04a');P(x,y0,'#6cc04a')});if(st>=7)P(CX,y0-2,'#ff6b9a');top=y0-1}
+  else if(k==='pirate'){const pc='#2a2438';R(x0-1,y0,x1+1,y0+1,pc);R(x0+1,y0-2,x1-1,y0-1,pc);P(x0-2,y0-1,pc);P(x1+2,y0-1,pc);P(CX-1,y0-1,WHITE);P(CX,y0-1,WHITE);if(st>=8)R(x0,y0+1,x1,y0+1,GOLD);top=y0-2}
+  else if(k==='valk'){R(x0,y0-1,x1,y0+2,metal);P(x0,y0-1,0);P(x1,y0-1,0);R(x0+1,y0-2,x1-1,y0-2,metal);R(x0-2,y0-2,x0-1,y0,WHITE);P(x0-3,y0-3,WHITE);if(!side){R(x1+1,y0-2,x1+2,y0,WHITE);P(x1+3,y0-3,WHITE)}P(x0+3,y0-1,WHITE);top=y0-2}
+  else if(k==='mermaid'){[x0+2,CX-1,x1-2].forEach((x,i)=>{P(x,y0-1,i===1?'#ffd6e6':'#ff9ab8');if(i===1){P(x,y0-2,'#ffd6e6');P(x+1,y0-1,'#ffd6e6')}});if(st>=8)P(CX-1,y0-3,'#9ad0ff');top=y0-2}
+  else if(k==='scholar'){R(x0-1,y0-1,x1+1,y0-1,'#2a2438');R(x0+2,y0-2,x1-2,y0-2,'#2a2438');R(x0+1,y0,x1-1,y0,'#2a2438');const tx=side?x0-1:x1+1;R(tx,y0-1,tx,y0+2,st>=7?GOLD:'#e0443a');top=y0-2}
+ }
  // 여캐 리본 (머리 장비가 없을 때)
  if(fem&&top===y0&&k!=='rogue'&&!CO){const rb=k==='healer'?'#ff5c8a':'#ff6b9a',bx=side?x0+2:x1-2;P(bx-1,y0-1,rb);P(bx+1,y0-1,rb);P(bx,y0,rb);P(bx-1,y0,rb);P(bx+1,y0,rb);P(bx,y0-1,shade(rb))}
  if(k==='star'&&st>=7&&!CO)cat(side?CX-9:CX-9,bodyTop);
+ if(k==='summoner'&&st>=4){const px=CX-11,py=bodyTop+(fr%2),pc=st>=8?'#ffd23f':st>=6?'#ff9ad6':'#9ad0ff';R(px,py-3,px+3,py,pc);P(px,py-3,0);P(px+3,py-3,0);P(px+1,py-2,'#2a2438');P(px+3,py-1,'#2a2438');if(st>=6){P(px-1,py-3,WHITE);P(px+4,py-3,WHITE)}if(st>=8){P(px+1,py-5,GOLD);P(px+2,py-5,GOLD)}}
  if(st>=9){if((k==='mage'||k==='star')&&tip){const[a,b]=tip;R(a-1,b,a+1,b,GOLD);R(a,b-1,a,b+1,GOLD)}
   else{const t=top-1;R(CX-3,t-1,CX+2,t,GOLD);P(CX-3,t-2,GOLD);P(CX-1,t-2,GOLD);P(CX,t-2,GOLD);P(CX+2,t-2,GOLD);P(CX-1,t-1,'#e0443a');P(CX,t-1,'#4aa8ff');R(CX-3,t,CX+2,t,GOLD_D)}}
  if(!side&&C.w==='shield'&&st>=2)shield(CX-9,bodyTop-1);weapon(hx,hy2);if(!side){
@@ -593,7 +653,7 @@ const uid=()=>'h'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 let S={heroes:[]};
 const DATE=/^\d{4}-\d{2}-\d{2}$/;
 function clean(d){const out=[];(Array.isArray(d&&d.heroes)?d.heroes:[]).forEach(h=>{if(!h||!CLS[h.cls])return;const days=Math.max(3,Math.min(365,parseInt(h.days)||30));
- out.push({id:String(h.id||uid()).slice(0,40),name:String(h.name||'이름 없는 용사').slice(0,12),cls:h.cls,gen:h.gen==='f'?'f':'m',cos:COS[h.cos]?h.cos:'',...(h.demo?{demo:1}:{}),task:String(h.task||'').slice(0,40),days,start:DATE.test(h.start)?h.start:today(),checks:[...new Set((h.checks||[]).filter(x=>typeof x==='string'&&DATE.test(x)))].sort()})});
+ out.push({id:String(h.id||uid()).slice(0,40),name:String(h.name||'이름 없는 용사').slice(0,12),cls:h.cls,gen:h.gen==='f'?'f':'m',hs:HAIRS[h.hs]?h.hs:'',hc:HCOL[h.hc]?h.hc:'',cos:COS[h.cos]?h.cos:'',...(h.demo?{demo:1}:{}),task:String(h.task||'').slice(0,40),days,start:DATE.test(h.start)?h.start:today(),checks:[...new Set((h.checks||[]).filter(x=>typeof x==='string'&&DATE.test(x)))].sort()})});
  const dd=d||{};return{heroes:out,unl:Array.isArray(dd.unl)?dd.unl.filter(x=>typeof x==='string'&&/^[ct]:[a-z0-9]+$/.test(x)).slice(0,300):[],flags:dd.flags&&typeof dd.flags==='object'?Object.fromEntries(['dawn','night','back','allclear'].filter(k=>dd.flags[k]).map(k=>[k,1])):{},title:typeof dd.title==='string'&&/^[a-z0-9]{1,12}$/.test(dd.title)?dd.title:'',usedCls:Array.isArray(dd.usedCls)?dd.usedCls.filter(c=>CLS[c]):[],fcount:Math.max(0,Math.min(999,parseInt(dd.fcount)||0))}}
 try{const raw=localStorage.getItem(KEY);if(raw)S=clean(JSON.parse(raw))}catch(e){}
 const setSync=t=>$('#sync').textContent=t;
@@ -644,7 +704,7 @@ $('#fLogin').addEventListener('submit',async e=>{e.preventDefault();const f=e.ta
  if(code.length!==6)return authMsg('login','회원코드 6자리를 입력해 주세요.');if(!/^\d{6}$/.test(pin))return authMsg('login','비밀번호는 숫자 6자리예요.');
  busy(f,true);try{const r=await rpc('rq_login',{p_code:code,p_pin:pin});
   if(!r.ok)authMsg('login',errText(r));else{setAuth({code:r.code,token:r.token});setDirty(false);S=clean(r.data);try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
-   if(typeof ents!=='undefined'){ents.forEach(e=>e.tag.remove());ents.clear()}f.reset();authEl.hidden=true;render();syncLine();checkUnlocks(true);toast(`<b>${esc(r.code)}</b> 다시 오신 걸 환영해요!`)}}
+   if(typeof ents!=='undefined'){ents.forEach(e=>e.tag.remove());ents.clear()}f.reset();authEl.hidden=true;render();syncLine();checkUnlocks(true);setTimeout(()=>showPatch(),600);toast(`<b>${esc(r.code)}</b> 다시 오신 걸 환영해요!`)}}
  catch(err){authMsg('login','인터넷 연결을 확인해 주세요.')}busy(f,false)});
 $('#revealOk').addEventListener('click',()=>{authEl.hidden=true;render();toast('광장에 오신 걸 환영해요!')});
 async function copyCode(){try{await navigator.clipboard.writeText(auth.code);toast('회원코드를 복사했어요')}catch(e){toast(`회원코드: <b>${esc(auth.code)}</b>`)}}
@@ -677,7 +737,7 @@ function friendCard(fr){
  const hs=clean({heroes:fr.heroes}).heroes,act=hs.filter(h=>info(h).state==='on'),done=act.filter(h=>info(h).done).length;
  const top=[...hs].sort((a,b)=>info(b).lv-info(a).lv);
  return `<div class="fcard"><div class="fhead"><b>${fr.title&&titleName(fr.title)?`<span class="ftitle">[${esc(titleName(fr.title))}]</span> `:''}${esc(fr.nick)}</b><span class="fstat">${act.length?`오늘 ${done}/${act.length} 클리어`:'진행 중인 원정 없음'}</span></div>
- <div class="fheroes">${top.length?top.map(h=>{const I=info(h);return `<div class="fh${I.done?' ok':''}"><canvas data-spr="${h.cls}|${I.stage}|${h.gen}|${h.cos||''}"></canvas><span>${esc(h.name)}</span><small>Lv.${I.lv}</small></div>`}).join(''):'<p class="muted">아직 용사가 없어요</p>'}</div>
+ <div class="fheroes">${top.length?top.map(h=>{const I=info(h);return `<div class="fh${I.done?' ok':''}"><canvas data-spr="${h.cls}|${I.stage}|${HG(h)}|${h.cos||''}"></canvas><span>${esc(h.name)}</span><small>Lv.${I.lv}</small></div>`}).join(''):'<p class="muted">아직 용사가 없어요</p>'}</div>
  <div class="fact"><button type="button" class="mini" data-act="unfriend" data-id="${esc(fr.friend_code)}">친구 끊기</button></div></div>`;
 }
 function drawFriends(){
@@ -857,7 +917,7 @@ function drawHero(e,t){
  const ft=fxTier(streakOf(h.checks)),ht=Y-FEET+[15,14,12][st<=3?0:st<=6?1:2]+bob+hop;if(ft)fxBack(e,X,Y,t,ft,ht);
  if(st>=8){tx.globalAlpha=.18;ell(tx,X,Y-12,13,15,st>=9?GOLD:GLOW);tx.globalAlpha=1;
   for(let i=0;i<5;i++){const a=t*1.7+i*1.26+X*.1;if((t*3+i*.37)%1>.65)continue;tx.fillStyle=st>=9?GOLD:'#c8fbff';const px=Math.round(X+Math.cos(a)*11),py=Math.round(Y-13+Math.sin(a*1.3)*12);tx.fillRect(px,py,1,1);tx.fillRect(px-1,py,3,1);tx.fillRect(px,py-1,1,3)}}
- const c=spr(h.cls,sg,e.hop>0?1:e.fr,e.view,h.gen,h.cos),yy=Y-FEET+bob+hop;
+ const c=spr(h.cls,sg,e.hop>0?1:e.fr,e.view,HG(h),h.cos),yy=Y-FEET+bob+hop;
  if(e.view==='s'&&e.dir<0){tx.save();tx.translate(X,0);tx.scale(-1,1);tx.drawImage(c,-CX,yy);tx.restore()}else tx.drawImage(c,X-CX,yy);
  if(ft)fxFront(X,Y,t,ft,ht);
  const top=[15,14,12][st<=3?0:st<=6?1:2]-(st>=4?6:2);
@@ -872,7 +932,7 @@ function card(h){
  const I=info(h),C=CLS[h.cls],id=esc(h.id);
  const btn=I.state==='wait'?`<button class="btn ghost" disabled>출발 전</button>`:I.state==='over'?`<button class="btn ghost" data-act="open" data-id="${id}">기록 보기</button>`:I.done?`<button class="btn done" data-act="check" data-id="${id}">오늘 클리어!</button>`:`<button class="btn" data-act="check" data-id="${id}">퀘스트 클리어</button>`;
  return `<article class="card${I.done?' clear':''}${I.state!=='on'?' off':''}">
- <button class="por" data-act="open" data-id="${id}" style="--c:${C.main}" aria-label="${esc(h.name)} 상세 보기"><canvas data-spr="${h.cls}|${I.stage}|${h.gen}|${h.cos||''}"></canvas></button>
+ <button class="por" data-act="open" data-id="${id}" style="--c:${C.main}" aria-label="${esc(h.name)} 상세 보기"><canvas data-spr="${h.cls}|${I.stage}|${HG(h)}|${h.cos||''}"></canvas></button>
  <div><div class="r1"><span class="nm">${esc(h.name)}</span><span class="lv">LV.${I.lv}</span></div>
  <div class="sub">${STAGE[I.stage-1]} ${cname(h.cls,h.gen)} · 진화 ${I.stage}/20단계</div>
  <div class="task">${esc(h.task)}</div>
@@ -906,10 +966,13 @@ function openForm(id){
  const h=id&&hero(id);
  draft=h?{...h}:{cls:'warrior',gen:'m',name:'',task:'',days:30,start:today()};
  openModal(`<form id="f"><h2>${h?'용사 정보 수정':'용사 소집'}</h2>
- <div class="pv"><div><canvas id="pv1"></canvas><p>Lv.1 견습</p></div><span class="arr">▶</span><div><canvas id="pv9"></canvas><p>Lv.99 신화</p></div></div>
+ <div class="pv"><div><canvas id="pv1"></canvas><p>Lv.1 견습</p></div><span class="arr">▶</span><div><canvas id="pv9"></canvas><p>Lv.99 초월</p></div></div>
  <label class="f">용사의 이름<input name="name" maxlength="12" required placeholder="예: 아린" value="${esc(draft.name)}"></label>
  <div class="f" style="margin-top:12px">캐릭터</div>
  <div class="tabs gen"><button type="button" data-gen="m" aria-pressed="${draft.gen!=='f'}">남캐</button><button type="button" data-gen="f" aria-pressed="${draft.gen==='f'}">여캐</button></div>
+ <div class="f" style="margin-top:12px">헤어</div>
+ <div class="cls" id="hsGrid"></div>
+ <div class="hcol" id="hcGrid"></div>
  <div class="f" style="margin-top:12px">직업 고르기</div>
  <div class="cls" id="clsGrid"></div>
  <label class="f">퀘스트 (매일 할 일)<input name="task" maxlength="40" required placeholder="예: 물 2리터 마시기" value="${esc(draft.task)}"></label>
@@ -920,20 +983,24 @@ function openForm(id){
  <p class="calc" id="calc"></p>
  <div class="foot"><button type="button" class="btn ghost" data-act="close">취소</button><button class="btn">${h?'저장하기':'모험 시작!'}</button></div></form>`);
  const f=$('#f');
- const upd=()=>{const C=CLS[draft.cls];paint($('#pv1'),spr(draft.cls,1,4,'f',draft.gen));paint($('#pv9'),spr(draft.cls,20,4,'f',draft.gen));
-  $('#clsGrid').innerHTML=KEYS.map(k=>`<button type="button" data-cls="${k}" aria-pressed="${k===draft.cls}"><canvas data-spr="${k}|3|${draft.gen}"></canvas>${cname(k,draft.gen)}</button>`).join('');paintAll($('#clsGrid'));
+ const upd=()=>{const C=CLS[draft.cls];paint($('#pv1'),spr(draft.cls,1,4,'f',HG(draft)));paint($('#pv9'),spr(draft.cls,20,4,'f',HG(draft)));
+  $('#clsGrid').innerHTML=KEYS.map(k=>`<button type="button" data-cls="${k}" aria-pressed="${k===draft.cls}"><canvas data-spr="${k}|3|${HG(draft)}"></canvas>${cname(k,draft.gen)}</button>`).join('');paintAll($('#clsGrid'));
   sheet.querySelectorAll('[data-gen]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.gen===draft.gen));
+  const g0=draft.gen==='f'?'f':'m';$('#hsGrid').innerHTML=[['','직업 기본'],...Object.entries(HAIRS)].map(([k,n])=>`<button type="button" data-hs="${k}" aria-pressed="${(draft.hs||'')===k}"><canvas data-spr="${draft.cls}|3|${g0}.${k}.${draft.hc||''}"></canvas>${n}</button>`).join('');paintAll($('#hsGrid'));
+  $('#hcGrid').innerHTML=[['','직업 기본',CLS[draft.cls][g0==='f'&&CLS[draft.cls].hairF?'hairF':'hair']],...Object.entries(HCOL).map(([k,v])=>[k,v[0],v[1]])].map(([k,n,c])=>`<button type="button" data-hc="${k}" aria-pressed="${(draft.hc||'')===k}" aria-label="${n}" title="${n}" style="background:${c}">${k?'':'기본'}</button>`).join('');
   $('#tchips').innerHTML=C.task.map(t=>`<button type="button" data-task="${esc(t)}">${esc(t)}</button>`).join('');
   const d=Math.max(3,Math.min(365,parseInt(f.days.value)||30));
-  $('#calc').innerHTML=`하루 한 번 클리어하면 <b>+${(98/d).toFixed(1)} Lv</b>. ${d}번 모두 깨면 <b>Lv.99</b>, 11레벨마다 한 단계씩 진화해요.`};
+  $('#calc').innerHTML=`하루 한 번 클리어하면 <b>+${(98/d).toFixed(1)} Lv</b>. ${d}번 모두 깨면 <b>Lv.99</b>, 5레벨마다 한 단계씩 20단계까지 진화해요.`};
  f.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
   if(b.dataset.cls){draft.cls=b.dataset.cls;upd()}
   if(b.dataset.gen){draft.gen=b.dataset.gen;upd()}
+  if(b.dataset.hs!==undefined){draft.hs=b.dataset.hs;sfx('tap');upd()}
+  if(b.dataset.hc!==undefined){draft.hc=b.dataset.hc;sfx('tap');upd()}
   if(b.dataset.task){f.task.value=b.dataset.task}
   if(b.dataset.days){f.days.value=b.dataset.days;upd()}});
  f.days.addEventListener('input',upd);
  f.addEventListener('submit',e=>{e.preventDefault();
-  const v={name:f.name.value.trim()||'이름 없는 용사',task:f.task.value.trim(),days:Math.max(3,Math.min(365,parseInt(f.days.value)||30)),start:DATE.test(f.start.value)?f.start.value:today(),cls:draft.cls,gen:draft.gen==='f'?'f':'m'};
+  const v={name:f.name.value.trim()||'이름 없는 용사',task:f.task.value.trim(),days:Math.max(3,Math.min(365,parseInt(f.days.value)||30)),start:DATE.test(f.start.value)?f.start.value:today(),cls:draft.cls,gen:draft.gen==='f'?'f':'m',hs:HAIRS[draft.hs]?draft.hs:'',hc:HCOL[draft.hc]?draft.hc:''};
   if(!v.task){f.task.focus();return}
   if(h)Object.assign(h,v);else{S.heroes.push({id:uid(),...v,checks:[],cos:''});sfx('hero')}S.usedCls=[...new Set([...(S.usedCls||[]),v.cls])];
   save();render();closeModal();toast(h?`${esc(v.name)}의 정보를 고쳤어요`:`<b>NEW</b> ${esc(v.name)}이(가) 광장에 도착했어요!`);checkUnlocks()});
@@ -942,9 +1009,9 @@ function openForm(id){
 function openDetail(id,confirmDel){
  const h=hero(id);if(!h)return;const I=info(h),C=CLS[h.cls],sid=esc(h.id);
  let cal='';for(let i=0;i<h.days;i++){const d=addD(h.start,i),ok=h.checks.includes(d),past=d<today();cal+=`<span class="${ok?'ok':past?'miss':''}${d===today()?' today':''}" title="${d}">${i+1}</span>`}
- const road=STAGE.map((n,i)=>{const s=i+1,got=I.stage>=s;return `<div class="${I.stage===s?'now':''}"><canvas data-${got?'spr':'sil'}="${h.cls}|${s}|${h.gen}"></canvas>${got?n:'???'}<small>Lv.${i*5+1}~</small></div>`}).join('');
+ const road=STAGE.map((n,i)=>{const s=i+1,got=I.stage>=s;return `<div class="${I.stage===s?'now':''}"><canvas data-${got?'spr':'sil'}="${h.cls}|${s}|${HG(h)}"></canvas>${got?n:'???'}<small>Lv.${i*5+1}~</small></div>`}).join('');
  const main=I.state==='on'?`<button class="btn ${I.done?'done':''}" data-act="check" data-id="${sid}">${I.done?'오늘 클리어 취소':'퀘스트 클리어'}</button>`:'';
- openModal(`<div class="dtop"><div class="por" style="--c:${C.main};cursor:default"><canvas data-spr="${h.cls}|${I.stage}|${h.gen}|${h.cos||''}"></canvas></div>
+ openModal(`<div class="dtop"><div class="por" style="--c:${C.main};cursor:default"><canvas data-spr="${h.cls}|${I.stage}|${HG(h)}|${h.cos||''}"></canvas></div>
  <div><h2 style="margin:0">${esc(h.name)}</h2><div class="sub">${STAGE[I.stage-1]} ${cname(h.cls,h.gen)} · <span class="lv">LV.${I.lv}</span></div><div class="task">${esc(h.task)}</div><div class="bar${I.lv>=99?' max':''}"><i style="width:${I.pct}%"></i></div></div></div>
  <div class="stats"><div><b>${I.state==='wait'?'D-'+(1-I.day):I.state==='over'?'종료':I.day+'일차'}</b>${h.days}일 원정</div><div><b>${I.n}회</b>클리어</div><div><b>${I.streak}일</b>연속</div><div><b>${Math.round(I.n/h.days*100)}%</b>달성률</div></div>
  ${I.fx?`<p class="muted">연속 이펙트: <b>${FXN[I.fx-1]}</b>${I.fx<FX.length?` · 연속 ${FX[I.fx]}일이면 ${FXN[I.fx]}`:''} (마지막 클리어 후 3일까지 유지)</p>`:''}
@@ -957,7 +1024,7 @@ function openDetail(id,confirmDel){
 }
 let tt=0;function toast(html){const t=$('#toast');t.innerHTML=html;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2600)}
 function evolve(h,st,lv){
- const ev=$('#evo'),c=$('#evoC');paint(c,spr(h.cls,st,4,'f',h.gen));showText($('#evoT'),st>=9?'최종 진화!':'진화!',22,Math.min(innerWidth*.8,420),6);
+ const ev=$('#evo'),c=$('#evoC');paint(c,spr(h.cls,st,4,'f',HG(h)));showText($('#evoT'),st>=9?'최종 진화!':'진화!',22,Math.min(innerWidth*.8,420),6);
  $('#evoP').textContent=`${h.name}이(가) ${STAGE[st-1]} ${cname(h.cls,h.gen)}(으)로 진화했어요`;$('#evoS').textContent=`Lv.${lv} · 진화 ${st}/20단계`;
  ev.hidden=false;c.classList.remove('flash');void c.offsetWidth;c.classList.add('flash');ev.querySelector('button').focus();sfx('evo');
 }
@@ -1000,7 +1067,7 @@ const COND={};
 const BASIC_N=[1,2,3,5,7,10,13,16,20,25,30,35,40,50,60,70,80,90,100,120,140,160,180,200,230,260,300];
 BASIC.forEach((id,i)=>COND[id]=['total',BASIC_N[i],'기본']);
 [['capy',3],['badger',7],['redpanda',14],['sloth',30],['shark',50],['dragon',100]].forEach(([id,n])=>COND[id]=['best',n,'희귀']);
-COND.unicorn=['lv99',1,'전설'];COND.trex=['cls',9,'전설'];COND.alpaca=['friends',3,'전설'];
+COND.unicorn=['lv99',1,'전설'];COND.trex=['cls',KEYS.length,'전설'];COND.alpaca=['friends',3,'전설'];
 [['santa',12,12],['rudolph',12,12],['snowman',12,12],['hanbok',1,2],['pouch',1,2],['blossom',4,4],['melon',7,8],['tube',7,8],['pumpkin',10,10],['ghost',10,10],['bat',10,10]].forEach(([id,a,b])=>COND[id]=['season',7,'시즌',a,b]);
 const SEASON_N=7;
 
@@ -1015,7 +1082,7 @@ function condMet(c,st){const[t,n,,a,b]=c;
 function condText(c,st){const[t,n,,a,b]=c;
  if(t==='total')return `누적 클리어 ${n}회 (${Math.min(st.total,n)}/${n})`;
  if(t==='best')return `연속 ${n}일 클리어 (최고 ${Math.min(st.best,n)}/${n})`;
- if(t==='lv99')return '용사 하나를 Lv.99까지';if(t==='cls')return `9개 직업 모두 소집 (${Math.min(st.cls,9)}/9)`;
+ if(t==='lv99')return '용사 하나를 Lv.99까지';if(t==='cls')return `${KEYS.length}개 직업 모두 소집 (${Math.min(st.cls,KEYS.length)}/${KEYS.length})`;
  if(t==='friends')return `친구 ${n}명 (${Math.min(st.friends,n)}/${n})`;if(t==='perfect')return `${n}일 동안 하루도 안 빠지기 (최고 ${Math.min(st.perfect,n)}/${n})`;
  if(t==='season'){const on=st.month>=a&&st.month<=b,cnt=seasonCount(a,b,st.dates,st.year),per=a===b?`${a}월`:`${a}~${b}월`;return on?`${per} 시즌 클리어 ${n}회 (${Math.min(cnt,n)}/${n})`:`${per} 시즌 한정 · ${per}에 클리어 ${n}회`}
  if(t==='flag')return FLAGTXT[c[3]]||'';return ''}
@@ -1037,15 +1104,15 @@ function checkUnlocks(quiet){
  if(quiet||got.length>3){const nc=got.filter(k=>k[0]==='c').length,nt=got.length-nc;save();if(!quiet)sfx('unlock');toast(`옷 <b>${nc}</b>벌, 칭호 <b>${nt}</b>개를 받았어요! 컬렉션에서 확인해 보세요`);return got.length}
  const pv=S.heroes[0]||{cls:'warrior',gen:'m'};
  got.forEach(k=>{const id=k.slice(2);
-  if(k[0]==='c')rewardQ.push({title:'새 옷 획득!',text:`${COS[id].n} 옷을 얻었어요`,sub:`${COND[id][2]} · 용사 상세 화면에서 입힐 수 있어요`,src:spr(pv.cls,10,4,'f',pv.gen,id)});
-  else{rewardQ.push({title:'새 칭호!',text:`[${titleName(id)}] 칭호를 얻었어요`,sub:'컬렉션에서 칭호를 달 수 있어요',src:spr(pv.cls,10,4,'f',pv.gen,S.heroes[0]&&S.heroes[0].cos||''),snd:'title'})}});
+  if(k[0]==='c')rewardQ.push({title:'새 옷 획득!',text:`${COS[id].n} 옷을 얻었어요`,sub:`${COND[id][2]} · 용사 상세 화면에서 입힐 수 있어요`,src:spr(pv.cls,10,4,'f',HG(pv),id)});
+  else{rewardQ.push({title:'새 칭호!',text:`[${titleName(id)}] 칭호를 얻었어요`,sub:'컬렉션에서 칭호를 달 수 있어요',src:spr(pv.cls,10,4,'f',HG(pv),S.heroes[0]&&S.heroes[0].cos||''),snd:'title'})}});
  save();setTimeout(showNextReward,400);return got.length}
 
 /* ---------- 컬렉션 (옷장·칭호) ---------- */
 let colTab='cos';
 function openCollection(tab){colTab=tab||colTab;const st=stats(),pv=S.heroes[0]||{cls:'warrior',gen:'m'};
  const nC=Object.keys(COND).filter(id=>has('c:'+id)).length,nT=TITLES.filter(t=>has('t:'+t[0])).length;
- const group=(name,ids)=>`<h3>${name}</h3><div class="cgrid">${ids.map(id=>{const got=has('c:'+id);return `<div class="cc${got?' got':''}"><canvas data-${got?'spr':'sil'}="${pv.cls}|10|${pv.gen}|${id}"></canvas><b>${got?COS[id].n:'???'}</b><small>${got?'획득!':esc(condText(COND[id],st))}</small></div>`}).join('')}</div>`;
+ const group=(name,ids)=>`<h3>${name}</h3><div class="cgrid">${ids.map(id=>{const got=has('c:'+id);return `<div class="cc${got?' got':''}"><canvas data-${got?'spr':'sil'}="${pv.cls}|10|${HG(pv)}|${id}"></canvas><b>${got?COS[id].n:'???'}</b><small>${got?'획득!':esc(condText(COND[id],st))}</small></div>`}).join('')}</div>`;
  const ids=t=>Object.keys(COND).filter(id=>COND[id][2]===t);
  const cosHtml=`<p class="muted">옷은 용사 상세 화면의 <b>옷 입히기</b>에서 아무 용사에게나 입힐 수 있어요.</p>${group('기본 동물 · 누적 클리어',ids('기본'))}${group('희귀 동물 · 연속 클리어',ids('희귀'))}${group('전설',ids('전설'))}${group('시즌 한정',ids('시즌'))}`;
  const titleHtml=`<p class="muted">달고 있는 칭호는 친구 목록에도 보여요. 연속 기록은 마지막 클리어 후 3일까지 유지돼요.</p>
@@ -1055,7 +1122,7 @@ function openCollection(tab){colTab=tab||colTab;const st=stats(),pv=S.heroes[0]|
  ${colTab==='cos'?cosHtml:titleHtml}<div class="foot"><button type="button" class="btn ghost" data-act="close">닫기</button></div>`);
 }
 function wardrobe(h,I){const own=Object.keys(COND).filter(id=>has('c:'+id));
- const cell=(id,name)=>`<button type="button" class="wc${(h.cos||'')===id?' on':''}" data-act="wear" data-id="${esc(h.id)}" data-c="${id}"><canvas data-spr="${h.cls}|${I.stage}|${h.gen}|${id}"></canvas>${name}</button>`;
+ const cell=(id,name)=>`<button type="button" class="wc${(h.cos||'')===id?' on':''}" data-act="wear" data-id="${esc(h.id)}" data-c="${id}"><canvas data-spr="${h.cls}|${I.stage}|${HG(h)}|${id}"></canvas>${name}</button>`;
  return `<h3>옷 입히기</h3><div class="road wardrobe">${cell('','기본 옷')}${own.map(id=>cell(id,COS[id].n)).join('')}</div>${own.length?'':'<p class="muted">퀘스트를 처음 클리어하면 첫 옷(고양이)을 받아요.</p>'}<p><button type="button" class="mini" data-act="collection">전체 옷장 보기</button></p>`}
 
 /* ---------- 효과음 · 배경음악 (8비트, 직접 합성) ---------- */
@@ -1106,6 +1173,14 @@ function admLevel(id,n){if(!isAdmin())return;const h=hero(id);if(!h)return;const
  else if(n==='stage'){let k=0;while(info(h).stage===a.stage&&info(h).lv<99&&k++<2000)add()}
  else add();
  const b=info(h);save();render();if(b.stage>a.stage){closeModal();evolve(h,b.stage,b.lv)}else{sfx(n==='-1'?'undo':'up');openDetail(id);toast(`Lv.${b.lv} · 클리어 ${b.n}회`)}}
+
+/* ---------- 패치노트 ---------- */
+const PATCH_V='2026-11-24c';
+const PATCH_NOTES=[['진화 20단계','5레벨마다 진화! 단계마다 보석·별·빛의 고리가 하나씩 늘어나요.'],['새 직업 11종 (총 20종)','격투가·음유시인·닌자·연금술사·드루이드·해적·발명가·소환사·성기사·인어·학자'],['헤어 82가지','스타일 9종 x 색 9종 + 대머리. 용사 정보 수정에서 바꿀 수 있어요.'],['컬렉션','동물·시즌 옷 47벌, 칭호 26개. 첫 클리어부터 옷을 받아요.'],['연속 클리어 이펙트','3일부터 반짝이, 100일엔 무지개 오라. 마지막 클리어 후 3일까지 유지돼요.'],['효과음·배경음악','오른쪽 위 ♪ 버튼으로 끄고 켤 수 있어요.']];
+function showPatch(force){try{if(!force&&localStorage.getItem('rq-patch')===PATCH_V)return}catch(e){}
+ if(!force&&(!$('#auth').hidden||!modal.hidden||!$('#evo').hidden))return;
+ try{localStorage.setItem('rq-patch',PATCH_V)}catch(e){}
+ openModal(`<h2>업데이트 소식</h2><p class="muted">${PATCH_V.slice(0,10)} 패치</p><ul class="pnote">${PATCH_NOTES.map(([a,b])=>`<li><b>${a}</b><span>${b}</span></li>`).join('')}</ul><div class="foot"><button type="button" class="btn" data-act="close">확인!</button></div>`);sfx('open')}
 function exportBackup(){
  const blob=new Blob([JSON.stringify({app:'real-life-quest',v:2,saved:new Date().toISOString(),...S},null,1)],{type:'application/json'});
  const name=`현실퀘스트-백업-${today()}.json`,file=new File([blob],name,{type:'application/json'});
@@ -1120,17 +1195,17 @@ $('#imp').addEventListener('change',async e=>{const f=e.target.files[0];e.target
 document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)return;const id=b.dataset.id,ac0=b.dataset.act;
  if(!['check','bgm','sfx','wear','settitle','collection','coltitle','new'].includes(ac0))sfx(ac0==='close'||ac0==='evoclose'?'close':'tap');
  ({new:()=>{sfx('open');openForm()},demo,close:closeModal,check:()=>toggle(id),open:()=>openDetail(id),edit:()=>openForm(id),askdel:()=>openDetail(id,true),
-   del:()=>{S.heroes=S.heroes.filter(h=>h.id!==id);save();render();closeModal();toast('용사가 마을을 떠났어요')},evoclose:()=>{$('#evo').hidden=true;showNextReward()},collection:()=>{sfx('open');openCollection()},coltitle:()=>{sfx('open');openCollection('title')},coltab:()=>openCollection(b.dataset.t),settitle:()=>{S.title=b.dataset.t||'';save();sfx('title');render();openCollection('title')},wear:()=>{const h=hero(id);if(!h)return;h.cos=b.dataset.c||'';save();render();sfx('poke');openDetail(id)},bgm:toggleBgm,sfx:toggleSfx,adm:()=>admLevel(id,b.dataset.n),copycode:copyCode,friends:openFriends,sharefc:shareFC,unfriend:()=>unfriend(id,b),pin:openPin,logout:openLogout,dologout:doLogout,export:exportBackup,import:()=>$('#imp').click(),doimport:()=>{if(!pendingImport)return;S=pendingImport;pendingImport=null;ents.forEach(e=>e.tag.remove());ents.clear();save();render();closeModal();toast('백업을 불러왔어요')}})[b.dataset.act]?.()});
+   del:()=>{S.heroes=S.heroes.filter(h=>h.id!==id);save();render();closeModal();toast('용사가 마을을 떠났어요')},evoclose:()=>{$('#evo').hidden=true;showNextReward()},collection:()=>{sfx('open');openCollection()},coltitle:()=>{sfx('open');openCollection('title')},coltab:()=>openCollection(b.dataset.t),settitle:()=>{S.title=b.dataset.t||'';save();sfx('title');render();openCollection('title')},wear:()=>{const h=hero(id);if(!h)return;h.cos=b.dataset.c||'';save();render();sfx('poke');openDetail(id)},bgm:toggleBgm,sfx:toggleSfx,patch:()=>showPatch(true),adm:()=>admLevel(id,b.dataset.n),copycode:copyCode,friends:openFriends,sharefc:shareFC,unfriend:()=>unfriend(id,b),pin:openPin,logout:openLogout,dologout:doLogout,export:exportBackup,import:()=>$('#imp').click(),doimport:()=>{if(!pendingImport)return;S=pendingImport;pendingImport=null;ents.forEach(e=>e.tag.remove());ents.clear();save();render();closeModal();toast('백업을 불러왔어요')}})[b.dataset.act]?.()});
 
 /* ---------- 타이틀 ---------- */
 const splash=$('#splash');let parading=true;
-function closeSplash(){if(splash.classList.contains('out'))return;unlockAudio();splash.classList.add('out');parading=false;setTimeout(()=>splash.hidden=true,520)}
+function closeSplash(){if(splash.classList.contains('out'))return;unlockAudio();splash.classList.add('out');parading=false;setTimeout(()=>splash.hidden=true,520);setTimeout(()=>showPatch(),900)}
 splash.addEventListener('click',closeSplash);splash.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')closeSplash()});
-(function parade(){const c=$('#parade'),k=Math.min(3,Math.max(2,Math.floor(innerWidth/(SW*10)))),x=c.getContext('2d');c.width=SW*KEYS.length;c.height=SH;c.style.width=SW*KEYS.length*k+'px';c.style.height=SH*k+'px';
- const loop=ts=>{if(!parading)return;x.clearRect(0,0,c.width,c.height);KEYS.forEach((key,i)=>{const fr=Math.floor(ts/120+i)%4;x.drawImage(spr(key,[6,10,12,14,16,20,12,20,16][i],fr,'s',i%2?'f':'m'),i*SW,fr%2?-1:0)});requestAnimationFrame(loop)};requestAnimationFrame(loop)})();
+(function parade(){const c=$('#parade'),k=Math.min(3,Math.max(2,Math.floor(innerWidth/(SW*10)))),x=c.getContext('2d');const PK=KEYS.filter((_,i)=>i%2===0);c.width=SW*PK.length;c.height=SH;c.style.width=SW*PK.length*k+'px';c.style.height=SH*k+'px';
+ const loop=ts=>{if(!parading)return;x.clearRect(0,0,c.width,c.height);PK.forEach((key,i)=>{const fr=Math.floor(ts/120+i)%4;x.drawImage(spr(key,[6,10,12,14,16,20,12,20,16,18][i%10],fr,'s',i%2?'f':'m'),i*SW,fr%2?-1:0)});requestAnimationFrame(loop)};requestAnimationFrame(loop)})();
 Promise.race([document.fonts.load('22px "Do Hyeon"'),new Promise(r=>setTimeout(r,1500))]).then(()=>{
  showText($('#logo'),'현실퀘스트',26,innerWidth*.86,7);showText($('#authLogo'),'현실퀘스트',26,Math.min(innerWidth*.8,420),6);(()=>{const t=$('#title');t.innerHTML='';const k=innerWidth<600?2:3;[...'현실퀘스트'].forEach((ch,i)=>{const F=pixText(ch,13,'#fff7b0','#ffb52e',OUT,'#0c0e22');const c=document.createElement('canvas');c.width=F.width;c.height=F.height;c.getContext('2d').drawImage(F,0,0);c.style.width=F.width*k+'px';c.style.height=F.height*k+'px';if(i)c.style.marginLeft=(-7*k)+'px';c.style.animationDelay=`${(i*.15).toFixed(2)}s, ${(i*.12).toFixed(2)}s`;t.appendChild(c)})})();
- setTimeout(closeSplash,RM?900:2600)});
+ });
 
 addEventListener('resize',()=>{clearTimeout(window.__rz);window.__rz=setTimeout(layout,120)});
 layout();render();requestAnimationFrame(frame);bootAuth();soundUI();setTimeout(()=>checkUnlocks(true),3200);
