@@ -850,31 +850,49 @@ function layout(){
  PX=cw<600?2:3;W=Math.ceil(cw/PX);SKY=Math.ceil((safeTop()+66)/PX);H=Math.floor(ch/PX)+SKY;
  town.width=W;town.height=H;town.style.width=W*PX+'px';town.style.height=H*PX+'px';scene.style.height=H*PX+'px';
  plazaTop=SKY+Math.round((H-SKY)*.42);fx=Math.round(W/2);fy=Math.round(plazaTop+(H-plazaTop)*.42);frx=Math.max(18,Math.min(30,Math.round(W*.11)));fry=Math.round(frx*.36);
- period=periodNow();drawStatic();
+ period=periodNow();xmas=isXmas();drawStatic();buildFlakes();
  const r=rng(3);clouds=[0,1,2,3].map(i=>({x:r()*W,y:SKY*.4+r()*plazaTop*.45,s:3+r()*3,v:1.5+r()*2}));
  ents.forEach(e=>{const b=box();e.x=Math.max(b.x0,Math.min(b.x1,e.x));e.y=Math.max(b.y0,Math.min(b.y1,e.y));if(inF(e.x,e.y))e.y=b.y1;e.wait=.2});
 }
+// 크리스마스 시즌 (11/20 ~ 1/6): 눈 내리는 마을
+const isXmas=()=>{const d=new Date(),m=d.getMonth()+1,dd=d.getDate();return(m===11&&dd>=20)||m===12||(m===1&&dd<=6)};
+let xmas=isXmas(),twinkle=[],flakes=[];
+const XC=['#ff4b4b','#ffd23f','#4fb3ff','#7ee06a','#ff8fe0'];
+function buildFlakes(){const r=rng(11);flakes=xmas?Array.from({length:Math.round(W*H/170)},()=>({x:r()*W,y:r()*H,v:5+r()*10,a:r()*6.28,s:r()<.16?2:1})):[]}
+function drawSnow(t,dt){const night=period==='night';tx.fillStyle=night?'#e6ecff':'#ffffff';
+ for(const f of flakes){f.y+=f.v*dt;if(f.y>H+2){f.y=-2;f.x=Math.random()*W}const x=Math.round(f.x+Math.sin(t*1.3+f.a)*2.5),y=Math.round(f.y);tx.globalAlpha=f.s>1?.95:.8;tx.fillRect(x,y,f.s,f.s)}tx.globalAlpha=1}
+function drawTwinkle(t){const night=period==='night';
+ for(const l of twinkle){const on=((t*1.6+l.ph)%1)<.62,c=l.c;if(night&&on){tx.globalAlpha=.25;tx.fillStyle=c;tx.fillRect(l.x-1,l.y-1,3,3);tx.globalAlpha=1}tx.fillStyle=on?c:shade(c,.45);tx.fillRect(l.x,l.y,1,1)}}
+function drawSleigh(t){const p=(t%40)/14;if(p>1)return;const x0=Math.round(W+24-p*(W+70)),y0=Math.round(SKY+20+Math.sin(p*9)*3),night=period==='night';const R=(x,y,w,h,c)=>{tx.fillStyle=c;tx.fillRect(x,y,w,h)};
+ const deer=(x,y,nose)=>{const b=(t*8|0)%2;R(x-1,y-1,6,4,OUT);R(x,y,4,2,'#a8703c');R(x-3,y-3,4,3,OUT);R(x-2,y-2,2,1,'#a8703c');R(x-2,y-5,1,2,'#7a4a22');R(x,y-5,1,2,'#7a4a22');R(x-3,y-1,1,1,nose);R(x,y+2,1,1+b,'#7a4a22');R(x+3,y+2,1,2-b,'#7a4a22')};
+ deer(x0,y0,night&&(t*3|0)%2?'#ffd0d0':'#ff3b3b');deer(x0+9,y0+1,'#3a2a20');R(x0+4,y0+1,14,1,'#c9a27a');
+ const sx=x0+18,sy=y0;R(sx-1,sy-1,11,5,OUT);R(sx,sy,9,3,'#e0443a');R(sx,sy+3,10,1,GOLD);R(sx+9,sy-2,1,3,GOLD);
+ R(sx+1,sy-5,5,5,OUT);R(sx+2,sy-4,3,4,'#e0443a');R(sx+2,sy-2,3,1,WHITE);R(sx+2,sy-5,3,1,WHITE);R(sx+3,sy-3,1,1,'#ffd8b1');
+ R(sx+5,sy-4,4,4,OUT);R(sx+6,sy-3,2,3,'#8a5a3a');if(night){tx.globalAlpha=.35;R(x0-4,y0-2,1,1,'#ff3b3b');tx.globalAlpha=1}}
 function drawStatic(){
  const p=PAL[period],night=period==='night';
  sky=mk(W,H);const s=sky.getContext('2d'),bh=Math.ceil(plazaTop/4);
  p.sky.forEach((c,i)=>{s.fillStyle=c;s.fillRect(0,i*bh,W,bh+1)});
  if(night){const r=rng(7);for(let i=0;i<W/5;i++){s.fillStyle=r()<.3?'#ffe9a8':WHITE;s.fillRect(r()*W|0,r()*plazaTop*.7|0,1,1)}ell(s,W*.82|0,SKY+8,5,5,'#fff3c4');ell(s,(W*.82|0)+3,SKY+6,4,4,p.sky[0])}
  else if(period==='day')ell(s,W*.86|0,SKY+8,6,6,'#fff6b0');else ell(s,W*.8|0,plazaTop-16,8,8,'#ffd98a');
- for(let x=0;x<W;x++){const a=Math.round(9+5*Math.sin(x/23)+3*Math.sin(x/9+1));s.fillStyle=p.hill2;s.fillRect(x,plazaTop-a-10,1,a+10);const b=Math.round(5+4*Math.sin(x/17+2));s.fillStyle=p.hill;s.fillRect(x,plazaTop-b-4,1,b+4)}
+ const hl=xmas?(night?'#8d98b8':'#eef3fa'):p.hill,hl2=xmas?(night?'#6f7a9a':'#cfdbe9'):p.hill2;
+ for(let x=0;x<W;x++){const a=Math.round(9+5*Math.sin(x/23)+3*Math.sin(x/9+1));s.fillStyle=hl2;s.fillRect(x,plazaTop-a-10,1,a+10);const b=Math.round(5+4*Math.sin(x/17+2));s.fillStyle=hl;s.fillRect(x,plazaTop-b-4,1,b+4)}
  ground=mk(W,H);const g=ground.getContext('2d'),r=rng(42);flags=[];
- g.fillStyle=night?'#8a8598':'#e2cfa5';g.fillRect(0,plazaTop,W,H-plazaTop);
- const mort=night?'#6c6780':'#c7b088';
+ g.fillStyle=xmas?(night?'#a9b2c9':'#f1f5fb'):night?'#8a8598':'#e2cfa5';g.fillRect(0,plazaTop,W,H-plazaTop);
+ const mort=xmas?(night?'#8f98b2':'#d9e2ee'):night?'#6c6780':'#c7b088';
  for(let y=plazaTop+6,row=0;y<H;y+=6,row++){g.fillStyle=mort;g.fillRect(0,y,W,1);for(let x=(row%2)*6;x<W;x+=12)g.fillRect(x,y-5,1,5)}
- g.fillStyle=night?'#99949f':'#ecdcb8';for(let i=0;i<W*H/70;i++)g.fillRect(r()*W|0,plazaTop+r()*(H-plazaTop)|0,1,1);
+ g.fillStyle=xmas?(night?'#c3cbe0':'#ffffff'):night?'#99949f':'#ecdcb8';for(let i=0;i<W*H/70;i++)g.fillRect(r()*W|0,plazaTop+r()*(H-plazaTop)|0,1,1);
  g.fillStyle=night?'#5c586b':'#b39a70';g.fillRect(0,plazaTop+1,W,2);
  // ---- 중세 성 ----
  const pt=plazaTop,ph=plazaTop-SKY,ST=night?['#8a88a6','#6e6c8a','#55536e','#3e3c55']:['#e6dfd0','#c6bca8','#a19784','#7c7362'];
  const stone=(x,y,w,h)=>{g.fillStyle=OUT;g.fillRect(x-1,y-1,w+2,h+1);g.fillStyle=ST[1];g.fillRect(x,y,w,h);
   g.fillStyle=ST[2];for(let yy=y+4,row=0;yy<y+h;yy+=4,row++){g.fillRect(x,yy,w,1);for(let xx=x+(row%2?4:1);xx<x+w;xx+=8)g.fillRect(xx,yy-3,1,3)}
   for(let i=0;i<w*h/40;i++){g.fillStyle=r()<.5?ST[0]:ST[2];g.fillRect(x+(r()*w|0),y+(r()*h|0),2,1)}
-  g.fillStyle=ST[0];g.fillRect(x,y,w,1);g.fillStyle=ST[2];g.fillRect(x+w-2,y,2,h)};
- const cren=(x,y,w)=>{for(let xx=x;xx<x+w-1;xx+=5){const mw=Math.min(3,x+w-xx);g.fillStyle=OUT;g.fillRect(xx-1,y-4,mw+2,4);g.fillStyle=ST[1];g.fillRect(xx,y-3,mw,3);g.fillStyle=ST[0];g.fillRect(xx,y-3,mw,1)}};
- const cone=(cx,by,w,h,c,cd)=>{for(let i=0;i<=h;i++){const rw=Math.max(1,Math.round(w*(1-i/h)));const x=cx-(rw>>1);g.fillStyle=OUT;g.fillRect(x-1,by-i,rw+2,1);if(rw>1){g.fillStyle=c;g.fillRect(x,by-i,rw>>1,1);g.fillStyle=cd;g.fillRect(x+(rw>>1),by-i,rw-(rw>>1),1);if(i%3===1){g.fillStyle='rgba(0,0,0,.12)';g.fillRect(x,by-i,rw,1)}}}
+  g.fillStyle=ST[0];g.fillRect(x,y,w,1);g.fillStyle=ST[2];g.fillRect(x+w-2,y,2,h);
+  if(xmas){g.fillStyle=night?'#d9e1f2':WHITE;g.fillRect(x,y,w,1);for(let xx=x;xx<x+w;xx+=3)g.fillRect(xx,y+1,2,1)}};
+ const cren=(x,y,w)=>{for(let xx=x;xx<x+w-1;xx+=5){const mw=Math.min(3,x+w-xx);g.fillStyle=OUT;g.fillRect(xx-1,y-4,mw+2,4);g.fillStyle=ST[1];g.fillRect(xx,y-3,mw,3);g.fillStyle=ST[0];g.fillRect(xx,y-3,mw,1);
+  if(xmas){g.fillStyle=OUT;g.fillRect(xx-1,y-5,mw+2,1);g.fillStyle=night?'#d9e1f2':WHITE;g.fillRect(xx-1,y-4,mw+2,2)}}};
+ const cone=(cx,by,w,h,c,cd)=>{for(let i=0;i<=h;i++){const rw=Math.max(1,Math.round(w*(1-i/h)));const x=cx-(rw>>1);g.fillStyle=OUT;g.fillRect(x-1,by-i,rw+2,1);if(rw>1){const sc=xmas&&i>h*.6;g.fillStyle=sc?(night?'#d9e1f2':WHITE):c;g.fillRect(x,by-i,rw>>1,1);g.fillStyle=sc?(night?'#aab5cf':'#dfe8f3'):cd;g.fillRect(x+(rw>>1),by-i,rw-(rw>>1),1);if(i%3===1){g.fillStyle='rgba(0,0,0,.12)';g.fillRect(x,by-i,rw,1)}}}
   g.fillStyle=OUT;g.fillRect(cx-(w>>1)-2,by+1,w+4,1);g.fillRect(cx,by-h-6,1,6);flags.push({x:cx+1,y:by-h-6,c})};
  const win=(x,y)=>{g.fillStyle=OUT;g.fillRect(x,y+1,4,6);g.fillRect(x+1,y,2,1);g.fillStyle=night?'#ffd86a':'#3b3352';g.fillRect(x+1,y+1,2,5)};
  const banner=(x,y,h,c)=>{g.fillStyle=OUT;g.fillRect(x-1,y-1,7,h+3);g.fillStyle=c;g.fillRect(x,y,5,h);g.fillStyle=OUT;g.fillRect(x+2,y+h,1,2);g.fillStyle=c;g.fillRect(x,y+h,2,1);g.fillRect(x+3,y+h,2,1);g.fillStyle=GOLD;g.fillRect(x,y,5,1);const m=y+(h>>1);g.fillRect(x+2,m-2,1,5);g.fillRect(x+1,m-1,3,3)};
@@ -898,9 +916,48 @@ function drawStatic(){
   g.fillStyle=OUT;g.fillRect(x-2,by-20,w+4,6);for(let i=0;i<w+2;i++){g.fillStyle=(i>>2)%2?a:b;g.fillRect(x-1+i,by-19,1,4);if(i%4<2)g.fillRect(x-1+i,by-15,1,1)}};
  stall(Math.round(W*.2),'#d8453b',WHITE);stall(Math.round(W*.8),'#3c70d8',WHITE);
  const tree=(cx,base)=>{g.fillStyle='#6b4423';g.fillRect(cx-1,base-9,3,9);ell(g,cx,base-15,9,8,OUT);ell(g,cx,base-15,8,7,night?'#1f4a3a':'#3f9a4a');ell(g,cx-2,base-17,5,4,night?'#2a5d48':'#5cc05a')};
- tree(9,plazaTop+6);tree(W-10,plazaTop+6);
+ if(!xmas){tree(9,plazaTop+6);tree(W-10,plazaTop+6)}
  lamps=[[Math.round(W*.34),plazaTop+11],[Math.round(W*.66),plazaTop+11]];
  lamps.forEach(([lx,ly])=>{g.fillStyle=OUT;g.fillRect(lx-1,ly-19,4,20);g.fillStyle='#4a4565';g.fillRect(lx,ly-18,2,18);g.fillStyle=OUT;g.fillRect(lx-3,ly-24,8,6);g.fillStyle=night?'#ffe27a':'#fff4cc';g.fillRect(lx-2,ly-23,6,4)});
+ // ---- 크리스마스 장식 ----
+ twinkle=[];
+ if(xmas){
+  const SN=night?'#d9e1f2':'#ffffff',SND2=night?'#aab5cf':'#dfe8f3',GR=night?'#1f5a3a':'#2f8a45',GRL=night?'#2f7a4e':'#4cb35a';
+  const P=(x,y,c)=>{g.fillStyle=c;g.fillRect(x,y,1,1)};
+  // 성벽 가랜드 + 전구
+  for(let x=0;x<W;x++){const y=wallTop+3+Math.round(2.2*Math.abs(Math.sin(x*Math.PI/12)));P(x,y-1,OUT);P(x,y,GR);P(x,y+1,GRL);if(x%6===3)twinkle.push({x,y:y+2,c:XC[(x/6|0)%5],ph:(x%17)/17})}
+  // 성문 위 리스
+  const wx=fx,wy=wallTop-6;ell(g,wx,wy,5,5,OUT);ell(g,wx,wy,4,4,GR);ell(g,wx,wy,2,2,ST[1]);P(wx-3,wy-1,GRL);P(wx+2,wy-3,GRL);P(wx-2,wy+3,GRL);
+  [[wx-3,wy+1],[wx+3,wy-1],[wx,wy-4],[wx+2,wy+3]].forEach(([x,y],i)=>P(x,y,XC[i%3]));
+  g.fillStyle='#e0443a';g.fillRect(wx-2,wy+4,2,2);g.fillRect(wx+1,wy+4,2,2);P(wx,wy+5,'#a02c26');P(wx-1,wy+6,'#e0443a');P(wx+1,wy+6,'#e0443a');
+  // 크리스마스 트리
+  const xtree=(cx,base,hw)=>{const tiers=[[hw,base-12,base-4],[hw-2,base-19,base-10],[hw-4,base-25,base-16]];
+   g.fillStyle=OUT;g.fillRect(cx-2,base-5,5,6);g.fillStyle='#6b4423';g.fillRect(cx-1,base-5,3,5);
+   tiers.forEach(([w,top,bot])=>{for(let y=top;y<=bot;y++){const k=Math.round(w*(y-top)/(bot-top));g.fillStyle=OUT;g.fillRect(cx-k-1,y,k*2+3,1)}});
+   tiers.forEach(([w,top,bot],ti)=>{for(let y=top+1;y<=bot-1;y++){const k=Math.round(w*(y-top)/(bot-top));g.fillStyle=GR;g.fillRect(cx-k,y,k*2+1,1);g.fillStyle=GRL;g.fillRect(cx-k,y,Math.max(1,k),1)}
+    const k=Math.round(w*(bot-1-top)/(bot-top));g.fillStyle=SN;g.fillRect(cx-k,bot-1,2,1);g.fillRect(cx+k-1,bot-1,2,1);g.fillRect(cx-1,top+1,3,1);
+    for(let i=0;i<4;i++){const yy=top+3+((i*5+ti*3)%Math.max(2,bot-top-4)),kk=Math.round(w*(yy-top)/(bot-top))-1;if(kk<1)continue;const xx=cx-kk+((i*7+ti*5)%(kk*2+1));twinkle.push({x:xx,y:yy,c:XC[(i+ti*2)%5],ph:(i*.27+ti*.41)%1})}});
+   const sy=base-27;g.fillStyle=OUT;g.fillRect(cx-2,sy-2,5,5);g.fillStyle=GOLD;g.fillRect(cx-1,sy-2,3,5);g.fillRect(cx-2,sy-1,5,3);P(cx,sy-3,GOLD);P(cx,sy+3,GOLD);P(cx,sy,'#fff6b0')};
+  const gift=(x,y,c,rb)=>{g.fillStyle=OUT;g.fillRect(x-1,y-1,7,6);g.fillStyle=c;g.fillRect(x,y,5,4);g.fillStyle=rb;g.fillRect(x+2,y,1,4);g.fillRect(x,y+1,5,1);P(x+1,y-1,rb);P(x+3,y-1,rb)};
+  xtree(10,plazaTop+8,10);xtree(W-11,plazaTop+8,10);
+  gift(15,plazaTop+5,'#e0443a','#ffd23f');gift(W-22,plazaTop+5,'#3c70d8',WHITE);gift(W-16,plazaTop+7,'#7ad07a','#e0443a');
+  // 눈사람
+  const snowman=(cx,base)=>{const S1=night?'#dfe6f5':'#ffffff',S2=night?'#b5bfd8':'#dfe8f3';
+   g.fillStyle='#7a4a22';for(let i=0;i<5;i++){P(cx-5-i,base-12-(i>>1),'#7a4a22');P(cx+5+i,base-12-(i>>1),'#7a4a22')}P(cx-9,base-15,'#7a4a22');P(cx+9,base-15,'#7a4a22');
+   ell(g,cx,base-5,7,5,OUT);ell(g,cx,base-5,6,4,S1);ell(g,cx+2,base-4,3,3,S2);
+   ell(g,cx,base-12,5,4,OUT);ell(g,cx,base-12,4,3,S1);ell(g,cx+2,base-11,2,2,S2);
+   ell(g,cx,base-18,4,4,OUT);ell(g,cx,base-18,3,3,S1);
+   P(cx-1,base-19,OUT);P(cx+1,base-19,OUT);P(cx+1,base-17,'#ff9a2a');P(cx+2,base-17,'#ff9a2a');P(cx,base-12,OUT);P(cx,base-10,OUT);P(cx,base-6,OUT);
+   g.fillStyle='#e0443a';g.fillRect(cx-3,base-15,7,1);g.fillRect(cx+2,base-14,2,3);P(cx+2,base-11,'#a02c26');
+   g.fillStyle=OUT;g.fillRect(cx-4,base-22,9,1);g.fillRect(cx-2,base-26,5,4);g.fillStyle='#2a2438';g.fillRect(cx-3,base-22,7,1);g.fillRect(cx-1,base-25,3,3);g.fillStyle='#e0443a';g.fillRect(cx-1,base-23,3,1)};
+  snowman(Math.round(W*.585),plazaTop+16);
+  // 지팡이 사탕 가로등
+  lamps.forEach(([lx,ly])=>{for(let yy=ly-17;yy<ly;yy+=3){g.fillStyle='#e0443a';g.fillRect(lx,yy,2,1)}g.fillStyle='#e0443a';g.fillRect(lx-2,ly-17,2,2);g.fillRect(lx+2,ly-17,2,2);P(lx+1,ly-16,'#a02c26');P(lx-2,ly-15,'#e0443a');P(lx+3,ly-15,'#e0443a')});
+  // 노점 지붕 위 눈
+  [Math.round(W*.2),Math.round(W*.8)].forEach(cx=>{const by=pt+13,w=22,x=cx-(w>>1);g.fillStyle=OUT;g.fillRect(x-2,by-22,w+4,1);g.fillStyle=SN;g.fillRect(x-2,by-21,w+4,2);g.fillStyle=SND2;g.fillRect(x-1,by-20,w+2,1);for(let i=0;i<w;i+=5)P(x+i,by-19,SN)});
+  // 광장 곳곳의 눈더미
+  const rr=rng(5);for(let i=0;i<7;i++){const x=rr()*W|0,y=(plazaTop+20+rr()*(H-plazaTop-24))|0;ell(g,x,y,3+(rr()*3|0),1,SND2);ell(g,x,y-1,2,1,SN)}
+ }
 }
 let cherub=null;
 function buildCherub(){
@@ -954,7 +1011,7 @@ function syncEnts(){
 let last=0;
 function frame(ts){
  const t=ts/1000,dt=Math.min(.05,t-(last||t));last=t;
- if(periodNow()!==period){period=periodNow();drawStatic()}
+ if(periodNow()!==period||isXmas()!==xmas){period=periodNow();xmas=isXmas();drawStatic();buildFlakes()}
  ents.forEach(e=>{if(e.hop>0)e.hop-=dt;
   if(e.wait>0){e.wait-=dt;e.fr=4;e.look-=dt;if(e.look<=0){e.look=1+Math.random()*2;const r=Math.random();if(r<.5)e.view='f';else{e.view='s';e.dir=r<.75?1:-1}}if(e.wait<=0)pick(e);return}
   const dx=e.tx-e.x,dy=e.ty-e.y,d=Math.hypot(dx,dy);if(d<1){e.wait=1.2+Math.random()*3.5;e.look=.6+Math.random();e.fr=4;return}
@@ -963,10 +1020,11 @@ function frame(ts){
   if(e.fr>3)e.fr=0;e.ft+=dt;if(e.ft>.12){e.ft=0;e.fr=(e.fr+1)%4}});
  tx.imageSmoothingEnabled=false;tx.drawImage(sky,0,0);
  if(period!=='night')clouds.forEach(c=>{c.x+=c.v*dt;if(c.x>W+20)c.x=-20;const X=Math.round(c.x),Y=Math.round(c.y);ell(tx,X,Y,c.s+4,c.s,WHITE);ell(tx,X-5,Y+1,c.s,c.s-1,WHITE);ell(tx,X+6,Y+1,c.s+1,c.s-1,'#eef8ff')});
- tx.drawImage(ground,0,0);drawFlags(t);
+ tx.drawImage(ground,0,0);drawFlags(t);if(xmas){drawTwinkle(t);drawSleigh(t)}
  if(period==='night'){tx.globalAlpha=.14;lamps.forEach(([lx,ly])=>{ell(tx,lx+1,ly-21,14,10,'#ffe27a');ell(tx,lx+1,ly+2,12,3,'#ffe27a')});tx.globalAlpha=1}
  const list=[...ents.values()].map(e=>({y:e.y,e}));list.push({y:fy+fry,f:1});list.sort((a,b)=>a.y-b.y);
  for(const it of list){if(it.f){drawFountain(t);continue}drawHero(it.e,t)}
+ if(xmas)drawSnow(t,dt);
  requestAnimationFrame(frame);
 }
 function fxBack(e,X,Y,t,ft,ht){
@@ -1247,8 +1305,8 @@ function admLevel(id,n){if(!isAdmin())return;const h=hero(id);if(!h)return;const
  const b=info(h);save();render();if(b.stage>a.stage){closeModal();evolve(h,b.stage,b.lv)}else{sfx(n==='-1'?'undo':'up');openDetail(id);toast(`Lv.${b.lv} · 클리어 ${b.n}회`)}}
 
 /* ---------- 패치노트 ---------- */
-const PATCH_V='2026-11-25c';
-const PATCH_NOTES=[['푸시 알림','응원·친구 요청이 오면 바로, 퀘스트가 남은 날엔 저녁에 알려줘요. 저녁 8·9·10시 중에 고를 수 있어요. 아이폰은 홈 화면에 추가한 앱에서 켜 주세요.'],['친구 응원하기','친구 용사에게 하루 한 번 응원을 보낼 수 있어요. 응원받은 용사 위로 하트가 떠요.'],['친구 요청·수락','친구코드를 넣으면 요청이 가고, 상대가 수락해야 친구가 돼요. 친구끼리는 서로의 퀘스트 내용이 보여요.'],['진화 20단계','5레벨마다 진화! 단계마다 보석·별·빛의 고리가 하나씩 늘어나요.'],['새 직업 11종 (총 20종)','격투가·음유시인·닌자·연금술사·드루이드·해적·발명가·소환사·성기사·인어·학자'],['헤어 82가지','스타일 9종 x 색 9종 + 대머리. 용사 정보 수정에서 바꿀 수 있어요.'],['컬렉션','동물·시즌 옷 47벌, 칭호 26개. 첫 클리어부터 옷을 받아요.'],['연속 클리어 이펙트','3일부터 반짝이, 100일엔 무지개 오라. 마지막 클리어 후 3일까지 유지돼요.'],['효과음·배경음악','오른쪽 위 ♪ 버튼으로 끄고 켤 수 있어요.']];
+const PATCH_V='2026-11-25d';
+const PATCH_NOTES=[['크리스마스 마을','광장에 눈이 내려요! 크리스마스 트리, 눈사람, 선물상자, 반짝이는 전구로 마을을 꾸몄어요. 가끔 하늘로 산타 썰매가 지나가요. 1월 6일까지 이어져요.'],['푸시 알림','응원·친구 요청이 오면 바로, 퀘스트가 남은 날엔 저녁에 알려줘요. 저녁 8·9·10시 중에 고를 수 있어요. 아이폰은 홈 화면에 추가한 앱에서 켜 주세요.'],['친구 응원하기','친구 용사에게 하루 한 번 응원을 보낼 수 있어요. 응원받은 용사 위로 하트가 떠요.'],['친구 요청·수락','친구코드를 넣으면 요청이 가고, 상대가 수락해야 친구가 돼요. 친구끼리는 서로의 퀘스트 내용이 보여요.'],['진화 20단계','5레벨마다 진화! 단계마다 보석·별·빛의 고리가 하나씩 늘어나요.'],['새 직업 11종 (총 20종)','격투가·음유시인·닌자·연금술사·드루이드·해적·발명가·소환사·성기사·인어·학자'],['헤어 82가지','스타일 9종 x 색 9종 + 대머리. 용사 정보 수정에서 바꿀 수 있어요.'],['컬렉션','동물·시즌 옷 47벌, 칭호 26개. 첫 클리어부터 옷을 받아요.'],['연속 클리어 이펙트','3일부터 반짝이, 100일엔 무지개 오라. 마지막 클리어 후 3일까지 유지돼요.'],['효과음·배경음악','오른쪽 위 ♪ 버튼으로 끄고 켤 수 있어요.']];
 function showPatch(force){try{if(!force&&localStorage.getItem('rq-patch')===PATCH_V)return}catch(e){}
  if(!force&&(!$('#auth').hidden||!modal.hidden||!$('#evo').hidden))return;
  try{localStorage.setItem('rq-patch',PATCH_V)}catch(e){}
