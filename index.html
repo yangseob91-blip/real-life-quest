@@ -192,6 +192,14 @@ input.code{font-size:20px;text-transform:uppercase}
 .cheer{flex:none;min-height:40px;min-width:58px;border:2px solid var(--ink);border-radius:10px;background:#ff8fb6;color:var(--ink);font-size:15px;cursor:pointer}.cheer.done{background:#e8dcc4;color:#8a7a68;cursor:default}
 .freq{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#fff4d6;border:2px dashed #c97c0c;border-radius:10px;padding:6px 10px;margin-bottom:6px}.freq b{font-weight:400;font-size:17px}.freq span{display:flex;gap:6px}.freq .btn{min-height:38px;padding:4px 12px}
 .steps{padding-left:22px;line-height:1.7;margin:8px 0}.askpv{text-align:center}.askpv canvas{width:84px;height:96px}.hours button[aria-pressed=true]{background:var(--gold)}
+.settle{display:flex;gap:12px;align-items:center;margin:6px 0}.settle canvas{flex:none;width:84px;height:96px}.settle p{margin:0}
+.choice{display:grid;gap:8px;margin:10px 0}.choice .btn{display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-height:58px;padding:8px 14px}.choice .btn b{font-weight:400;font-size:18px}.choice .btn small{font-size:13px;opacity:.85}
+.medal{background:#fff4d6;border:2px dashed #c97c0c;border-radius:10px;padding:8px 12px;text-align:center;margin:10px 0}
+.hall{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.statue{background:#fffaf0;border:2px solid var(--ink);border-radius:12px;padding:8px;text-align:center;font-size:14px;line-height:1.35}.statue.focus{box-shadow:0 0 0 3px var(--gold)}
+.statue b{display:block;font-weight:400;font-size:18px}.statue small{display:block;color:#7a5a48}.htask{display:block;margin:2px 0}
+.ped{margin:0 auto 6px;width:84px;padding:4px 0 10px;--pc:#8a6a4a;background:linear-gradient(var(--pc),var(--pc)) bottom/100% 10px no-repeat;border-radius:4px}.ped canvas{display:block;margin:0 auto;width:56px;height:64px}
+.ped.m1{--pc:#b0703a}.ped.m2{--pc:#aab0c4}.ped.m3{--pc:#e0b030}.ped.m4{background:linear-gradient(90deg,#ff6b9a,#ffd23f,#7ad07a,#5aa9ff,#b48cff) bottom/100% 10px no-repeat}
 /* toast + evolution */
 #toast{pointer-events:none;position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));z-index:70;transform:translate(-50%,calc(100% + 60px));transition:transform .3s;background:var(--ink);color:#fff;border:3px solid #ffd23f;border-radius:12px;padding:10px 16px;font-size:18px;max-width:92vw;text-align:center}
 #toast.on{transform:translate(-50%,0)}
@@ -260,7 +268,7 @@ input.code{font-size:20px;text-transform:uppercase}
 </section>
 
 <main>
-  <div class="bhead"><h2 id="bh">오늘의 퀘스트</h2><div class="bbtn"><button class="btn ghost" data-act="collection">컬렉션</button><button class="btn ghost" data-act="friends" id="friendsBtn" hidden>친구</button><button class="btn blue" data-act="new">+ 새 퀘스트</button></div></div>
+  <div class="bhead"><h2 id="bh">오늘의 퀘스트</h2><div class="bbtn"><button class="btn ghost" data-act="collection">컬렉션</button><button class="btn ghost" data-act="hall">명예의 전당</button><button class="btn ghost" data-act="friends" id="friendsBtn" hidden>친구</button><button class="btn blue" data-act="new">+ 새 퀘스트</button></div></div>
   <div id="list"></div>
   <p class="note" id="sync">기록은 이 폰에 저장돼요.</p>
   <div class="backup" id="acct" hidden><button class="btn ghost" data-act="copycode">회원코드 <span id="myCode" class="code"></span></button><button class="btn ghost" data-act="pin">비밀번호 바꾸기</button><button class="btn ghost" data-act="logout">로그아웃</button></div>
@@ -360,7 +368,7 @@ const cname=(k,g)=>((g||'')[0]==='f'&&CLS[k].nf)||CLS[k].n;
 // 헤어: 스타일 9종 x 색 9종 + 대머리 (+ 직업 기본)
 const HAIRS={short:'짧은 머리',spike:'삐죽 머리',bob:'단발',long:'긴 생머리',pony:'포니테일',twin:'양갈래',bun:'똥머리',curly:'뽀글 머리',mohawk:'모히칸',bald:'대머리'};
 const HCOL={blk:['검정','#2a2438','#4a4466'],brn:['갈색','#7a4220','#a8612f'],gold:['금발','#e8c46a','#fbe39a'],red:['빨강','#c0392b','#e0604a'],pink:['분홍','#f4a7c4','#ffd0e1'],blue:['파랑','#3c70d8','#6c9cf0'],mint:['민트','#4fc0a0','#8ae0c8'],silver:['은발','#c8ccdc','#ffffff'],purple:['보라','#7d4fd8','#a888f0']};
-const HG=h=>(h.gen==='f'?'f':'m')+((h.hs||h.hc)?'.'+(h.hs||'')+'.'+(h.hc||''):'');
+const HG=h=>{const r=Math.min(3,h.run||1);return(h.gen==='f'?'f':'m')+((h.hs||h.hc||r>1)?'.'+(h.hs||'')+'.'+(h.hc||'')+(r>1?'.'+r:''):'')};
 const STAGE=['견습','새내기','초보','수련','숙련','정식','정예','노련한','베테랑','명예로운','영웅','용맹한','챔피언','위대한','전설','고대의','신화','별빛','천상의','초월'];
 // 20단계 → 기본 그림 9종 + 단계마다 장식 추가
 const BASE=s=>Math.max(1,Math.min(9,Math.ceil(s*9/20)));
@@ -371,7 +379,7 @@ const shade=(c,f=.72)=>'#'+hex(c).map(v=>Math.round(v*f).toString(16).padStart(2
 // fr: 0~3 걷기, 4 서 있기 / view: 'f' 정면, 's' 반측면(오른쪽, 왼쪽은 좌우반전) / gen: 'm' 남캐, 'f' 여캐
 function buildSprite(k,sg,fr,view,gen,cos){
  const st=BASE(sg);let sub=0;while(sub<sg-1&&BASE(sg-sub-1)===st)sub++;
- const CO=cos&&COS[cos]?COS[cos]:null,C=CLS[k],g=new Array(SW*SH).fill(0),side=view==='s',[g0,HS0,HCK]=String(gen||'m').split('.'),fem=g0==='f',HS=HAIRS[HS0]?HS0:'';
+ const CO=cos&&COS[cos]?COS[cos]:null,C=CLS[k],g=new Array(SW*SH).fill(0),side=view==='s',[g0,HS0,HCK,RN]=String(gen||'m').split('.'),fem=g0==='f',RUN=+RN||1,OLC=RUN>=3?'#b8860b':RUN===2?'#6a2aa8':OUT,HS=HAIRS[HS0]?HS0:'';
  const P=(x,y,c)=>{if(x>=0&&y>=0&&x<SW&&y<SH)g[y*SW+x]=c};
  const R=(a,b,c2,d,c)=>{for(let y=b;y<=d;y++)for(let x=a;x<=c2;x++)P(x,y,c)};
  const grp=st<=3?0:st<=6?1:2,legH=[2,2,3][grp],bodyH=[4,5,6][grp];
@@ -612,7 +620,7 @@ function buildSprite(k,sg,fr,view,gen,cos){
  if(sg>=20){const hy=Math.max(0,top-6);R(CX-3,hy,CX+2,hy,'#fff6b0');P(CX-4,hy+1,'#fff6b0');P(CX+3,hy+1,'#fff6b0')}
  // 외곽선
  const o=g.slice();
- for(let y=0;y<SH;y++)for(let x=0;x<SW;x++){if(g[y*SW+x])continue;if((x>0&&g[y*SW+x-1])||(x<SW-1&&g[y*SW+x+1])||(y>0&&g[(y-1)*SW+x])||(y<SH-1&&g[(y+1)*SW+x]))o[y*SW+x]=OUT}
+ for(let y=0;y<SH;y++)for(let x=0;x<SW;x++){if(g[y*SW+x])continue;if((x>0&&g[y*SW+x-1])||(x<SW-1&&g[y*SW+x+1])||(y>0&&g[(y-1)*SW+x])||(y<SH-1&&g[(y+1)*SW+x]))o[y*SW+x]=OLC}
  const cv=mk(SW,SH),cx=cv.getContext('2d'),id=cx.createImageData(SW,SH);
  o.forEach((v,i)=>{if(!v)return;const[r,gg,b]=hex(v);id.data.set([r,gg,b,255],i*4)});
  cx.putImageData(id,0,0);return cv;
@@ -644,11 +652,12 @@ const parse=s=>{const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
 const today=()=>iso(new Date());
 const diff=(a,b)=>Math.round((parse(b)-parse(a))/864e5);
 const addD=(s,n)=>{const d=parse(s);d.setDate(d.getDate()+n);return iso(d)};
+const allChecks=h=>h.past&&h.past.length?[...new Set([...h.past.flatMap(p=>p.checks),...h.checks])].sort():h.checks;
 function info(h){
  const n=h.checks.length,days=h.days,exact=Math.min(99,1+98*n/days),lv=n>=days?99:Math.floor(exact);
  const pct=lv>=99?100:Math.round((exact-lv)*100),stage=Math.min(20,Math.ceil(lv/5)),day=diff(h.start,today())+1;
  const state=day<1?'wait':day>days?'over':'on',done=h.checks.includes(today());
- const streak=streakOf(h.checks);
+ const streak=streakOf(allChecks(h));
  return{n,lv,pct,stage,day,state,done,streak,fx:fxTier(streak),per:98/days};
 }
 
@@ -658,8 +667,8 @@ const uid=()=>'h'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 let S={heroes:[]};
 const DATE=/^\d{4}-\d{2}-\d{2}$/;
 function clean(d){const out=[];(Array.isArray(d&&d.heroes)?d.heroes:[]).forEach(h=>{if(!h||!CLS[h.cls])return;const days=Math.max(3,Math.min(365,parseInt(h.days)||30));
- out.push({id:String(h.id||uid()).slice(0,40),name:String(h.name||'이름 없는 용사').slice(0,12),cls:h.cls,gen:h.gen==='f'?'f':'m',hs:HAIRS[h.hs]?h.hs:'',hc:HCOL[h.hc]?h.hc:'',cos:COS[h.cos]?h.cos:'',...(h.demo?{demo:1}:{}),task:String(h.task||'').slice(0,40),days,start:DATE.test(h.start)?h.start:today(),checks:[...new Set((h.checks||[]).filter(x=>typeof x==='string'&&DATE.test(x)))].sort()})});
- const dd=d||{};return{heroes:out,unl:Array.isArray(dd.unl)?dd.unl.filter(x=>typeof x==='string'&&/^[ct]:[a-z0-9]+$/.test(x)).slice(0,300):[],flags:dd.flags&&typeof dd.flags==='object'?Object.fromEntries(['dawn','night','back','allclear'].filter(k=>dd.flags[k]).map(k=>[k,1])):{},title:typeof dd.title==='string'&&/^[a-z0-9]{1,12}$/.test(dd.title)?dd.title:'',usedCls:Array.isArray(dd.usedCls)?dd.usedCls.filter(c=>CLS[c]):[],fcount:Math.max(0,Math.min(999,parseInt(dd.fcount)||0))}}
+ out.push({id:String(h.id||uid()).slice(0,40),name:String(h.name||'이름 없는 용사').slice(0,12),cls:h.cls,gen:h.gen==='f'?'f':'m',hs:HAIRS[h.hs]?h.hs:'',hc:HCOL[h.hc]?h.hc:'',cos:COS[h.cos]?h.cos:'',...(h.demo?{demo:1}:{}),task:String(h.task||'').slice(0,40),days,start:DATE.test(h.start)?h.start:today(),checks:[...new Set((h.checks||[]).filter(x=>typeof x==='string'&&DATE.test(x)))].sort(),...((parseInt(h.run)||1)>1?{run:Math.min(9,parseInt(h.run))}:{}),...(DATE.test(h.grad)?{grad:h.grad,medal:Math.max(0,Math.min(4,parseInt(h.medal)||0))}:{}),...(Array.isArray(h.past)&&h.past.length?{past:h.past.filter(p=>p&&DATE.test(p.start)).slice(-10).map(p=>({start:p.start,days:Math.max(3,Math.min(365,parseInt(p.days)||30)),checks:[...new Set((p.checks||[]).filter(x=>typeof x==='string'&&DATE.test(x)))].sort()}))}:{})})});
+ const dd=d||{};return{heroes:out,unl:Array.isArray(dd.unl)?dd.unl.filter(x=>typeof x==='string'&&/^[ct]:[a-z0-9]+$/.test(x)).slice(0,300):[],flags:dd.flags&&typeof dd.flags==='object'?Object.fromEntries(['dawn','night','back','allclear','finish','hof','awaken'].filter(k=>dd.flags[k]).map(k=>[k,1])):{},title:typeof dd.title==='string'&&/^[a-z0-9]{1,12}$/.test(dd.title)?dd.title:'',usedCls:Array.isArray(dd.usedCls)?dd.usedCls.filter(c=>CLS[c]):[],fcount:Math.max(0,Math.min(999,parseInt(dd.fcount)||0))}}
 try{const raw=localStorage.getItem(KEY);if(raw)S=clean(JSON.parse(raw))}catch(e){}
 const setSync=t=>$('#sync').textContent=t;
 /* ---------- 회원 로그인 · 서버 저장 ---------- */
@@ -739,7 +748,7 @@ async function openFriends(){
  catch(e){const b=$('#frBody');if(b)b.innerHTML='<p>인터넷 연결을 확인해 주세요.</p><div class="foot"><button class="btn ghost" data-act="close">닫기</button></div>'}
 }
 function friendCard(fr){
- const hs=clean({heroes:fr.heroes}).heroes,act=hs.filter(h=>info(h).state==='on'),done=act.filter(h=>info(h).done).length;
+ const hs=clean({heroes:fr.heroes}).heroes.filter(h=>!h.grad),act=hs.filter(h=>info(h).state==='on'),done=act.filter(h=>info(h).done).length;
  const top=[...hs].sort((a,b)=>info(b).lv-info(a).lv);
  return `<div class="fcard"><div class="fhead"><b>${fr.title&&titleName(fr.title)?`<span class="ftitle">[${esc(titleName(fr.title))}]</span> `:''}${esc(fr.nick)}</b><span class="fstat">${act.length?`오늘 ${done}/${act.length} 클리어`:'진행 중인 원정 없음'}</span></div>
  <div class="fhlist">${top.length?top.map(h=>{const I=info(h),ch=(fr.cheered||[]).includes(h.id);return `<div class="fhero${I.done?' ok':''}"><canvas data-spr="${h.cls}|${I.stage}|${HG(h)}|${h.cos||''}"></canvas><div class="fhinfo"><b>${esc(h.name)}</b> <small>Lv.${I.lv}${I.done?' · 오늘 클리어':''}${I.streak>1?` · 연속 ${I.streak}일`:''}</small><span class="ftask">${esc(h.task||'')}</span></div><button type="button" class="cheer${ch?' done':''}" data-act="cheer" data-fc="${esc(fr.friend_code)}" data-hid="${esc(h.id)}" ${ch?'disabled':''}>${ch?'응원함':'응원'}</button></div>`}).join(''):'<p class="muted">아직 용사가 없어요</p>'}</div>
@@ -1000,13 +1009,14 @@ const box=()=>({x0:12,x1:W-12,y0:plazaTop+18,y1:H-3});
 const inF=(x,y)=>{const a=(x-fx)/(frx+9),b=(y-fy)/(fry+7);return a*a+b*b<1};
 function pick(e){const b=box();for(let i=0;i<16;i++){const x=b.x0+Math.random()*(b.x1-b.x0),y=b.y0+Math.random()*(b.y1-b.y0);let ok=!inF(x,y);for(let k=1;k<10&&ok;k++){const q=k/10;if(inF(e.x+(x-e.x)*q,e.y+(y-e.y)*q))ok=false}if(ok){e.tx=x;e.ty=y;return}}e.tx=e.x;e.ty=e.y}
 function syncEnts(){
- const ids=new Set(S.heroes.map(h=>h.id));
+ const vill=new Set(S.heroes.filter(h=>h.grad).sort((a,b)=>a.grad<b.grad?1:-1).slice(0,6).map(h=>h.id));
+ const ids=new Set(S.heroes.filter(h=>!h.grad||vill.has(h.id)).map(h=>h.id));
  ents.forEach((e,id)=>{if(!ids.has(id)){ents.delete(id);e.tag.remove()}});
- S.heroes.forEach(h=>{if(ents.has(h.id))return;const b=box();let x,y,n=0;do{x=b.x0+Math.random()*(b.x1-b.x0);y=b.y0+Math.random()*(b.y1-b.y0)}while(inF(x,y)&&n++<20);
+ S.heroes.forEach(h=>{if(!ids.has(h.id)||ents.has(h.id))return;const b=box();let x,y,n=0;do{x=b.x0+Math.random()*(b.x1-b.x0);y=b.y0+Math.random()*(b.y1-b.y0)}while(inF(x,y)&&n++<20);
   const tag=document.createElement('button');tag.className='tag';tag.dataset.act='open';tag.dataset.id=h.id;$('#tags').appendChild(tag);
   ents.set(h.id,{id:h.id,x,y,tx:x,ty:y,dir:Math.random()<.5?1:-1,wait:Math.random()*2,ft:0,fr:4,hop:0,tag,sig:'',view:'f',look:1})});
- ents.forEach(e=>{const h=hero(e.id),I=info(h),sig=h.name+I.lv+I.done+I.state;if(sig!==e.sig){e.sig=sig;e.tag.setAttribute('aria-label',h.name+' 상세 보기');
-  e.tag.innerHTML=(I.state==='on'&&!I.done?'<span class="q">!</span>':'')+`<span class="nm"><b>${I.lv}</b>${esc(h.name)}</span>`}});
+ ents.forEach(e=>{const h=hero(e.id),I=info(h),sig=h.name+I.lv+I.done+I.state+(h.grad||'');if(sig!==e.sig){e.sig=sig;e.tag.setAttribute('aria-label',h.name+' 상세 보기');e.tag.hidden=!!h.grad;
+  e.tag.innerHTML=(I.state==='on'&&!I.done?'<span class="q">!</span>':I.state==='over'&&!h.grad?'<span class="q">★</span>':'')+`<span class="nm"><b>${I.lv}</b>${esc(h.name)}</span>`}});
 }
 let last=0;
 function frame(ts){
@@ -1043,7 +1053,8 @@ function drawHero(e,t){
  const h=hero(e.id);if(!h)return;const sg=info(h).stage,st=BASE(sg),mv=e.wait<=0,X=Math.round(e.x),Y=Math.round(e.y);
  const bob=mv&&e.fr%2?-1:0,hop=e.hop>0?-Math.round(Math.sin((1-e.hop/.6)*Math.PI)*9):0;
  tx.globalAlpha=.3;ell(tx,X,Y+1,7,1,'#1d1030');tx.globalAlpha=1;
- const ft=fxTier(streakOf(h.checks)),ht=Y-FEET+[15,14,12][st<=3?0:st<=6?1:2]+bob+hop;if(ft)fxBack(e,X,Y,t,ft,ht);
+ const ft=fxTier(streakOf(allChecks(h))),ht=Y-FEET+[15,14,12][st<=3?0:st<=6?1:2]+bob+hop;if(ft)fxBack(e,X,Y,t,ft,ht);
+ if((h.run||1)>1&&!h.grad){const gc=h.run>=3?'#ffd23f':'#c08cff';for(let i=0;i<4;i++){const ph=(t*.8+i/4)%1,px=Math.round(X-6+i*4+Math.sin(t*2+i)),py=Math.round(Y-2-ph*22);tx.globalAlpha=(1-ph)*.9;tx.fillStyle=gc;tx.fillRect(px,py,1,2)}tx.globalAlpha=1}
  if(st>=8){tx.globalAlpha=.18;ell(tx,X,Y-12,13,15,st>=9?GOLD:GLOW);tx.globalAlpha=1;
   for(let i=0;i<5;i++){const a=t*1.7+i*1.26+X*.1;if((t*3+i*.37)%1>.65)continue;tx.fillStyle=st>=9?GOLD:'#c8fbff';const px=Math.round(X+Math.cos(a)*11),py=Math.round(Y-13+Math.sin(a*1.3)*12);tx.fillRect(px,py,1,1);tx.fillRect(px-1,py,3,1);tx.fillRect(px,py-1,1,3)}}
  const c=spr(h.cls,sg,e.hop>0?1:e.fr,e.view,HG(h),h.cos),yy=Y-FEET+bob+hop;
@@ -1060,7 +1071,7 @@ town.addEventListener('click',ev=>{const r=town.getBoundingClientRect(),x=(ev.cl
 function dayLabel(h,I){return I.state==='wait'?`D-${1-I.day} 출발 전`:I.state==='over'?'원정 종료':`${I.day}일차 / ${h.days}일`}
 function card(h){
  const I=info(h),C=CLS[h.cls],id=esc(h.id);
- const btn=I.state==='wait'?`<button class="btn ghost" disabled>출발 전</button>`:I.state==='over'?`<button class="btn ghost" data-act="open" data-id="${id}">기록 보기</button>`:I.done?`<button class="btn done" data-act="check" data-id="${id}">오늘 클리어!</button>`:`<button class="btn" data-act="check" data-id="${id}">퀘스트 클리어</button>`;
+ const btn=I.state==='wait'?`<button class="btn ghost" disabled>출발 전</button>`:I.state==='over'?`<button class="btn" data-act="settle" data-id="${id}">결산하기</button>`:I.done?`<button class="btn done" data-act="check" data-id="${id}">오늘 클리어!</button>`:`<button class="btn" data-act="check" data-id="${id}">퀘스트 클리어</button>`;
  return `<article class="card${I.done?' clear':''}${I.state!=='on'?' off':''}">
  <button class="por" data-act="open" data-id="${id}" style="--c:${C.main}" aria-label="${esc(h.name)} 상세 보기"><canvas data-spr="${h.cls}|${I.stage}|${HG(h)}|${h.cos||''}"></canvas></button>
  <div><div class="r1"><span class="nm">${esc(h.name)}</span><span class="lv">LV.${I.lv}</span></div>
@@ -1073,14 +1084,14 @@ function card(h){
 function paintAll(root){root.querySelectorAll('canvas[data-spr]').forEach(c=>{const[k,s,g,co]=c.dataset.spr.split('|');paint(c,spr(k,+s,4,'f',g||'m',co||''))});root.querySelectorAll('canvas[data-sil]').forEach(c=>{const[k,s,g,co]=c.dataset.sil.split('|');paint(c,sil(k,+s,g||'m',co||''))})}
 function render(){
  const order=h=>{const I=info(h);return I.state==='on'?(I.done?1:0):I.state==='wait'?2:3};
- const hs=[...S.heroes].sort((a,b)=>order(a)-order(b));
- const act=S.heroes.filter(h=>info(h).state==='on'),done=act.filter(h=>info(h).done).length;
+ const live=S.heroes.filter(h=>!h.grad),hs=[...live].sort((a,b)=>order(a)-order(b));
+ const act=live.filter(h=>info(h).state==='on'),done=act.filter(h=>info(h).done).length;
  $('#list').innerHTML=hs.length?hs.map(card).join(''):'<div class="card" style="grid-template-columns:1fr;text-align:center">아직 받은 퀘스트가 없어요. 용사를 소집하면 여기에 오늘 할 일이 올라와요.</div>';
  paintAll($('#list'));
  $('#bh').innerHTML=`오늘의 퀘스트${act.length?`<small>${done}/${act.length} 클리어</small>`:''}`;
- $('#pill').innerHTML=act.length?(done===act.length?'<b>오늘 퀘스트 전부 클리어!</b>':`남은 퀘스트 <b>${act.length-done}</b>`):`용사 <b>${S.heroes.length}</b>명`;
+ $('#pill').innerHTML=act.length?(done===act.length?'<b>오늘 퀘스트 전부 클리어!</b>':`남은 퀘스트 <b>${act.length-done}</b>`):`용사 <b>${live.length}</b>명`;
  const mt=$('#myTitle');if(mt)mt.textContent=S.title&&titleName(S.title)?`칭호 [${titleName(S.title)}] · 바꾸기`:'칭호 달기';
- $('#empty').hidden=S.heroes.length>0;$('#fab').hidden=S.heroes.length===0;
+ $('#empty').hidden=live.length>0;$('#fab').hidden=live.length===0;
  syncEnts();
 }
 
@@ -1137,15 +1148,16 @@ function openForm(id){
  upd();
 }
 function openDetail(id,confirmDel){
- const h=hero(id);if(!h)return;const I=info(h),C=CLS[h.cls],sid=esc(h.id);
+ const h=hero(id);if(!h)return;if(h.grad)return openHall(id);const I=info(h),C=CLS[h.cls],sid=esc(h.id);
  let cal='';for(let i=0;i<h.days;i++){const d=addD(h.start,i),ok=h.checks.includes(d),past=d<today();cal+=`<span class="${ok?'ok':past?'miss':''}${d===today()?' today':''}" title="${d}">${i+1}</span>`}
  const road=STAGE.map((n,i)=>{const s=i+1,got=I.stage>=s;return `<div class="${I.stage===s?'now':''}"><canvas data-${got?'spr':'sil'}="${h.cls}|${s}|${HG(h)}"></canvas>${got?n:'???'}<small>Lv.${i*5+1}~</small></div>`}).join('');
- const main=I.state==='on'?`<button class="btn ${I.done?'done':''}" data-act="check" data-id="${sid}">${I.done?'오늘 클리어 취소':'퀘스트 클리어'}</button>`:'';
+ const main=I.state==='on'?`<button class="btn ${I.done?'done':''}" data-act="check" data-id="${sid}">${I.done?'오늘 클리어 취소':'퀘스트 클리어'}</button>`:I.state==='over'?`<button class="btn" data-act="settle" data-id="${sid}">결산하기</button>`:'';
  openModal(`<div class="dtop"><div class="por" style="--c:${C.main};cursor:default"><canvas data-spr="${h.cls}|${I.stage}|${HG(h)}|${h.cos||''}"></canvas></div>
  <div><h2 style="margin:0">${esc(h.name)}</h2><div class="sub">${STAGE[I.stage-1]} ${cname(h.cls,h.gen)} · <span class="lv">LV.${I.lv}</span></div><div class="task">${esc(h.task)}</div><div class="bar${I.lv>=99?' max':''}"><i style="width:${I.pct}%"></i></div></div></div>
+ ${(h.run||1)>1||(h.past||[]).length?`<p class="muted">${(h.run||1)>1?`<b>${h.run>=3?'초월':'각성'}</b> · ${h.run}회차 원정`:`${(h.past||[]).length+1}번째 도전`} · 지난 원정 ${(h.past||[]).length}번, 누적 클리어 ${allChecks(h).length}회</p>`:''}
  <div class="stats"><div><b>${I.state==='wait'?'D-'+(1-I.day):I.state==='over'?'종료':I.day+'일차'}</b>${h.days}일 원정</div><div><b>${I.n}회</b>클리어</div><div><b>${I.streak}일</b>연속</div><div><b>${Math.round(I.n/h.days*100)}%</b>달성률</div></div>
  ${I.fx?`<p class="muted">연속 이펙트: <b>${FXN[I.fx-1]}</b>${I.fx<FX.length?` · 연속 ${FX[I.fx]}일이면 ${FXN[I.fx]}`:''} (마지막 클리어 후 3일까지 유지)</p>`:''}
- ${isAdmin()?`<div class="adm"><b>운영자</b><button type="button" class="btn ghost" data-act="adm" data-id="${esc(h.id)}" data-n="-1">-1일</button><button type="button" class="btn ghost" data-act="adm" data-id="${esc(h.id)}" data-n="1">+1일</button><button type="button" class="btn ghost" data-act="adm" data-id="${esc(h.id)}" data-n="stage">다음 진화까지</button></div>`:''}
+ ${isAdmin()?`<div class="adm"><b>운영자</b><button type="button" class="btn ghost" data-act="adm" data-id="${esc(h.id)}" data-n="-1">-1일</button><button type="button" class="btn ghost" data-act="adm" data-id="${esc(h.id)}" data-n="1">+1일</button><button type="button" class="btn ghost" data-act="adm" data-id="${esc(h.id)}" data-n="stage">다음 진화까지</button><button type="button" class="btn ghost" data-act="adm" data-id="${esc(h.id)}" data-n="end">원정 끝내기</button></div>`:''}
  ${wardrobe(h,I)}
  <h3>진화의 길</h3><div class="road">${road}</div>
  <h3>원정 기록</h3><div class="cal">${cal}</div>
@@ -1186,8 +1198,8 @@ const fxTier=n=>FX.filter(x=>n>=x).length;
 /* ---------- 칭호 ---------- */
 const TITLES=[['t1','모험을 시작한','total',1],['s2','내일도 온','best',2],['t3','작은 습관의','total',3],['s5','멈추지 않는','best',5],['t5','다섯 걸음의','total',5],['t20','꾸준히 걷는','total',20],['s3','작심삼일 돌파자','best',3],['s7','일주일의 용사','best',7],['s14','꾸준함의 견습생','best',14],['s21','습관 연금술사','best',21],['s30','한 달의 기사','best',30],['s50','흔들리지 않는 자','best',50],['s66','습관의 주인','best',66],['s100','백일의 전설','best',100],['s365','일 년의 신화','best',365],
  ['t10','첫걸음을 뗀','total',10],['t50','성실한','total',50],['t100','백전노장','total',100],['t300','불굴의','total',300],['t500','살아있는 전설','total',500],
- ['dawn','새벽의 용사','flag'],['night','야행성 모험가','flag'],['back','부활한 자','flag'],['perfect','개근상','perfect',30],['party','파티의 리더','friends',5],['allclear','오늘도 해낸','flag']];
-const FLAGTXT={dawn:'오전 7시 전에 클리어',night:'밤 11시 이후에 클리어',back:'일주일 쉬었다가 다시 클리어',allclear:'하루 퀘스트를 전부 클리어'};
+ ['dawn','새벽의 용사','flag'],['night','야행성 모험가','flag'],['back','부활한 자','flag'],['perfect','개근상','perfect',30],['party','파티의 리더','friends',5],['allclear','오늘도 해낸','flag'],['finish','끝까지 간 자','flag'],['hof','명예의 졸업생','flag'],['awaken','각성한 자','flag']];
+const FLAGTXT={dawn:'오전 7시 전에 클리어',night:'밤 11시 이후에 클리어',back:'일주일 쉬었다가 다시 클리어',allclear:'하루 퀘스트를 전부 클리어',finish:'원정을 끝까지 마치고 결산하기',hof:'용사를 명예의 전당에 졸업시키기',awaken:'전직해서 2회차 원정 떠나기'};
 const titleName=id=>{const t=TITLES.find(x=>x[0]===id);return t?t[1]:''};
 
 /* ---------- 옷 해금 조건 ---------- */
@@ -1201,9 +1213,9 @@ COND.unicorn=['lv99',1,'전설'];COND.trex=['cls',KEYS.length,'전설'];COND.alp
 [['santa',12,12],['rudolph',12,12],['snowman',12,12],['hanbok',1,2],['pouch',1,2],['blossom',4,4],['melon',7,8],['tube',7,8],['pumpkin',10,10],['ghost',10,10],['bat',10,10]].forEach(([id,a,b])=>COND[id]=['season',7,'시즌',a,b]);
 const SEASON_N=7;
 
-function allDates(){const s=new Set();S.heroes.filter(h=>!h.demo).forEach(h=>h.checks.forEach(d=>s.add(d)));return [...s].sort()}
+function allDates(){const s=new Set();S.heroes.filter(h=>!h.demo).forEach(h=>allChecks(h).forEach(d=>s.add(d)));return [...s].sort()}
 function seasonCount(a,b,dates,year){return dates.filter(d=>{const y=+d.slice(0,4),m=+d.slice(5,7);return y===year&&m>=a&&m<=b}).length}
-function stats(){const dates=allDates(),total=S.heroes.filter(h=>!h.demo).reduce((n,h)=>n+h.checks.length,0);
+function stats(){const dates=allDates(),total=S.heroes.filter(h=>!h.demo).reduce((n,h)=>n+allChecks(h).length,0);
  return{dates,total,best:Math.max(bestChain(dates),0),perfect:perfectRun(dates),lv99:S.heroes.some(h=>!h.demo&&info(h).lv>=99),cls:new Set([...(S.usedCls||[]),...S.heroes.filter(h=>!h.demo).map(h=>h.cls)]).size,friends:S.fcount||0,year:new Date().getFullYear(),month:new Date().getMonth()+1}}
 function condMet(c,st){const[t,n,,a,b]=c;
  if(t==='total')return st.total>=n;if(t==='best')return st.best>=n;if(t==='lv99')return st.lv99;if(t==='cls')return st.cls>=n;if(t==='friends')return st.friends>=n;if(t==='perfect')return st.perfect>=n;
@@ -1299,18 +1311,61 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)stopBgm();e
 // 운영자: 지난 날짜에 클리어 기록을 채워서 미리 키워보기
 function admLevel(id,n){if(!isAdmin())return;const h=hero(id);if(!h)return;const a=info(h);
  const add=()=>{let d=today();while(h.checks.includes(d))d=addD(d,-1);h.checks.push(d);h.checks.sort()};
- if(n==='-1'){if(!h.checks.length)return;h.checks.shift()}
+ if(n==='end'){h.start=addD(today(),-h.days)}
+ else if(n==='-1'){if(!h.checks.length)return;h.checks.shift()}
  else if(n==='stage'){let k=0;while(info(h).stage===a.stage&&info(h).lv<99&&k++<2000)add()}
  else add();
  const b=info(h);save();render();if(b.stage>a.stage){closeModal();evolve(h,b.stage,b.lv)}else{sfx(n==='-1'?'undo':'up');openDetail(id);toast(`Lv.${b.lv} · 클리어 ${b.n}회`)}}
 
 /* ---------- 패치노트 ---------- */
-const PATCH_V='2026-11-25d';
-const PATCH_NOTES=[['크리스마스 마을','광장에 눈이 내려요! 크리스마스 트리, 눈사람, 선물상자, 반짝이는 전구로 마을을 꾸몄어요. 가끔 하늘로 산타 썰매가 지나가요. 1월 6일까지 이어져요.'],['푸시 알림','응원·친구 요청이 오면 바로, 퀘스트가 남은 날엔 저녁에 알려줘요. 저녁 8·9·10시 중에 고를 수 있어요. 아이폰은 홈 화면에 추가한 앱에서 켜 주세요.'],['친구 응원하기','친구 용사에게 하루 한 번 응원을 보낼 수 있어요. 응원받은 용사 위로 하트가 떠요.'],['친구 요청·수락','친구코드를 넣으면 요청이 가고, 상대가 수락해야 친구가 돼요. 친구끼리는 서로의 퀘스트 내용이 보여요.'],['진화 20단계','5레벨마다 진화! 단계마다 보석·별·빛의 고리가 하나씩 늘어나요.'],['새 직업 11종 (총 20종)','격투가·음유시인·닌자·연금술사·드루이드·해적·발명가·소환사·성기사·인어·학자'],['헤어 82가지','스타일 9종 x 색 9종 + 대머리. 용사 정보 수정에서 바꿀 수 있어요.'],['컬렉션','동물·시즌 옷 47벌, 칭호 26개. 첫 클리어부터 옷을 받아요.'],['연속 클리어 이펙트','3일부터 반짝이, 100일엔 무지개 오라. 마지막 클리어 후 3일까지 유지돼요.'],['효과음·배경음악','오른쪽 위 ♪ 버튼으로 끄고 켤 수 있어요.']];
+const PATCH_V='2026-11-25e';
+const PATCH_NOTES=[['명예의 전당 · 전직','원정이 끝나면 결산을 해요. 졸업하면 달성률에 따라 나무·동·은·금·무지개 동상이 세워지고 마을 주민이 돼요. 같은 퀘스트를 이어가면 각성·초월 전직!'],['크리스마스 마을','광장에 눈이 내려요! 크리스마스 트리, 눈사람, 선물상자, 반짝이는 전구로 마을을 꾸몄어요. 가끔 하늘로 산타 썰매가 지나가요. 1월 6일까지 이어져요.'],['푸시 알림','응원·친구 요청이 오면 바로, 퀘스트가 남은 날엔 저녁에 알려줘요. 저녁 8·9·10시 중에 고를 수 있어요. 아이폰은 홈 화면에 추가한 앱에서 켜 주세요.'],['친구 응원하기','친구 용사에게 하루 한 번 응원을 보낼 수 있어요. 응원받은 용사 위로 하트가 떠요.'],['친구 요청·수락','친구코드를 넣으면 요청이 가고, 상대가 수락해야 친구가 돼요. 친구끼리는 서로의 퀘스트 내용이 보여요.'],['진화 20단계','5레벨마다 진화! 단계마다 보석·별·빛의 고리가 하나씩 늘어나요.'],['새 직업 11종 (총 20종)','격투가·음유시인·닌자·연금술사·드루이드·해적·발명가·소환사·성기사·인어·학자'],['헤어 82가지','스타일 9종 x 색 9종 + 대머리. 용사 정보 수정에서 바꿀 수 있어요.'],['컬렉션','동물·시즌 옷 47벌, 칭호 26개. 첫 클리어부터 옷을 받아요.'],['연속 클리어 이펙트','3일부터 반짝이, 100일엔 무지개 오라. 마지막 클리어 후 3일까지 유지돼요.'],['효과음·배경음악','오른쪽 위 ♪ 버튼으로 끄고 켤 수 있어요.']];
 function showPatch(force){try{if(!force&&localStorage.getItem('rq-patch')===PATCH_V)return}catch(e){}
  if(!force&&(!$('#auth').hidden||!modal.hidden||!$('#evo').hidden))return;
  try{localStorage.setItem('rq-patch',PATCH_V)}catch(e){}
  openModal(`<h2>업데이트 소식</h2><p class="muted">${PATCH_V.slice(0,10)} 패치</p><ul class="pnote">${PATCH_NOTES.map(([a,b])=>`<li><b>${a}</b><span>${b}</span></li>`).join('')}</ul><div class="foot"><button type="button" class="btn" data-act="close">확인!</button></div>`);sfx('open')}
+/* ---------- 원정 결산 · 명예의 전당 · 전직 ---------- */
+const MEDAL=[['나무','#3a2614','#a8784a'],['동','#3a1a08','#f09a50'],['은','#3e4256','#f4f6ff'],['금','#6a3e04','#ffe27a'],['무지개','','']];
+const medalOf=r=>r>=1?4:r>=.9?3:r>=.7?2:r>=.5?1:0;
+function runStat(h){const I=info(h),r=I.n/h.days;return{n:I.n,lv:I.lv,rate:Math.min(100,Math.round(r*100)),best:bestChain(h.checks),medal:medalOf(r)}}
+function statue(h){const key='st'+h.id+(h.medal||0)+HG(h)+(h.cos||'')+info(h).stage;if(cache[key])return cache[key];
+ const c=mk(SW,SH),x=c.getContext('2d');x.drawImage(spr(h.cls,info(h).stage,4,'f',HG(h),h.cos||''),0,0);const d=x.getImageData(0,0,SW,SH),m=h.medal||0;
+ const RB=[[255,107,154],[255,210,63],[122,208,122],[90,169,255],[180,140,255]];
+ for(let i=0;i<d.data.length;i+=4){if(!d.data[i+3])continue;const L=(d.data[i]*.3+d.data[i+1]*.59+d.data[i+2]*.11)/255,y=(i/4/SW)|0;let a,b;
+  if(m===4){const q=RB[Math.floor(y/SH*5)%5];a=q.map(v=>v*.35);b=q.map(v=>Math.min(255,v*1.15))}else{a=hex(MEDAL[m][1]);b=hex(MEDAL[m][2])}
+  const k=Math.min(1,L*1.25);d.data[i]=a[0]+(b[0]-a[0])*k;d.data[i+1]=a[1]+(b[1]-a[1])*k;d.data[i+2]=a[2]+(b[2]-a[2])*k}
+ x.putImageData(d,0,0);return cache[key]=c}
+function seenSet(){try{return new Set(JSON.parse(localStorage.getItem('rq-settled')||'[]'))}catch(e){return new Set()}}
+function markSeen(k){const s=seenSet();s.add(k);try{localStorage.setItem('rq-settled',JSON.stringify([...s].slice(-200)))}catch(e){}}
+let setTries=0;
+function maybeSettle(){const s=seenSet(),h=S.heroes.find(h=>!h.grad&&!h.demo&&info(h).state==='over'&&!s.has(h.id+h.start));if(!h)return;
+ if(!modal.hidden||!$('#evo').hidden||!authEl.hidden){if(++setTries<20)setTimeout(maybeSettle,2500);return}
+ markSeen(h.id+h.start);settleView(h.id)}
+function settleView(id){const h=hero(id);if(!h)return;const r=runStat(h),M=MEDAL[r.medal],run=h.run||1,ok=r.rate>=50,sid=esc(h.id);
+ const nx=run===1?['각성 전직','보라빛 각성 모습으로']:run===2?['초월 전직','금빛 초월 모습으로']:['초월 원정','초월 모습 그대로 한 번 더'];
+ sfx('title');
+ openModal(`<h2>원정 완료!</h2><div class="settle"><canvas data-spr="${h.cls}|${info(h).stage}|${HG(h)}|${h.cos||''}"></canvas><p><b>${esc(h.name)}</b>의 ${h.days}일 원정이 끝났어요.<br><span class="muted">${esc(h.task)}</span></p></div>
+ <div class="stats"><div><b>${r.n}회</b>클리어</div><div><b>${r.rate}%</b>달성률</div><div><b>Lv.${r.lv}</b>최종 레벨</div><div><b>${r.best}일</b>최고 연속</div></div>
+ <p class="medal">${r.medal?`<b>${M[0]} 동상</b> 자격을 얻었어요!`:'끝까지 함께했어요! <b>나무 동상</b>으로 기념할 수 있어요.'}</p>
+ <div class="choice"><button type="button" class="btn" data-act="grad" data-id="${sid}"><b>명예의 전당으로 졸업</b><small>${M[0]} 동상이 세워지고, 마을 주민이 되어 광장을 산책해요</small></button>
+ ${ok?`<button type="button" class="btn ghost" data-act="rerun" data-id="${sid}" data-up="1"><b>${nx[0]} · ${run+1}회차</b><small>같은 퀘스트로 다시 Lv.1부터, ${nx[1]}</small></button>`
+  :`<button type="button" class="btn ghost" data-act="rerun" data-id="${sid}" data-up="0"><b>재도전</b><small>기록은 남기고 오늘부터 다시 출발해요</small></button>`}</div>
+ <div class="foot"><button type="button" class="btn ghost" data-act="close">나중에</button></div>`)}
+function graduate(id){const h=hero(id);if(!h||h.grad)return;const r=runStat(h);markSeen(h.id+h.start);h.grad=today();h.medal=r.medal;
+ S.flags=S.flags||{};S.flags.finish=1;S.flags.hof=1;save();render();closeModal();
+ rewardQ.unshift({title:'명예의 전당!',text:`${h.name}의 ${MEDAL[r.medal][0]} 동상이 세워졌어요`,sub:'이제 마을 주민이 되어 광장을 산책해요',src:statue(h),snd:'title'});showNextReward();checkUnlocks()}
+function rerun(id,up){const h=hero(id);if(!h)return;markSeen(h.id+h.start);S.flags=S.flags||{};S.flags.finish=1;
+ h.past=[...(h.past||[]),{start:h.start,days:h.days,checks:h.checks}].slice(-10);h.checks=[];h.start=today();
+ if(up){h.run=(h.run||1)+1;S.flags.awaken=1}save();render();closeModal();
+ const pic=spr(h.cls,1,4,'f',HG(h),h.cos||'');
+ rewardQ.unshift(up?{title:h.run===2?'각성 전직!':'초월 전직!',text:`${h.name} ${h.run}회차 원정 출발!`,sub:'Lv.1부터 다시, 더 강해진 모습으로',src:pic,snd:'evo'}:{title:'재도전!',text:`${h.name}이(가) 다시 출발해요`,sub:'오늘부터 다시 1일차예요',src:pic,snd:'hero'});
+ showNextReward();checkUnlocks()}
+function openHall(focus){const gs=S.heroes.filter(h=>h.grad).sort((a,b)=>a.grad<b.grad?1:-1);
+ openModal(`<h2>명예의 전당</h2><p class="muted">원정을 마치고 졸업한 용사들이에요. 졸업한 용사는 마을 주민이 되어 광장을 산책해요.</p>
+ ${gs.length?`<div class="hall">${gs.map(h=>{const r=runStat(h),M=MEDAL[h.medal||0];return `<div class="statue${focus===h.id?' focus':''}"><div class="ped m${h.medal||0}"><canvas data-statue="${esc(h.id)}"></canvas></div><b>${esc(h.name)}</b><small>${cname(h.cls,h.gen)} · ${M[0]} 동상</small><span class="htask">${esc(h.task)}</span><small>${h.start} ~ ${addD(h.start,h.days-1)}<br>달성률 ${r.rate}% · Lv.${r.lv} · 최고 연속 ${r.best}일${(h.run||1)>1?` · ${h.run}회차`:''}</small></div>`}).join('')}</div>`
+  :'<p>아직 졸업한 용사가 없어요. 원정이 끝난 용사를 졸업시키면 여기에 동상이 세워져요.</p>'}
+ <div class="foot"><button type="button" class="btn ghost" data-act="close">닫기</button></div>`);
+ sheet.querySelectorAll('canvas[data-statue]').forEach(c=>{const h=hero(c.dataset.statue);if(h)paint(c,statue(h))});const f=sheet.querySelector('.statue.focus');if(f)f.scrollIntoView({block:'center'})}
 function exportBackup(){
  const blob=new Blob([JSON.stringify({app:'real-life-quest',v:2,saved:new Date().toISOString(),...S},null,1)],{type:'application/json'});
  const name=`현실퀘스트-백업-${today()}.json`,file=new File([blob],name,{type:'application/json'});
@@ -1325,11 +1380,11 @@ $('#imp').addEventListener('change',async e=>{const f=e.target.files[0];e.target
 document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)return;const id=b.dataset.id,ac0=b.dataset.act;
  if(!['check','bgm','sfx','wear','settitle','collection','coltitle','new'].includes(ac0))sfx(ac0==='close'||ac0==='evoclose'?'close':'tap');
  ({new:()=>{sfx('open');openForm()},demo,close:closeModal,check:()=>toggle(id),open:()=>openDetail(id),edit:()=>openForm(id),askdel:()=>openDetail(id,true),
-   del:()=>{S.heroes=S.heroes.filter(h=>h.id!==id);save();render();closeModal();toast('용사가 마을을 떠났어요')},evoclose:()=>{$('#evo').hidden=true;showNextReward()},collection:()=>{sfx('open');openCollection()},coltitle:()=>{sfx('open');openCollection('title')},coltab:()=>openCollection(b.dataset.t),settitle:()=>{S.title=b.dataset.t||'';save();sfx('title');render();openCollection('title')},wear:()=>{const h=hero(id);if(!h)return;h.cos=b.dataset.c||'';save();render();sfx('poke');openDetail(id)},bgm:toggleBgm,sfx:toggleSfx,push:pushBtn,pushyes:()=>{closeModal();enablePush()},pushno:()=>{closeModal();toast('나중에 화면 아래 "알림 켜기"에서 켤 수 있어요')},pushhour:()=>setPushHour(+b.dataset.h),pushoff:()=>{closeModal();pushOff()},cheer:()=>cheer(b),facc:()=>respondFriend(id,true),frej:()=>respondFriend(id,false),fcancel:()=>cancelRequest(id),patch:()=>showPatch(true),adm:()=>admLevel(id,b.dataset.n),copycode:copyCode,friends:openFriends,sharefc:shareFC,unfriend:()=>unfriend(id,b),pin:openPin,logout:openLogout,dologout:doLogout,export:exportBackup,import:()=>$('#imp').click(),doimport:()=>{if(!pendingImport)return;S=pendingImport;pendingImport=null;ents.forEach(e=>e.tag.remove());ents.clear();save();render();closeModal();toast('백업을 불러왔어요')}})[b.dataset.act]?.()});
+   del:()=>{S.heroes=S.heroes.filter(h=>h.id!==id);save();render();closeModal();toast('용사가 마을을 떠났어요')},evoclose:()=>{$('#evo').hidden=true;showNextReward()},collection:()=>{sfx('open');openCollection()},coltitle:()=>{sfx('open');openCollection('title')},coltab:()=>openCollection(b.dataset.t),settitle:()=>{S.title=b.dataset.t||'';save();sfx('title');render();openCollection('title')},wear:()=>{const h=hero(id);if(!h)return;h.cos=b.dataset.c||'';save();render();sfx('poke');openDetail(id)},bgm:toggleBgm,sfx:toggleSfx,hall:()=>{sfx('open');openHall()},settle:()=>settleView(id),grad:()=>graduate(id),rerun:()=>rerun(id,b.dataset.up==='1'),push:pushBtn,pushyes:()=>{closeModal();enablePush()},pushno:()=>{closeModal();toast('나중에 화면 아래 "알림 켜기"에서 켤 수 있어요')},pushhour:()=>setPushHour(+b.dataset.h),pushoff:()=>{closeModal();pushOff()},cheer:()=>cheer(b),facc:()=>respondFriend(id,true),frej:()=>respondFriend(id,false),fcancel:()=>cancelRequest(id),patch:()=>showPatch(true),adm:()=>admLevel(id,b.dataset.n),copycode:copyCode,friends:openFriends,sharefc:shareFC,unfriend:()=>unfriend(id,b),pin:openPin,logout:openLogout,dologout:doLogout,export:exportBackup,import:()=>$('#imp').click(),doimport:()=>{if(!pendingImport)return;S=pendingImport;pendingImport=null;ents.forEach(e=>e.tag.remove());ents.clear();save();render();closeModal();toast('백업을 불러왔어요')}})[b.dataset.act]?.()});
 
 /* ---------- 타이틀 ---------- */
 const splash=$('#splash');let parading=true;
-function closeSplash(){if(splash.classList.contains('out'))return;unlockAudio();splash.classList.add('out');parading=false;setTimeout(()=>splash.hidden=true,520);setTimeout(()=>showPatch(),900);setTimeout(maybePushAsk,2500)}
+function closeSplash(){if(splash.classList.contains('out'))return;unlockAudio();splash.classList.add('out');parading=false;setTimeout(()=>splash.hidden=true,520);setTimeout(()=>showPatch(),900);setTimeout(maybeSettle,1800);setTimeout(maybePushAsk,2500)}
 splash.addEventListener('click',closeSplash);splash.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')closeSplash()});
 (function parade(){const c=$('#parade'),k=Math.min(3,Math.max(2,Math.floor(innerWidth/(SW*10)))),x=c.getContext('2d');const PK=KEYS.filter((_,i)=>i%2===0);c.width=SW*PK.length;c.height=SH;c.style.width=SW*PK.length*k+'px';c.style.height=SH*k+'px';
  const loop=ts=>{if(!parading)return;x.clearRect(0,0,c.width,c.height);PK.forEach((key,i)=>{const fr=Math.floor(ts/120+i)%4;x.drawImage(spr(key,[6,10,12,14,16,20,12,20,16,18][i%10],fr,'s',i%2?'f':'m'),i*SW,fr%2?-1:0)});requestAnimationFrame(loop)};requestAnimationFrame(loop)})();
